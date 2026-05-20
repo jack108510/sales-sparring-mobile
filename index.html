@@ -532,6 +532,24 @@ function pageSetup(){
       </div>
       <p id="voice-status" style="color:#a8a29e;font-size:12px;margin-top:8px"></p>
     </div>
+    <div class="section" style="margin-top:16px;padding:24px;background:var(--card);border:1px solid var(--border);border-radius:14px;text-align:center">
+      <div style="font-size:1.6rem;margin-bottom:8px">🎙️</div>
+      <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:6px">Live Browser Voice Call</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:16px">Talk directly through your browser microphone — no phone needed.</p>
+      <div id="browser-call-ui">
+        <button class="btn btn-primary btn-lg" id="btn-browser-call" onclick="startBrowserCall()" style="width:100%;max-width:320px">Start Practice Call</button>
+      </div>
+      <div id="browser-call-active" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px">
+          <div id="mic-indicator" style="width:12px;height:12px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease infinite"></div>
+          <span id="call-status-text" style="font-weight:600;color:var(--green)">Connected</span>
+          <span id="call-timer-display" style="font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem">00:00</span>
+        </div>
+        <div id="live-transcript" style="text-align:left;max-height:120px;overflow-y:auto;font-size:.84rem;color:var(--muted);margin-bottom:12px;padding:8px;background:var(--dark);border-radius:8px"></div>
+        <button class="btn" style="background:var(--red);color:#fff;border:none" onclick="stopBrowserCall()">End Call</button>
+      </div>
+      <style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style>
+    </div>
     <div style="height:30px"></div>
   </div>
 </div>`;
@@ -924,6 +942,101 @@ const debriefObs=new MutationObserver(()=>{
   document.querySelectorAll('.bar-fill[data-target]').forEach(b=>{setTimeout(()=>{b.style.width=b.dataset.target+'%'},100)});
 });
 debriefObs.observe(document.getElementById('app'),{childList:true,subtree:true});
+
+// ===== BROWSER VOICE CALL (Retell AI) =====
+let retellClient = null;
+let browserCallTimer = null;
+let browserCallSeconds = 0;
+
+async function startBrowserCall() {
+  const statusBtn = document.getElementById('btn-browser-call');
+  if (statusBtn) {
+    statusBtn.textContent = 'Connecting...';
+    statusBtn.disabled = true;
+  }
+
+  try {
+    // Get access token from our backend proxy
+    const resp = await fetch('http://localhost:3002/api/create-call', { method: 'POST' });
+    if (!resp.ok) throw new Error('Failed to get call token');
+    const { access_token } = await resp.json();
+    if (!access_token) throw new Error('No access token returned');
+
+    // Initialize Retell client
+    retellClient = new RetellWebClient();
+
+    // Wire up events
+    retellClient.on('call_started', () => {
+      showBrowserCallUI(true);
+      browserCallSeconds = 0;
+      clearInterval(browserCallTimer);
+      browserCallTimer = setInterval(() => {
+        browserCallSeconds++;
+        const el = document.getElementById('call-timer-display');
+        if (el) el.textContent = String(Math.floor(browserCallSeconds/60)).padStart(2,'0')+':'+String(browserCallSeconds%60).padStart(2,'0');
+      }, 1000);
+    });
+
+    retellClient.on('call_ended', () => {
+      showBrowserCallUI(false);
+      clearInterval(browserCallTimer);
+      retellClient = null;
+    });
+
+    retellClient.on('agent_speaking', () => {
+      const ind = document.getElementById('mic-indicator');
+      if (ind) ind.style.background = 'var(--primary)';
+    });
+
+    retellClient.on('user_speaking', () => {
+      const ind = document.getElementById('mic-indicator');
+      if (ind) ind.style.background = 'var(--green)';
+    });
+
+    retellClient.on('segment', (seg) => {
+      const el = document.getElementById('live-transcript');
+      if (el && seg) {
+        const who = seg.role === 'agent' ? '🤖 AI' : '🗣️ You';
+        el.innerHTML += `<div><strong>${who}:</strong> ${escHtml(seg.text || '')}</div>`;
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+
+    retellClient.on('error', (err) => {
+      console.error('Retell error:', err);
+      showBrowserCallUI(false);
+      clearInterval(browserCallTimer);
+      if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
+      alert('Call error: ' + (err.message || 'Unknown error'));
+    });
+
+    // Start the call
+    await retellClient.startCall({ accessToken: access_token });
+
+  } catch (err) {
+    console.error('Browser call error:', err);
+    if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
+    alert('Could not start call. Make sure the PitchForge server is running on port 3002.');
+  }
+}
+
+function stopBrowserCall() {
+  if (retellClient) {
+    retellClient.stopCall();
+  }
+  showBrowserCallUI(false);
+  clearInterval(browserCallTimer);
+}
+
+function showBrowserCallUI(active) {
+  const setup = document.getElementById('browser-call-ui');
+  const activeUI = document.getElementById('browser-call-active');
+  if (setup) setup.style.display = active ? 'none' : 'block';
+  if (activeUI) activeUI.style.display = active ? 'block' : 'none';
+  const btn = document.getElementById('btn-browser-call');
+  if (btn && !active) { btn.textContent = 'Start Practice Call'; btn.disabled = false; }
+}
 </script>
+<script src="https://unpkg.com/retell-client-js-sdk@latest/dist/index.js"></script>
 </body>
 </html>
