@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Training Simulator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--accent:#10b981;--accent-hover:#059669;--text:#f8fafc;--muted:#94a3b8;--red:#ef4444;--yellow:#f59e0b;--green:#10b981;--user-bubble:#065f46;--ai-bubble:#334155}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+.screen{display:none;min-height:100vh;padding:24px;max-width:720px;margin:0 auto;flex-direction:column;align-items:center}
+.screen.active{display:flex}
+h1{font-size:2rem;font-weight:800;margin-bottom:8px;text-align:center}
+h1 span{color:var(--accent)}
+.subtitle{color:var(--muted);text-align:center;margin-bottom:32px;font-size:1.05rem}
+.field{margin-bottom:20px;width:100%}
+.field label{display:block;font-weight:600;margin-bottom:6px;font-size:.9rem;color:var(--muted)}
+.field select{width:100%;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:1rem;font-family:inherit;appearance:none;cursor:pointer}
+.field select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.row{display:flex;gap:8px;align-items:center}
+.row select{flex:1}
+.btn-sm{padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-weight:600;cursor:pointer;font-size:.85rem;white-space:nowrap;transition:.15s}
+.btn-sm:hover{background:var(--border)}
+.difficulty-group{display:flex;gap:8px;width:100%}
+.diff-btn{flex:1;padding:12px;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;text-align:center;font-family:inherit;font-size:.95rem;transition:.15s}
+.diff-btn.active{border-color:var(--accent);color:var(--accent);background:#10b9811a}
+.diff-btn:hover{border-color:var(--accent)}
+.btn-primary{width:100%;padding:16px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;transition:.15s}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+/* Call screen */
+.call-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-radius:12px;margin-bottom:16px;border:1px solid var(--border)}
+.call-info{display:flex;flex-direction:column;gap:2px}
+.call-info .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.call-info .value{font-weight:600;font-size:.95rem}
+.timer{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+.chat-area{flex:1;width:100%;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:8px 0;min-height:300px;max-height:calc(100vh - 260px)}
+.msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:.95rem;line-height:1.55;word-wrap:break-word}
+.msg.ai{align-self:flex-start;background:var(--ai-bubble);border-bottom-left-radius:4px}
+.msg.user{align-self:flex-end;background:var(--user-bubble);border-bottom-right-radius:4px}
+.msg .sender{font-size:.75rem;font-weight:600;color:var(--accent);margin-bottom:4px}
+.msg.ai .sender{color:var(--muted)}
+.typing{align-self:flex-start;color:var(--muted);font-style:italic;padding:8px 0;font-size:.9rem}
+.input-area{width:100%;display:flex;gap:8px;margin-top:12px}
+.input-area textarea{flex:1;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.95rem;font-family:inherit;resize:none;height:52px;max-height:120px}
+.input-area textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.input-area textarea::placeholder{color:var(--muted)}
+.send-btn{width:52px;height:52px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.send-btn:hover{background:var(--accent-hover)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed}
+.end-btn{width:100%;padding:12px;background:transparent;border:2px solid var(--red);color:var(--red);border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.95rem;margin-top:8px;transition:.15s}
+.end-btn:hover{background:#ef44441a}
+/* Report */
+.report{width:100%;animation:fadeUp .4s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.score-ring{text-align:center;margin:24px 0}
+.score-ring .big-score{font-size:4.5rem;font-weight:800;line-height:1}
+.score-ring .out-of{font-size:1.5rem;color:var(--muted);font-weight:400}
+.score-ring .score-label{font-size:1rem;color:var(--muted);margin-top:4px}
+.category{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.category .cat-name{width:180px;font-size:.9rem;font-weight:500;color:var(--muted);flex-shrink:0}
+.category .bar-track{flex:1;height:10px;background:var(--border);border-radius:6px;overflow:hidden}
+.category .bar-fill{height:100%;border-radius:6px;transition:width .6s ease}
+.category .cat-score{width:32px;text-align:right;font-weight:700;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px;width:100%}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card ul{list-style:none;padding:0}
+.card li{padding:6px 0;font-size:.93rem;color:var(--muted);padding-left:16px;position:relative}
+.card li::before{content:'';position:absolute;left:0;top:14px;width:6px;height:6px;border-radius:50%}
+.card.strengths li::before{background:var(--green)}
+.card.improvements li::before{background:var(--yellow)}
+.card.tip li::before{background:var(--accent)}
+.tip-text{font-size:.95rem;color:var(--text);padding-left:16px}
+.actions{display:flex;gap:10px;width:100%;margin-top:16px}
+.actions button{flex:1;padding:14px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.95rem;transition:.15s}
+.btn-again{background:var(--accent);color:#fff;border:none}
+.btn-again:hover{background:var(--accent-hover)}
+.btn-new{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-new:hover{border-color:var(--accent);color:var(--accent)}
+.loading-overlay{position:fixed;inset:0;background:rgba(15,23,42,.85);display:flex;align-items:center;justify-content:center;z-index:10;flex-direction:column;gap:16px}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{color:var(--muted);font-size:.95rem}
+@media(max-width:600px){
+  h1{font-size:1.5rem}
+  .msg{max-width:92%}
+  .category .cat-name{width:120px;font-size:.8rem}
+  .score-ring .big-score{font-size:3.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: Setup -->
+<div id="setup" class="screen active">
+  <div style="height:60px"></div>
+  <h1>Sales Training <span>Simulator</span></h1>
+  <p class="subtitle">Practice your pitch against AI-powered buyer personas</p>
+
+  <div class="field">
+    <label>Product / Service</label>
+    <div class="row">
+      <select id="product">
+        <option value="Website Design Services">Website Design Services</option>
+        <option value="CRM Software">CRM Software</option>
+        <option value="Cybersecurity Package">Cybersecurity Package</option>
+        <option value="Office Cleaning Service">Office Cleaning Service</option>
+        <option value="Commercial Insurance">Commercial Insurance</option>
+        <option value="Accounting Services">Accounting Services</option>
+        <option value="Marketing Agency">Marketing Agency</option>
+        <option value="POS System">POS System</option>
+        <option value="Cloud Hosting">Cloud Hosting</option>
+        <option value="HR Software">HR Software</option>
+        <option value="random">Random</option>
+      </select>
+      <button class="btn-sm" onclick="randomize('product')">Shuffle</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Buyer Persona</label>
+    <div class="row">
+      <select id="persona">
+        <option value="ceo">The Busy CEO</option>
+        <option value="skeptic">The Skeptic</option>
+        <option value="price">The Price Shopper</option>
+        <option value="friendly">The Friendly Chat</option>
+        <option value="gatekeeper">The Gatekeeper</option>
+        <option value="tech">The Tech Expert</option>
+        <option value="loyal">The Loyal Customer</option>
+        <option value="random">Random</option>
+      </select>
+      <button class="btn-sm" onclick="randomize('persona')">Shuffle</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Difficulty</label>
+    <div class="difficulty-group">
+      <button class="diff-btn" data-diff="easy" onclick="setDifficulty('easy')">Easy</button>
+      <button class="diff-btn active" data-diff="medium" onclick="setDifficulty('medium')">Medium</button>
+      <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">Hard</button>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="startCall()">Start Sales Call</button>
+</div>
+
+<!-- SCREEN 2: Call -->
+<div id="call" class="screen">
+  <div class="call-header">
+    <div class="call-info">
+      <div><span class="label">Product </span><span class="value" id="call-product"></span></div>
+      <div><span class="label">Buyer </span><span class="value" id="call-persona"></span></div>
+    </div>
+    <div class="timer" id="timer">00:00</div>
+  </div>
+  <div class="chat-area" id="chat"></div>
+  <div class="input-area">
+    <textarea id="msg-input" placeholder="Type your response..." rows="1"></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">&#9654;</button>
+  </div>
+  <button class="end-btn" onclick="endCall()">End Call</button>
+</div>
+
+<!-- SCREEN 3: Report -->
+<div id="report" class="screen">
+  <div class="report" id="report-content"></div>
+</div>
+
+<div id="loading" class="loading-overlay" style="display:none">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Generating report...</div>
+</div>
+
+<script>
+const PRODUCTS = ['Website Design Services','CRM Software','Cybersecurity Package','Office Cleaning Service','Commercial Insurance','Accounting Services','Marketing Agency','POS System','Cloud Hosting','HR Software'];
+const PERSONAS = {
+  ceo:{name:'Sarah Chen, CEO',label:'The Busy CEO',desc:'You are Sarah Chen, CEO of a 50-person manufacturing company. You have back-to-back meetings all day. You\'re interested in solutions but have zero patience for small talk or fluff. Get to the point or you\'re ending the call.'},
+  skeptic:{name:'Mike Torres',label:'The Skeptic',desc:'You are Mike Torres, owner of a dental practice. You\'ve been burned by three different vendors in the past two years who overpromised and underdelivered. You trust nobody until they prove themselves. You ask for evidence, case studies, and guarantees.'},
+  price:{name:'Jennifer Park',label:'The Price Shopper',desc:'You are Jennifer Park, operations manager at a logistics company. You have a strict budget and 5 quotes on your desk. You only care about the bottom line. You will negotiate hard and mention competitors\' lower prices.'},
+  friendly:{name:'Bob Williams',label:'The Friendly Chat',desc:'You are Bob Williams, owner of a family restaurant. You love talking to people and will chat for hours about anything. You seem interested in everything but never actually commit to buying. You always say "let me think about it" or "talk to my partner."'},
+  gatekeeper:{name:'Lisa',label:'The Gatekeeper',desc:'You are Lisa, office manager at a law firm. You\'re not the decision maker -- that\'s the senior partner. You\'re screening calls to decide if this is worth the partner\'s time. You need to be convinced this is important enough to pass along.'},
+  tech:{name:'Dr. Raj Patel',label:'The Tech Expert',desc:'You are Dr. Raj Patel, CTO of a biotech startup. You have a PhD in computer science and have built similar systems yourself. You ask detailed technical questions and will catch any BS. If the salesperson can\'t keep up technically, you lose interest immediately.'},
+  loyal:{name:'Carol',label:'The Loyal Customer',desc:'You are Carol, practice manager at a veterinary clinic. You\'ve used the same provider for 8 years and they\'ve been great. You\'re not looking to switch. The salesperson needs to show you a compelling reason to even consider changing.'}
+};
+const PERSONA_KEYS = Object.keys(PERSONAS);
+const DIFF_MOD = {easy:'You are somewhat open to the pitch and give the salesperson a fair chance.',medium:'You are skeptical but willing to listen if they make good points.',hard:'You are very resistant, push back on everything, and are ready to hang up at any moment.'};
+
+let state = {product:'',personaKey:'',persona:null,difficulty:'medium',messages:[],timerInterval:null,seconds:0};
+
+function randomize(field){
+  const sel=document.getElementById(field);
+  if(field==='product'){const opts=sel.options;sel.value=PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];if(sel.value==='random')sel.value=PRODUCTS[0];}
+  else{const keys=[...PERSONA_KEYS];sel.value=keys[Math.floor(Math.random()*keys.length)];if(sel.value==='random')sel.value=PERSONA_KEYS[0];}
+}
+function setDifficulty(d){
+  state.difficulty=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.dataset.diff===d));
+}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+async function startCall(){
+  let pVal=document.getElementById('product').value;
+  let personaVal=document.getElementById('persona').value;
+  if(pVal==='random')pVal=PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];
+  if(personaVal==='random')personaVal=PERSONA_KEYS[Math.floor(Math.random()*PERSONA_KEYS.length)];
+  state.product=pVal;
+  state.personaKey=personaVal;
+  state.persona=PERSONAS[personaVal];
+  state.messages=[];
+  document.getElementById('chat').innerHTML='';
+  document.getElementById('call-product').textContent=pVal;
+  document.getElementById('call-persona').textContent=state.persona.label;
+  document.getElementById('msg-input').value='';
+  showScreen('call');
+  state.seconds=0;updateTimer();
+  state.timerInterval=setInterval(()=>{state.seconds++;updateTimer();},1000);
+
+  // Get opening message from AI
+  const sysPrompt=buildSystemPrompt();
+  const openingPrompt=`The salesperson has just called you. Introduce yourself briefly (1-2 sentences) as ${state.persona.name} and set the scene. Wait for them to start their pitch. Keep it short.`;
+  const reply=await callAI(sysPrompt,[{role:'user',content:openingPrompt}]);
+  addMessage('ai',reply);
+  state.messages.push({role:'assistant',content:reply});
+}
+
+function buildSystemPrompt(){
+  return `You are ${state.persona.name}. You are receiving a sales call from someone selling ${state.product}. ${state.persona.desc}. Difficulty: ${state.difficulty}. ${DIFF_MOD[state.difficulty]} Stay in character. Be realistic. Respond naturally as this person would. Keep responses concise (2-4 sentences). Do not break character. Do not be helpful to the salesperson -- you are the buyer, act like one.`;
+}
+
+function updateTimer(){
+  const m=String(Math.floor(state.seconds/60)).padStart(2,'0');
+  const s=String(state.seconds%60).padStart(2,'0');
+  document.getElementById('timer').textContent=m+':'+s;
+}
+
+function addMessage(role,text){
+  const chat=document.getElementById('chat');
+  const div=document.createElement('div');
+  div.className='msg '+role;
+  const sender=document.createElement('div');
+  sender.className='sender';
+  sender.textContent=role==='ai'?state.persona.label:'You';
+  div.appendChild(sender);
+  const body=document.createElement('div');
+  body.textContent=text;
+  div.appendChild(body);
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+function removeTyping(){
+  const t=document.querySelector('.typing');if(t)t.remove();
+}
+
+async function sendMessage(){
+  const input=document.getElementById('msg-input');
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  addMessage('user',text);
+  state.messages.push({role:'user',content:text});
+  document.getElementById('send-btn').disabled=true;
+  document.getElementById('chat').innerHTML+='<div class="typing">Typing...</div>';
+  document.getElementById('chat').scrollTop=document.getElementById('chat').scrollHeight;
+  const sysPrompt=buildSystemPrompt();
+  const reply=await callAI(sysPrompt,state.messages);
+  removeTyping();
+  addMessage('ai',reply);
+  state.messages.push({role:'assistant',content:reply});
+  document.getElementById('send-btn').disabled=false;
+  input.focus();
+}
+
+async function callAI(sysPrompt,messages){
+  try{
+    const resp=await fetch('https://text.pollinations.ai/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:[{role:'system',content:sysPrompt},...messages],model:'openai',seed:Math.floor(Math.random()*10000)})
+    });
+    const data=await resp.json();
+    return data.choices?.[0]?.message?.content || data.text || 'I\'m not interested right now. Goodbye.';
+  }catch(e){
+    console.error(e);
+    return 'Sorry, I didn\'t catch that. Could you repeat?';
+  }
+}
+
+document.getElementById('msg-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
+
+async function endCall(){
+  clearInterval(state.timerInterval);
+  document.getElementById('loading').style.display='flex';
+  document.getElementById('loading-text').textContent='Analyzing your performance...';
+  try{
+    const score=await getScore();
+    renderReport(score);
+  }catch(e){
+    console.error(e);
+    const fallback={overall:50,scores:{rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},strengths:['Completed the call from start to finish'],improvements:['Work on asking more discovery questions','Practice handling objections more confidently'],tip:'Focus on building rapport early in the conversation before jumping into your pitch.'};
+    renderReport(fallback);
+  }
+  document.getElementById('loading').style.display='none';
+  showScreen('report');
+}
+
+async function getScore(){
+  const transcript=state.messages.map(m=>(m.role==='user'?'Salesperson: '+m.content:'Buyer: '+m.content)).join('\n');
+  const scoringPrompt=`You are a sales coach. Review this sales conversation and score it.
+Product: ${state.product}
+Buyer persona: ${state.persona.label} (${state.persona.name})
+
+Transcript:
+${transcript}
+
+Score each category 1-10:
+- rapport: Rapport Building
+- discovery: Discovery / Needs Assessment
+- objection: Objection Handling
+- product: Product Knowledge
+- closing: Closing Technique
+- communication: Communication / Pacing
+
+Also provide: 2-3 specific things done well, 2-3 specific things to improve, 1 actionable pro tip.
+
+Return ONLY valid JSON in this exact format, no markdown:
+{"overall":75,"scores":{"rapport":7,"discovery":6,"objection":5,"product":8,"closing":6,"communication":7},"strengths":["thing1","thing2"],"improvements":["thing1","thing2"],"tip":"one tip here"}`;
+
+  const resp=await fetch('https://text.pollinations.ai/',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({messages:[{role:'system',content:scoringPrompt},{role:'user',content:'Provide the JSON scoring now.'}],model:'openai',seed:Math.floor(Math.random()*10000)})
+  });
+  const data=await resp.json();
+  const raw=data.choices?.[0]?.message?.content||'';
+  // Extract JSON from response
+  const jsonMatch=raw.match(/\{[\s\S]*\}/);
+  if(jsonMatch){
+    return JSON.parse(jsonMatch[0]);
+  }
+  throw new Error('No JSON found');
+}
+
+function renderReport(score){
+  const s=score.scores||{};
+  const categories=[
+    {key:'rapport',label:'Rapport Building'},
+    {key:'discovery',label:'Discovery / Needs Assessment'},
+    {key:'objection',label:'Objection Handling'},
+    {key:'product',label:'Product Knowledge'},
+    {key:'closing',label:'Closing Technique'},
+    {key:'communication',label:'Communication / Pacing'}
+  ];
+  const overall=score.overall||50;
+  const color=overall>=70?'var(--green)':overall>=50?'var(--yellow)':'var(--red)';
+
+  let bars='';
+  categories.forEach(c=>{
+    const v=s[c.key]||5;
+    const pct=v*10;
+    const bc=v>=7?'var(--green)':v>=5?'var(--yellow)':'var(--red)';
+    bars+=`<div class="category"><span class="cat-name">${c.label}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${bc}"></div></div><span class="cat-score">${v}</span></div>`;
+  });
+
+  const strengths=(score.strengths||[]).map(s=>`<li>${s}</li>`).join('');
+  const improvements=(score.improvements||[]).map(s=>`<li>${s}</li>`).join('');
+
+  document.getElementById('report-content').innerHTML=`
+    <h1 style="margin-top:32px">Call <span>Report</span></h1>
+    <p class="subtitle">${state.product} -- ${state.persona.label} (${state.difficulty}) -- ${formatTime(state.seconds)}</p>
+    <div class="score-ring">
+      <div class="big-score" style="color:${color}">${overall}</div>
+      <div class="out-of">/ 100</div>
+      <div class="score-label">${overall>=80?'Outstanding':overall>=70?'Great job':overall>=60?'Good effort':overall>=50?'Needs work':'Keep practicing'}</div>
+    </div>
+    <div class="card">
+      <h3>Score Breakdown</h3>
+      ${bars}
+    </div>
+    <div class="card strengths">
+      <h3>What You Did Well</h3>
+      <ul>${strengths}</ul>
+    </div>
+    <div class="card improvements">
+      <h3>What to Improve</h3>
+      <ul>${improvements}</ul>
+    </div>
+    <div class="card tip">
+      <h3>Pro Tip</h3>
+      <div class="tip-text">${score.tip||''}</div>
+    </div>
+    <div class="actions">
+      <button class="btn-again" onclick="startCall()">Try Again</button>
+      <button class="btn-new" onclick="showScreen('setup')">New Scenario</button>
+    </div>
+    <div style="height:32px"></div>
+  `;
+}
+
+function formatTime(sec){
+  const m=Math.floor(sec/60);const s=sec%60;
+  return m+'m '+s+'s';
+}
+</script>
+</body>
+</html>
