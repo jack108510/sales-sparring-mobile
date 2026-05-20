@@ -3,409 +3,941 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sales Training Simulator</title>
+<title>Sales Pitch Trainer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#0f172a;--card:#1e293b;--border:#334155;--accent:#10b981;--accent-hover:#059669;--text:#f8fafc;--muted:#94a3b8;--red:#ef4444;--yellow:#f59e0b;--green:#10b981;--user-bubble:#065f46;--ai-bubble:#334155}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
-.screen{display:none;min-height:100vh;padding:24px;max-width:720px;margin:0 auto;flex-direction:column;align-items:center}
+:root{
+  --bg:#0f172a;--card:#1e293b;--card-hover:#253349;--border:#334155;
+  --accent:#10b981;--accent-hover:#059669;--accent-dim:rgba(16,185,129,.12);
+  --text:#f8fafc;--muted:#94a3b8;--dimmed:#64748b;
+  --red:#ef4444;--red-dim:rgba(239,68,68,.12);
+  --green:#10b981;--green-dim:rgba(16,185,129,.12);
+  --yellow:#f59e0b;--yellow-dim:rgba(245,158,11,.12);
+  --amber:#f59e0b;
+  --user-bubble:#065f46;--ai-bubble:#334155;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5;overflow-x:hidden}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* ===== SCREENS ===== */
+.screen{display:none;min-height:100vh}
 .screen.active{display:flex}
-h1{font-size:2rem;font-weight:800;margin-bottom:8px;text-align:center}
-h1 span{color:var(--accent)}
-.subtitle{color:var(--muted);text-align:center;margin-bottom:32px;font-size:1.05rem}
-.field{margin-bottom:20px;width:100%}
-.field label{display:block;font-weight:600;margin-bottom:6px;font-size:.9rem;color:var(--muted)}
-.field select{width:100%;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:1rem;font-family:inherit;appearance:none;cursor:pointer}
-.field select:focus{outline:2px solid var(--accent);outline-offset:-1px}
-.row{display:flex;gap:8px;align-items:center}
-.row select{flex:1}
-.btn-sm{padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--accent);font-weight:600;cursor:pointer;font-size:.85rem;white-space:nowrap;transition:.15s}
-.btn-sm:hover{background:var(--border)}
-.difficulty-group{display:flex;gap:8px;width:100%}
-.diff-btn{flex:1;padding:12px;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;text-align:center;font-family:inherit;font-size:.95rem;transition:.15s}
-.diff-btn.active{border-color:var(--accent);color:var(--accent);background:#10b9811a}
+
+/* ===== SETUP SCREEN ===== */
+#setup{flex-direction:column;align-items:center;padding:40px 20px}
+#setup .inner{max-width:640px;width:100%}
+.logo{font-size:2.4rem;font-weight:800;text-align:center;margin-bottom:4px}
+.logo span{color:var(--accent)}
+.tagline{color:var(--muted);text-align:center;margin-bottom:36px;font-size:1.05rem}
+.section{margin-bottom:28px}
+.section-title{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dimmed);margin-bottom:12px}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:600;margin-bottom:6px;font-size:.88rem;color:var(--muted)}
+.field textarea,.field select{width:100%;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.95rem;font-family:inherit}
+.field textarea{min-height:100px;resize:vertical;line-height:1.5}
+.field textarea::placeholder{color:var(--dimmed)}
+.field select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.field select:focus,.field textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.preset-chip{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.82rem;font-weight:500;cursor:pointer;transition:.15s}
+.preset-chip:hover,.preset-chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.diff-group{display:flex;gap:8px}
+.diff-btn{flex:1;padding:12px;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;text-align:center;font-family:inherit;font-size:.9rem;transition:.15s}
+.diff-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
 .diff-btn:hover{border-color:var(--accent)}
-.btn-primary{width:100%;padding:16px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:1.1rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:12px;transition:.15s}
-.btn-primary:hover{background:var(--accent-hover)}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed}
-/* Call screen */
-.call-header{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--card);border-radius:12px;margin-bottom:16px;border:1px solid var(--border)}
-.call-info{display:flex;flex-direction:column;gap:2px}
-.call-info .label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
-.call-info .value{font-weight:600;font-size:.95rem}
-.timer{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
-.chat-area{flex:1;width:100%;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:8px 0;min-height:300px;max-height:calc(100vh - 260px)}
-.msg{max-width:85%;padding:12px 16px;border-radius:14px;font-size:.95rem;line-height:1.55;word-wrap:break-word}
+.level-group{display:flex;gap:8px}
+.level-btn{flex:1;padding:12px;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;text-align:center;font-family:inherit;font-size:.9rem;transition:.15s}
+.level-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+.level-btn:hover{border-color:var(--accent)}
+.btn-start{width:100%;padding:18px;background:var(--accent);color:#fff;border:none;border-radius:14px;font-size:1.15rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;transition:.15s}
+.btn-start:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.btn-start:active{transform:translateY(0)}
+.custom-field{display:none;margin-top:10px}
+.custom-field.show{display:block}
+
+/* ===== CALL SCREEN (SPLIT) ===== */
+#call{flex-direction:row;height:100vh}
+.call-left{flex:0 0 60%;display:flex;flex-direction:column;border-right:1px solid var(--border);height:100vh}
+.call-right{flex:0 0 40%;display:flex;flex-direction:column;height:100vh;overflow-y:auto;background:var(--bg)}
+
+/* Left: header */
+.call-header{padding:14px 20px;background:var(--card);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.call-header-left{display:flex;flex-direction:column;gap:2px}
+.call-header-left .label{font-size:.7rem;color:var(--dimmed);text-transform:uppercase;letter-spacing:.5px}
+.call-header-left .value{font-weight:600;font-size:.9rem}
+.timer{font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+
+/* Left: chat */
+.chat-area{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:.92rem;line-height:1.5;word-wrap:break-word;animation:msgIn .25s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .msg.ai{align-self:flex-start;background:var(--ai-bubble);border-bottom-left-radius:4px}
 .msg.user{align-self:flex-end;background:var(--user-bubble);border-bottom-right-radius:4px}
-.msg .sender{font-size:.75rem;font-weight:600;color:var(--accent);margin-bottom:4px}
-.msg.ai .sender{color:var(--muted)}
-.typing{align-self:flex-start;color:var(--muted);font-style:italic;padding:8px 0;font-size:.9rem}
-.input-area{width:100%;display:flex;gap:8px;margin-top:12px}
-.input-area textarea{flex:1;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:.95rem;font-family:inherit;resize:none;height:52px;max-height:120px}
+.msg .sender{font-size:.72rem;font-weight:600;margin-bottom:3px;opacity:.7}
+.msg.user .sender{color:var(--accent)}
+.typing{align-self:flex-start;color:var(--muted);font-style:italic;font-size:.88rem;padding:8px 0;display:flex;align-items:center;gap:8px}
+.typing-dots{display:flex;gap:3px}
+.typing-dots span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce .6s ease infinite}
+.typing-dots span:nth-child(2){animation-delay:.15s}
+.typing-dots span:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* Left: input */
+.input-area{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--card);flex-shrink:0}
+.input-area textarea{flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit;resize:none;height:48px;max-height:100px}
 .input-area textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
-.input-area textarea::placeholder{color:var(--muted)}
-.send-btn{width:52px;height:52px;background:var(--accent);border:none;border-radius:12px;color:#fff;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+.input-area textarea::placeholder{color:var(--dimmed)}
+.send-btn{width:48px;height:48px;background:var(--accent);border:none;border-radius:10px;color:#fff;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
 .send-btn:hover{background:var(--accent-hover)}
 .send-btn:disabled{opacity:.4;cursor:not-allowed}
-.end-btn{width:100%;padding:12px;background:transparent;border:2px solid var(--red);color:var(--red);border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.95rem;margin-top:8px;transition:.15s}
-.end-btn:hover{background:#ef44441a}
-/* Report */
-.report{width:100%;animation:fadeUp .4s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.score-ring{text-align:center;margin:24px 0}
-.score-ring .big-score{font-size:4.5rem;font-weight:800;line-height:1}
-.score-ring .out-of{font-size:1.5rem;color:var(--muted);font-weight:400}
-.score-ring .score-label{font-size:1rem;color:var(--muted);margin-top:4px}
-.category{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.category .cat-name{width:180px;font-size:.9rem;font-weight:500;color:var(--muted);flex-shrink:0}
-.category .bar-track{flex:1;height:10px;background:var(--border);border-radius:6px;overflow:hidden}
-.category .bar-fill{height:100%;border-radius:6px;transition:width .6s ease}
-.category .cat-score{width:32px;text-align:right;font-weight:700;font-size:.95rem}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px;width:100%}
-.card h3{font-size:1rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.card ul{list-style:none;padding:0}
-.card li{padding:6px 0;font-size:.93rem;color:var(--muted);padding-left:16px;position:relative}
-.card li::before{content:'';position:absolute;left:0;top:14px;width:6px;height:6px;border-radius:50%}
-.card.strengths li::before{background:var(--green)}
-.card.improvements li::before{background:var(--yellow)}
-.card.tip li::before{background:var(--accent)}
-.tip-text{font-size:.95rem;color:var(--text);padding-left:16px}
-.actions{display:flex;gap:10px;width:100%;margin-top:16px}
-.actions button{flex:1;padding:14px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.95rem;transition:.15s}
-.btn-again{background:var(--accent);color:#fff;border:none}
-.btn-again:hover{background:var(--accent-hover)}
-.btn-new{background:transparent;border:2px solid var(--border);color:var(--text)}
-.btn-new:hover{border-color:var(--accent);color:var(--accent)}
-.loading-overlay{position:fixed;inset:0;background:rgba(15,23,42,.85);display:flex;align-items:center;justify-content:center;z-index:10;flex-direction:column;gap:16px}
-.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.end-call-bar{padding:10px 20px;flex-shrink:0}
+.end-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.85rem;transition:.15s}
+.end-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
+
+/* Right: coach panel */
+.coach-panel{padding:20px;display:flex;flex-direction:column;gap:16px}
+.coach-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dimmed);margin-bottom:4px}
+
+/* Difficulty meter */
+.diff-meter-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.diff-meter-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.diff-meter-label span:first-child{font-size:.8rem;font-weight:600;color:var(--muted)}
+.diff-meter-label .diff-num{font-size:1.8rem;font-weight:800;color:var(--accent)}
+.diff-meter-label .diff-max{font-size:.9rem;color:var(--dimmed)}
+.diff-bar{height:12px;background:var(--border);border-radius:6px;overflow:hidden;position:relative}
+.diff-bar-fill{height:100%;border-radius:6px;transition:width .6s cubic-bezier(.4,0,.2,1),background .6s ease;position:relative}
+.diff-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15));border-radius:6px}
+.diff-desc{font-size:.78rem;color:var(--dimmed);margin-top:8px}
+
+/* Next move */
+.next-move{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.next-move .nm-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:6px}
+.next-move .nm-text{font-size:.95rem;font-weight:600;color:var(--text)}
+
+/* Warnings & praise */
+.alert{padding:12px 16px;border-radius:10px;font-size:.88rem;font-weight:500;animation:alertIn .3s ease}
+@keyframes alertIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
+.alert.warning{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.25)}
+.alert.praise{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.25)}
+.alert.tip{background:var(--yellow-dim);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+
+/* Mini scoreboard */
+.mini-scores{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.mini-scores .ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ms-item{display:flex;flex-direction:column;gap:4px}
+.ms-item .ms-label{font-size:.72rem;color:var(--dimmed);font-weight:500}
+.ms-item .ms-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.ms-item .ms-bar-fill{height:100%;border-radius:3px;transition:width .5s ease;background:var(--accent)}
+.ms-item .ms-bar-fill.low{background:var(--red)}
+.ms-item .ms-bar-fill.mid{background:var(--amber)}
+.ms-item .ms-bar-fill.high{background:var(--green)}
+
+/* Coach loading */
+.coach-loading{display:flex;align-items:center;gap:8px;color:var(--dimmed);font-size:.82rem;padding:4px 0}
+.coach-loading .spinner-sm{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{color:var(--muted);font-size:.95rem}
-@media(max-width:600px){
-  h1{font-size:1.5rem}
-  .msg{max-width:92%}
-  .category .cat-name{width:120px;font-size:.8rem}
-  .score-ring .big-score{font-size:3.5rem}
+
+/* ===== DEBRIEF SCREEN ===== */
+#debrief{flex-direction:column;align-items:center;padding:40px 20px;overflow-y:auto}
+#debrief .inner{max-width:700px;width:100%}
+.debrief-header{text-align:center;margin-bottom:32px}
+.debrief-header h1{font-size:2rem;font-weight:800;margin-bottom:4px}
+.debrief-header h1 span{color:var(--accent)}
+.debrief-header .sub{color:var(--muted);font-size:.95rem}
+
+.score-hero{text-align:center;margin:16px 0 28px}
+.score-hero .big-num{font-size:5rem;font-weight:800;line-height:1}
+.score-hero .out-of{font-size:1.5rem;color:var(--muted);font-weight:400}
+.score-hero .grade{font-size:1.2rem;font-weight:700;margin-top:4px}
+.score-hero .diff-range{color:var(--muted);font-size:.9rem;margin-top:6px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;width:100%;animation:fadeUp .4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:12px;color:var(--text)}
+.category{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.category:last-child{margin-bottom:0}
+.category .cat-name{width:170px;font-size:.82rem;font-weight:500;color:var(--muted);flex-shrink:0}
+.category .bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.category .bar-fill{height:100%;border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.category .cat-score{width:28px;text-align:right;font-weight:700;font-size:.9rem}
+
+.replay-msg{padding:10px 14px;border-radius:8px;margin-bottom:4px;font-size:.88rem;line-height:1.5}
+.replay-msg.user-msg{background:rgba(6,95,70,.2)}
+.replay-msg.ai-msg{background:rgba(51,65,85,.4)}
+.replay-msg .replay-sender{font-size:.7rem;font-weight:600;color:var(--dimmed);margin-bottom:2px}
+.replay-annotation{font-size:.8rem;padding:8px 12px;border-radius:6px;margin:4px 0 8px 10px;font-weight:500}
+.replay-annotation.good{background:var(--green-dim);color:var(--green);border-left:3px solid var(--green)}
+.replay-annotation.missed{background:var(--yellow-dim);color:var(--amber);border-left:3px solid var(--amber)}
+.replay-annotation.mistake{background:var(--red-dim);color:var(--red);border-left:3px solid var(--red)}
+
+.fb-list{list-style:none;padding:0}
+.fb-list li{padding:6px 0;font-size:.9rem;color:var(--muted);padding-left:18px;position:relative}
+.fb-list li::before{content:'';position:absolute;left:0;top:14px;width:6px;height:6px;border-radius:50%}
+.fb-list.green li::before{background:var(--green)}
+.fb-list.red li::before{background:var(--red)}
+.fb-quote{padding:12px 16px;border-left:3px solid var(--accent);background:var(--accent-dim);border-radius:0 8px 8px 0;margin:8px 0;font-size:.9rem;font-style:italic}
+.fb-quote.bad{border-left-color:var(--red);background:var(--red-dim)}
+.tip-box{padding:14px 18px;background:var(--yellow-dim);border:1px solid rgba(245,158,11,.25);border-radius:10px;font-size:.92rem;color:var(--amber);font-weight:500}
+
+.actions{display:flex;gap:10px;width:100%;margin-top:20px}
+.actions button{flex:1;padding:14px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.92rem;transition:.15s}
+.btn-primary-action{background:var(--accent);color:#fff;border:none}
+.btn-primary-action:hover{background:var(--accent-hover)}
+.btn-secondary-action{background:transparent;border:2px solid var(--border);color:var(--text)}
+.btn-secondary-action:hover{border-color:var(--accent);color:var(--accent)}
+.btn-tertiary-action{background:transparent;border:2px solid var(--border);color:var(--muted)}
+.btn-tertiary-action:hover{border-color:var(--muted);color:var(--text)}
+
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(15,23,42,.9);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:16px}
+.loading-overlay.show{display:flex}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+.loading-text{color:var(--muted);font-size:.92rem}
+
+/* Error toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:200;animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ===== MOBILE ===== */
+@media(max-width:768px){
+  #call{flex-direction:column}
+  .call-left{flex:none;height:55vh;border-right:none;border-bottom:1px solid var(--border)}
+  .call-right{flex:1;height:45vh;overflow-y:auto}
+  .msg{max-width:90%}
+  .category .cat-name{width:120px;font-size:.75rem}
+  .score-hero .big-num{font-size:3.5rem}
+  .debrief-header h1{font-size:1.5rem}
+  .actions{flex-direction:column}
+}
+@media(max-width:480px){
+  .ms-grid{grid-template-columns:1fr!important}
+  .logo{font-size:1.8rem}
 }
 </style>
 </head>
 <body>
 
-<!-- SCREEN 1: Setup -->
+<!-- ===== SCREEN 1: SETUP ===== -->
 <div id="setup" class="screen active">
-  <div style="height:60px"></div>
-  <h1>Sales Training <span>Simulator</span></h1>
-  <p class="subtitle">Practice your pitch against AI-powered buyer personas</p>
+<div class="inner">
+  <div style="height:48px"></div>
+  <div class="logo">Sales Pitch <span>Trainer</span></div>
+  <p class="tagline">Practice your pitch with adaptive AI coaching</p>
 
-  <div class="field">
-    <label>Product / Service</label>
-    <div class="row">
-      <select id="product">
-        <option value="Website Design Services">Website Design Services</option>
-        <option value="CRM Software">CRM Software</option>
-        <option value="Cybersecurity Package">Cybersecurity Package</option>
-        <option value="Office Cleaning Service">Office Cleaning Service</option>
-        <option value="Commercial Insurance">Commercial Insurance</option>
-        <option value="Accounting Services">Accounting Services</option>
-        <option value="Marketing Agency">Marketing Agency</option>
-        <option value="POS System">POS System</option>
-        <option value="Cloud Hosting">Cloud Hosting</option>
-        <option value="HR Software">HR Software</option>
-        <option value="random">Random</option>
-      </select>
-      <button class="btn-sm" onclick="randomize('product')">Shuffle</button>
+  <div class="section">
+    <div class="section-title">Your Product</div>
+    <div class="preset-row" id="product-presets"></div>
+    <div class="field" id="product-custom" style="display:none">
+      <textarea id="product-desc" placeholder="Example: I sell website design and hosting for small businesses. $29/month, no contracts, includes design, hosting, and ongoing support. Our sites are mobile-responsive and SEO-optimized..."></textarea>
     </div>
   </div>
 
-  <div class="field">
-    <label>Buyer Persona</label>
-    <div class="row">
-      <select id="persona">
-        <option value="ceo">The Busy CEO</option>
-        <option value="skeptic">The Skeptic</option>
-        <option value="price">The Price Shopper</option>
-        <option value="friendly">The Friendly Chat</option>
-        <option value="gatekeeper">The Gatekeeper</option>
-        <option value="tech">The Tech Expert</option>
-        <option value="loyal">The Loyal Customer</option>
-        <option value="random">Random</option>
-      </select>
-      <button class="btn-sm" onclick="randomize('persona')">Shuffle</button>
+  <div class="section">
+    <div class="section-title">Your Pitch (optional)</div>
+    <div class="field">
+      <textarea id="pitch-script" placeholder="Paste your script or pitch here. This gives the coach more context for feedback..." style="min-height:70px"></textarea>
     </div>
   </div>
 
-  <div class="field">
-    <label>Difficulty</label>
-    <div class="difficulty-group">
-      <button class="diff-btn" data-diff="easy" onclick="setDifficulty('easy')">Easy</button>
-      <button class="diff-btn active" data-diff="medium" onclick="setDifficulty('medium')">Medium</button>
-      <button class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">Hard</button>
+  <div class="section">
+    <div class="section-title">The Buyer</div>
+    <div class="preset-row" id="buyer-presets"></div>
+    <div class="field custom-field" id="buyer-custom">
+      <textarea id="buyer-desc" placeholder="Describe your ideal customer..."></textarea>
+    </div>
+    <div class="field" style="margin-top:12px">
+      <label>Starting Difficulty</label>
+      <div class="diff-group">
+        <button class="diff-btn" data-diff="1" onclick="setDiff(1)">1 Beginner</button>
+        <button class="diff-btn" data-diff="5" onclick="setDiff(5)">5 Intermediate</button>
+        <button class="diff-btn" data-diff="8" onclick="setDiff(8)">8 Advanced</button>
+        <button class="diff-btn active" data-diff="auto" onclick="setDiff('auto')">Auto</button>
+      </div>
     </div>
   </div>
 
-  <button class="btn-primary" onclick="startCall()">Start Sales Call</button>
+  <div class="section">
+    <div class="section-title">Your Level</div>
+    <div class="level-group">
+      <button class="level-btn" data-level="beginner" onclick="setLevel('beginner')">Beginner</button>
+      <button class="level-btn active" data-level="intermediate" onclick="setLevel('intermediate')">Intermediate</button>
+      <button class="level-btn" data-level="advanced" onclick="setLevel('advanced')">Advanced</button>
+    </div>
+  </div>
+
+  <button class="btn-start" onclick="startCall()">Start Call</button>
+  <div style="height:32px"></div>
+</div>
 </div>
 
-<!-- SCREEN 2: Call -->
+<!-- ===== SCREEN 2: THE CALL ===== -->
 <div id="call" class="screen">
-  <div class="call-header">
-    <div class="call-info">
-      <div><span class="label">Product </span><span class="value" id="call-product"></span></div>
-      <div><span class="label">Buyer </span><span class="value" id="call-persona"></span></div>
+  <div class="call-left">
+    <div class="call-header">
+      <div class="call-header-left">
+        <div><span class="label">Product </span><span class="value" id="call-product-label"></span></div>
+        <div><span class="label">Buyer </span><span class="value" id="call-buyer-label"></span></div>
+      </div>
+      <div class="timer" id="timer">00:00</div>
     </div>
-    <div class="timer" id="timer">00:00</div>
+    <div class="chat-area" id="chat"></div>
+    <div class="input-area">
+      <textarea id="msg-input" placeholder="Type your response..." rows="1"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">&#9654;</button>
+    </div>
+    <div class="end-call-bar">
+      <button class="end-btn" onclick="endCall()">End Call</button>
+    </div>
   </div>
-  <div class="chat-area" id="chat"></div>
-  <div class="input-area">
-    <textarea id="msg-input" placeholder="Type your response..." rows="1"></textarea>
-    <button class="send-btn" id="send-btn" onclick="sendMessage()">&#9654;</button>
+  <div class="call-right">
+    <div class="coach-panel" id="coach-panel">
+      <div class="coach-title">Live Coach</div>
+
+      <!-- Difficulty meter -->
+      <div class="diff-meter-wrap">
+        <div class="diff-meter-label">
+          <span>Difficulty</span>
+          <div><span class="diff-num" id="diff-num">3</span><span class="diff-max">/10</span></div>
+        </div>
+        <div class="diff-bar">
+          <div class="diff-bar-fill" id="diff-bar-fill" style="width:30%;background:linear-gradient(90deg,#10b981,#f59e0b)"></div>
+        </div>
+        <div class="diff-desc" id="diff-desc">Somewhat interested, basic questions</div>
+      </div>
+
+      <!-- Next move -->
+      <div class="next-move">
+        <div class="nm-label">Next Move</div>
+        <div class="nm-text" id="next-move-text">Start the conversation with your prospect</div>
+      </div>
+
+      <!-- Alerts -->
+      <div id="coach-alerts"></div>
+
+      <!-- Tip -->
+      <div id="coach-tip"></div>
+
+      <!-- Mini scores -->
+      <div class="mini-scores">
+        <div class="coach-title" style="margin-bottom:8px">Running Scores</div>
+        <div class="ms-grid" id="mini-scores-grid"></div>
+      </div>
+
+      <div class="coach-loading" id="coach-loading" style="display:none">
+        <div class="spinner-sm"></div>
+        <span>Coach is analyzing...</span>
+      </div>
+    </div>
   </div>
-  <button class="end-btn" onclick="endCall()">End Call</button>
 </div>
 
-<!-- SCREEN 3: Report -->
-<div id="report" class="screen">
-  <div class="report" id="report-content"></div>
+<!-- ===== SCREEN 3: DEBRIEF ===== -->
+<div id="debrief" class="screen">
+  <div class="inner" id="debrief-content"></div>
 </div>
 
-<div id="loading" class="loading-overlay" style="display:none">
+<!-- Loading overlay -->
+<div id="loading-overlay" class="loading-overlay">
   <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Generating report...</div>
+  <div class="loading-text" id="loading-text">Analyzing your performance...</div>
 </div>
 
 <script>
-const PRODUCTS = ['Website Design Services','CRM Software','Cybersecurity Package','Office Cleaning Service','Commercial Insurance','Accounting Services','Marketing Agency','POS System','Cloud Hosting','HR Software'];
-const PERSONAS = {
-  ceo:{name:'Sarah Chen, CEO',label:'The Busy CEO',desc:'You are Sarah Chen, CEO of a 50-person manufacturing company. You have back-to-back meetings all day. You\'re interested in solutions but have zero patience for small talk or fluff. Get to the point or you\'re ending the call.'},
-  skeptic:{name:'Mike Torres',label:'The Skeptic',desc:'You are Mike Torres, owner of a dental practice. You\'ve been burned by three different vendors in the past two years who overpromised and underdelivered. You trust nobody until they prove themselves. You ask for evidence, case studies, and guarantees.'},
-  price:{name:'Jennifer Park',label:'The Price Shopper',desc:'You are Jennifer Park, operations manager at a logistics company. You have a strict budget and 5 quotes on your desk. You only care about the bottom line. You will negotiate hard and mention competitors\' lower prices.'},
-  friendly:{name:'Bob Williams',label:'The Friendly Chat',desc:'You are Bob Williams, owner of a family restaurant. You love talking to people and will chat for hours about anything. You seem interested in everything but never actually commit to buying. You always say "let me think about it" or "talk to my partner."'},
-  gatekeeper:{name:'Lisa',label:'The Gatekeeper',desc:'You are Lisa, office manager at a law firm. You\'re not the decision maker -- that\'s the senior partner. You\'re screening calls to decide if this is worth the partner\'s time. You need to be convinced this is important enough to pass along.'},
-  tech:{name:'Dr. Raj Patel',label:'The Tech Expert',desc:'You are Dr. Raj Patel, CTO of a biotech startup. You have a PhD in computer science and have built similar systems yourself. You ask detailed technical questions and will catch any BS. If the salesperson can\'t keep up technically, you lose interest immediately.'},
-  loyal:{name:'Carol',label:'The Loyal Customer',desc:'You are Carol, practice manager at a veterinary clinic. You\'ve used the same provider for 8 years and they\'ve been great. You\'re not looking to switch. The salesperson needs to show you a compelling reason to even consider changing.'}
+// ===== DATA =====
+const PRODUCT_PRESETS = [
+  {id:'website', label:'Website Design', desc:'I sell website design and hosting for small businesses. $29/month, no contracts, includes custom design, hosting, SSL, and ongoing support. Mobile-responsive and SEO-optimized.'},
+  {id:'crm', label:'CRM Software', desc:'I sell a CRM platform for small-to-medium businesses. $49/user/month, includes contact management, pipeline tracking, email automation, and reporting. Free 14-day trial.'},
+  {id:'cleaning', label:'Cleaning Service', desc:'I run a commercial cleaning company. We offer nightly/weekly office cleaning, deep cleaning, and sanitization services. Fully insured, vetted staff, eco-friendly products.'},
+  {id:'insurance', label:'Insurance', desc:'I sell commercial insurance packages. General liability, professional liability, workers comp, and property insurance. Custom packages for small businesses.'},
+  {id:'marketing', label:'Marketing', desc:'I run a digital marketing agency. We offer SEO, social media management, PPC advertising, and content creation. Monthly packages starting at $1,500.'},
+  {id:'accounting', label:'Accounting', desc:'I provide outsourced accounting and bookkeeping for small businesses. Monthly packages include bookkeeping, tax prep, payroll, and financial reporting.'},
+  {id:'pos', label:'POS System', desc:'I sell POS systems for retail and restaurants. Hardware + software bundle, $79/month. Includes inventory management, employee scheduling, and analytics.'},
+  {id:'cloud', label:'Cloud Hosting', desc:'I sell managed cloud hosting and IT infrastructure. 99.99% uptime, auto-scaling, 24/7 support. Migration assistance included. Plans from $99/month.'},
+  {id:'custom', label:'Custom', desc:''}
+];
+
+const BUYER_PRESETS = [
+  {id:'ceo', label:'The Busy CEO', name:'Sarah Chen',
+   desc:'CEO of a 50-person manufacturing company. Back-to-back meetings, zero patience for small talk. Wants bottom-line value fast or she\'s done.'},
+  {id:'skeptic', label:'The Skeptic', name:'Mike Torres',
+   desc:'Owner of a dental practice. Been burned by 3 vendors in 2 years. Demands evidence, case studies, and guarantees before trusting anyone.'},
+  {id:'price', label:'The Price Shopper', name:'Jennifer Park',
+   desc:'Operations manager at a logistics company. Strict budget, 5 quotes on her desk. Only cares about the bottom line. Negotiates hard, mentions competitors.'},
+  {id:'friendly', label:'The Friendly Time-Waster', name:'Bob Williams',
+   desc:'Owner of a family restaurant. Loves chatting, seems interested in everything, but never commits. Always "needs to think about it" or "talk to my partner."'},
+  {id:'gatekeeper', label:'The Gatekeeper', name:'Lisa',
+   desc:'Office manager at a law firm. Not the decision maker -- screens calls for the senior partner. Needs convincing this is worth the partner\'s time.'},
+  {id:'tech', label:'The Tech Expert', name:'Dr. Raj Patel',
+   desc:'CTO of a biotech startup with a PhD in CS. Has built similar systems. Asks detailed technical questions, catches BS. Loses interest if you can\'t keep up.'},
+  {id:'loyal', label:'The Loyal Customer', name:'Carol',
+   desc:'Practice manager at a vet clinic. Used same provider for 8 years, very happy. Needs a compelling reason to even consider switching.'},
+  {id:'custom', label:'Custom', name:'Custom Buyer', desc:''}
+];
+
+const SCORE_CATS = [
+  {key:'rapport', label:'Rapport'},
+  {key:'discovery', label:'Discovery'},
+  {key:'objection', label:'Objections'},
+  {key:'product', label:'Product'},
+  {key:'closing', label:'Closing'},
+  {key:'communication', label:'Pacing'}
+];
+
+const DIFF_DESCRIPTIONS = {
+  1:'Somewhat interested, asks basic questions, raises simple objections',
+  2:'Polite and curious, easy to engage',
+  3:'Warming up, starting to ask real questions',
+  4:'Busy and skeptical, asks pointed questions',
+  5:'Guarded but willing to listen if you make good points',
+  6:'Analytical, wants details and comparisons',
+  7:'Very skeptical, compares to competitors, challenges claims',
+  8:'Pushing back hard, tests your knowledge',
+  9:'Hostile, trying to end the call, argues every point',
+  10:'Nearly impossible to close, attacks every claim'
 };
-const PERSONA_KEYS = Object.keys(PERSONAS);
-const DIFF_MOD = {easy:'You are somewhat open to the pitch and give the salesperson a fair chance.',medium:'You are skeptical but willing to listen if they make good points.',hard:'You are very resistant, push back on everything, and are ready to hang up at any moment.'};
 
-let state = {product:'',personaKey:'',persona:null,difficulty:'medium',messages:[],timerInterval:null,seconds:0};
+// ===== STATE =====
+let S = {
+  productPreset: null,
+  productDesc: '',
+  pitchScript: '',
+  buyerPreset: null,
+  buyerName: '',
+  buyerDesc: '',
+  startDifficulty: 3,
+  currentDifficulty: 3,
+  difficultyHistory: [3],
+  level: 'intermediate',
+  messages: [], // {role, content}
+  timerInterval: null,
+  seconds: 0,
+  runningScores: {rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},
+  buyerBusy: false,
+  coachBusy: false
+};
 
-function randomize(field){
-  const sel=document.getElementById(field);
-  if(field==='product'){const opts=sel.options;sel.value=PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];if(sel.value==='random')sel.value=PRODUCTS[0];}
-  else{const keys=[...PERSONA_KEYS];sel.value=keys[Math.floor(Math.random()*keys.length)];if(sel.value==='random')sel.value=PERSONA_KEYS[0];}
+// ===== INIT =====
+(function init(){
+  renderPresets();
+  loadSaved();
+  initMiniScores();
+})();
+
+function renderPresets(){
+  const pp = document.getElementById('product-presets');
+  pp.innerHTML = PRODUCT_PRESETS.map(p =>
+    `<div class="preset-chip" data-id="${p.id}" onclick="selectProduct('${p.id}')">${p.label}</div>`
+  ).join('');
+
+  const bp = document.getElementById('buyer-presets');
+  bp.innerHTML = BUYER_PRESETS.map(b =>
+    `<div class="preset-chip" data-id="${b.id}" onclick="selectBuyer('${b.id}')">${b.label}</div>`
+  ).join('');
 }
-function setDifficulty(d){
-  state.difficulty=d;
-  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('active',b.dataset.diff===d));
-}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
+function loadSaved(){
+  try{
+    const saved = localStorage.getItem('salesTrainerSetup');
+    if(saved){
+      const d = JSON.parse(saved);
+      if(d.productPreset) selectProduct(d.productPreset);
+      if(d.productDesc && !d.productPreset) document.getElementById('product-desc').value = d.productDesc;
+      if(d.pitchScript) document.getElementById('pitch-script').value = d.pitchScript;
+      if(d.buyerPreset) selectBuyer(d.buyerPreset);
+      if(d.startDifficulty !== undefined) setDiff(d.startDifficulty);
+      if(d.level) setLevel(d.level);
+    }
+  }catch(e){}
+}
+
+function saveSetup(){
+  localStorage.setItem('salesTrainerSetup', JSON.stringify({
+    productPreset: S.productPreset,
+    productDesc: S.productDesc,
+    pitchScript: S.pitchScript,
+    buyerPreset: S.buyerPreset,
+    startDifficulty: S.startDifficulty,
+    level: S.level
+  }));
+}
+
+function selectProduct(id){
+  S.productPreset = id;
+  document.querySelectorAll('#product-presets .preset-chip').forEach(c => c.classList.toggle('active', c.dataset.id === id));
+  const preset = PRODUCT_PRESETS.find(p => p.id === id);
+  const customDiv = document.getElementById('product-custom');
+  if(id === 'custom'){
+    customDiv.style.display = 'block';
+    S.productDesc = document.getElementById('product-desc').value;
+  } else {
+    customDiv.style.display = 'none';
+    S.productDesc = preset.desc;
+  }
+}
+
+function selectBuyer(id){
+  S.buyerPreset = id;
+  document.querySelectorAll('#buyer-presets .preset-chip').forEach(c => c.classList.toggle('active', c.dataset.id === id));
+  const preset = BUYER_PRESETS.find(b => b.id === id);
+  const customDiv = document.getElementById('buyer-custom');
+  if(id === 'custom'){
+    customDiv.classList.add('show');
+    S.buyerName = 'Custom Buyer';
+    S.buyerDesc = '';
+  } else {
+    customDiv.classList.remove('show');
+    S.buyerName = preset.name;
+    S.buyerDesc = preset.desc;
+  }
+}
+
+function setDiff(v){
+  S.startDifficulty = v === 'auto' ? 'auto' : Number(v);
+  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('active', b.dataset.diff == v));
+}
+
+function setLevel(v){
+  S.level = v;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.toggle('active', b.dataset.level === v));
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg){
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ===== MINI SCORES =====
+function initMiniScores(){
+  const grid = document.getElementById('mini-scores-grid');
+  grid.innerHTML = SCORE_CATS.map(c => `
+    <div class="ms-item">
+      <div class="ms-label">${c.label}</div>
+      <div class="ms-bar"><div class="ms-bar-fill" id="ms-${c.key}" style="width:50%"></div></div>
+    </div>
+  `).join('');
+}
+
+function updateMiniScores(scores){
+  if(!scores) return;
+  S.runningScores = {...S.runningScores, ...scores};
+  SCORE_CATS.forEach(c => {
+    const v = S.runningScores[c.key] || 5;
+    const el = document.getElementById('ms-' + c.key);
+    if(el){
+      el.style.width = (v * 10) + '%';
+      el.className = 'ms-bar-fill' + (v <= 4 ? ' low' : v <= 6 ? ' mid' : ' high');
+    }
+  });
+}
+
+function updateDifficulty(val){
+  val = Math.max(1, Math.min(10, Math.round(val)));
+  S.currentDifficulty = val;
+  S.difficultyHistory.push(val);
+  document.getElementById('diff-num').textContent = val;
+  const fill = document.getElementById('diff-bar-fill');
+  fill.style.width = (val * 10) + '%';
+  // Color gradient: green(1) -> yellow(5) -> red(10)
+  if(val <= 4) fill.style.background = 'linear-gradient(90deg,#10b981,#f59e0b)';
+  else if(val <= 7) fill.style.background = 'linear-gradient(90deg,#f59e0b,#f97316)';
+  else fill.style.background = 'linear-gradient(90deg,#f97316,#ef4444)';
+  document.getElementById('diff-desc').textContent = DIFF_DESCRIPTIONS[val] || '';
+}
+
+function setCoachAlerts(data){
+  const el = document.getElementById('coach-alerts');
+  el.innerHTML = '';
+  if(data.warning) el.innerHTML += `<div class="alert warning">${data.warning}</div>`;
+  if(data.praise) el.innerHTML += `<div class="alert praise">${data.praise}</div>`;
+
+  const tipEl = document.getElementById('coach-tip');
+  if(data.tip) tipEl.innerHTML = `<div class="alert tip">${data.tip}</div>`;
+  else tipEl.innerHTML = '';
+
+  if(data.next_move) document.getElementById('next-move-text').textContent = data.next_move;
+}
+
+// ===== API =====
+async function callAI(messages){
+  const resp = await fetch('https://text.pollinations.ai/', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({messages, model:'openai', seed: Math.floor(Math.random()*99999)})
+  });
+  if(!resp.ok) throw new Error('API error ' + resp.status);
+  const data = await resp.json();
+  return data.choices?.[0]?.message?.content || data.text || '';
+}
+
+// ===== START CALL =====
 async function startCall(){
-  let pVal=document.getElementById('product').value;
-  let personaVal=document.getElementById('persona').value;
-  if(pVal==='random')pVal=PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];
-  if(personaVal==='random')personaVal=PERSONA_KEYS[Math.floor(Math.random()*PERSONA_KEYS.length)];
-  state.product=pVal;
-  state.personaKey=personaVal;
-  state.persona=PERSONAS[personaVal];
-  state.messages=[];
-  document.getElementById('chat').innerHTML='';
-  document.getElementById('call-product').textContent=pVal;
-  document.getElementById('call-persona').textContent=state.persona.label;
-  document.getElementById('msg-input').value='';
-  showScreen('call');
-  state.seconds=0;updateTimer();
-  state.timerInterval=setInterval(()=>{state.seconds++;updateTimer();},1000);
+  // Gather final values
+  if(S.productPreset === 'custom' || !S.productPreset){
+    S.productDesc = document.getElementById('product-desc').value.trim();
+    if(!S.productDesc){showToast('Describe your product first');return;}
+  }
+  if(S.buyerPreset === 'custom' || !S.buyerPreset){
+    S.buyerDesc = document.getElementById('buyer-desc').value.trim();
+    if(!S.buyerDesc){showToast('Describe your buyer first');return;}
+    S.buyerName = 'Custom Buyer';
+  }
+  S.pitchScript = document.getElementById('pitch-script').value.trim();
+  S.startDifficulty = S.startDifficulty === 'auto' ? 3 : Number(S.startDifficulty);
+  S.currentDifficulty = S.startDifficulty;
+  S.difficultyHistory = [S.startDifficulty];
+  S.messages = [];
+  S.seconds = 0;
+  S.runningScores = {rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5};
+  S.buyerBusy = false;
+  S.coachBusy = false;
 
-  // Get opening message from AI
-  const sysPrompt=buildSystemPrompt();
-  const openingPrompt=`The salesperson has just called you. Introduce yourself briefly (1-2 sentences) as ${state.persona.name} and set the scene. Wait for them to start their pitch. Keep it short.`;
-  const reply=await callAI(sysPrompt,[{role:'user',content:openingPrompt}]);
-  addMessage('ai',reply);
-  state.messages.push({role:'assistant',content:reply});
+  saveSetup();
+
+  // Update UI
+  document.getElementById('call-product-label').textContent = S.productPreset === 'custom' ? 'Custom' : (PRODUCT_PRESETS.find(p=>p.id===S.productPreset)?.label || 'Product');
+  document.getElementById('call-buyer-label').textContent = S.buyerName;
+  document.getElementById('chat').innerHTML = '';
+  document.getElementById('msg-input').value = '';
+  document.getElementById('coach-alerts').innerHTML = '';
+  document.getElementById('coach-tip').innerHTML = '';
+  document.getElementById('next-move-text').textContent = 'Start the conversation with your prospect';
+  updateDifficulty(S.currentDifficulty);
+  updateMiniScores(S.runningScores);
+
+  showScreen('call');
+
+  // Timer
+  updateTimer();
+  clearInterval(S.timerInterval);
+  S.timerInterval = setInterval(() => { S.seconds++; updateTimer(); }, 1000);
+
+  // Get opening from buyer
+  const sysPrompt = buildBuyerPrompt();
+  S.buyerBusy = true;
+  showTyping(true);
+  try{
+    const opening = await callAI([
+      {role:'system', content: sysPrompt},
+      {role:'user', content: 'The salesperson has just called you. Introduce yourself briefly (1-2 sentences) and set the scene. Wait for them to pitch. Keep it short and natural.'}
+    ]);
+    removeTyping();
+    addChatMsg('ai', opening);
+    S.messages.push({role:'assistant', content: opening});
+  }catch(e){
+    removeTyping();
+    addChatMsg('ai', 'Hello? Who is this?');
+    S.messages.push({role:'assistant', content: 'Hello? Who is this?'});
+  }
+  S.buyerBusy = false;
 }
 
-function buildSystemPrompt(){
-  return `You are ${state.persona.name}. You are receiving a sales call from someone selling ${state.product}. ${state.persona.desc}. Difficulty: ${state.difficulty}. ${DIFF_MOD[state.difficulty]} Stay in character. Be realistic. Respond naturally as this person would. Keep responses concise (2-4 sentences). Do not break character. Do not be helpful to the salesperson -- you are the buyer, act like one.`;
+function buildBuyerPrompt(){
+  const diffDesc = DIFF_DESCRIPTIONS[S.currentDifficulty] || '';
+  const pitchCtx = S.pitchScript ? `\nThe salesperson's pitch/script context: "${S.pitchScript}"\n` : '';
+  return `You are ${S.buyerName}. ${S.buyerDesc}\n\nYou are receiving a sales call about: ${S.productDesc}\n\nCurrent difficulty level: ${S.currentDifficulty}/10. At this level: ${diffDesc}.\n${pitchCtx}\nRules:\n- Stay in character at all times\n- Respond naturally as this person would\n- Keep responses to 2-4 sentences\n- React to what the salesperson actually says, not generic responses\n- If they're doing well, raise your guard. If they're struggling, give slight openings.\n- Never break character to give feedback`;
+}
+
+function buildCoachPrompt(){
+  const convHistory = S.messages.map(m => (m.role === 'user' ? 'Salesperson: ' : 'Buyer: ') + m.content).join('\n');
+  const levelGuide = S.level === 'beginner' ? 'The salesperson is a beginner — give more detailed guidance and encouragement.' :
+                     S.level === 'advanced' ? 'The salesperson is advanced — be subtle and strategic in coaching.' :
+                     'The salesperson is at intermediate level.';
+  return `You are an expert sales coach monitoring a live sales call. The salesperson is selling: ${S.productDesc}\n\nThe buyer is: ${S.buyerName}, ${S.buyerDesc}\n\nThe salesperson's level: ${S.level}. ${levelGuide}\n\nHere is the conversation so far:\n${convHistory}\n\nAnalyze the last exchange and provide coaching in this EXACT JSON format (no markdown, just raw JSON):\n{"difficulty_adjustment": 0, "current_difficulty": ${S.currentDifficulty}, "next_move": "one specific suggestion for what to do next (5-10 words)", "warning": "a warning if relevant, or null", "praise": "a specific praise if relevant, or null", "tip": "a contextual tip based on what's happening (1 sentence)", "running_scores": {"rapport": 5, "discovery": 5, "objection": 5, "product": 5, "closing": 5, "communication": 5}}\n\nBe specific. Reference what they actually said. Scores are 1-10. difficulty_adjustment is -2 to +2 based on how well they're performing.`;
 }
 
 function updateTimer(){
-  const m=String(Math.floor(state.seconds/60)).padStart(2,'0');
-  const s=String(state.seconds%60).padStart(2,'0');
-  document.getElementById('timer').textContent=m+':'+s;
+  const m = String(Math.floor(S.seconds / 60)).padStart(2, '0');
+  const s = String(S.seconds % 60).padStart(2, '0');
+  document.getElementById('timer').textContent = m + ':' + s;
 }
 
-function addMessage(role,text){
-  const chat=document.getElementById('chat');
-  const div=document.createElement('div');
-  div.className='msg '+role;
-  const sender=document.createElement('div');
-  sender.className='sender';
-  sender.textContent=role==='ai'?state.persona.label:'You';
-  div.appendChild(sender);
-  const body=document.createElement('div');
-  body.textContent=text;
-  div.appendChild(body);
+function addChatMsg(role, text){
+  const chat = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'msg ' + (role === 'ai' ? 'ai' : 'user');
+  div.innerHTML = `<div class="sender">${role === 'ai' ? S.buyerName : 'You'}</div><div>${escapeHtml(text)}</div>`;
   chat.appendChild(div);
-  chat.scrollTop=chat.scrollHeight;
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function showTyping(show){
+  removeTyping();
+  if(show){
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'typing';
+    div.id = 'typing-indicator';
+    div.innerHTML = `${S.buyerName} is thinking... <div class="typing-dots"><span></span><span></span><span></span></div>`;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
 }
 
 function removeTyping(){
-  const t=document.querySelector('.typing');if(t)t.remove();
+  const t = document.getElementById('typing-indicator');
+  if(t) t.remove();
 }
 
+function escapeHtml(text){
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
+// ===== SEND MESSAGE =====
 async function sendMessage(){
-  const input=document.getElementById('msg-input');
-  const text=input.value.trim();
-  if(!text)return;
-  input.value='';
-  addMessage('user',text);
-  state.messages.push({role:'user',content:text});
-  document.getElementById('send-btn').disabled=true;
-  document.getElementById('chat').innerHTML+='<div class="typing">Typing...</div>';
-  document.getElementById('chat').scrollTop=document.getElementById('chat').scrollHeight;
-  const sysPrompt=buildSystemPrompt();
-  const reply=await callAI(sysPrompt,state.messages);
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if(!text || S.buyerBusy) return;
+  input.value = '';
+  addChatMsg('user', text);
+  S.messages.push({role:'user', content: text});
+
+  document.getElementById('send-btn').disabled = true;
+  S.buyerBusy = true;
+
+  // Parallel: get buyer response + coach analysis
+  showTyping(true);
+  document.getElementById('coach-loading').style.display = 'flex';
+  S.coachBusy = true;
+
+  const buyerPromise = callAI([
+    {role:'system', content: buildBuyerPrompt()},
+    ...S.messages
+  ]).catch(() => 'Hmm, sorry, can you repeat that?');
+
+  const coachPromise = callAI([
+    {role:'system', content: buildCoachPrompt()},
+    {role:'user', content: 'Analyze the last exchange and provide coaching JSON now.'}
+  ]).catch(() => null);
+
+  const [buyerReply, coachRaw] = await Promise.all([buyerPromise, coachPromise]);
+
+  // Process buyer
   removeTyping();
-  addMessage('ai',reply);
-  state.messages.push({role:'assistant',content:reply});
-  document.getElementById('send-btn').disabled=false;
+  addChatMsg('ai', buyerReply);
+  S.messages.push({role:'assistant', content: buyerReply});
+
+  // Process coach
+  document.getElementById('coach-loading').style.display = 'none';
+  S.coachBusy = false;
+
+  if(coachRaw){
+    try{
+      const jsonStr = coachRaw.match(/\{[\s\S]*\}/)?.[0];
+      if(jsonStr){
+        const coach = JSON.parse(jsonStr);
+        // Update difficulty
+        if(coach.difficulty_adjustment !== undefined && coach.difficulty_adjustment !== 0){
+          updateDifficulty(S.currentDifficulty + coach.difficulty_adjustment);
+        }
+        if(coach.running_scores) updateMiniScores(coach.running_scores);
+        setCoachAlerts(coach);
+      }
+    }catch(e){ console.warn('Coach parse error', e); }
+  }
+
+  S.buyerBusy = false;
+  document.getElementById('send-btn').disabled = false;
   input.focus();
 }
 
-async function callAI(sysPrompt,messages){
-  try{
-    const resp=await fetch('https://text.pollinations.ai/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:[{role:'system',content:sysPrompt},...messages],model:'openai',seed:Math.floor(Math.random()*10000)})
-    });
-    const data=await resp.json();
-    return data.choices?.[0]?.message?.content || data.text || 'I\'m not interested right now. Goodbye.';
-  }catch(e){
-    console.error(e);
-    return 'Sorry, I didn\'t catch that. Could you repeat?';
-  }
-}
-
-document.getElementById('msg-input').addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
-});
-
+// ===== END CALL =====
 async function endCall(){
-  clearInterval(state.timerInterval);
-  document.getElementById('loading').style.display='flex';
-  document.getElementById('loading-text').textContent='Analyzing your performance...';
+  clearInterval(S.timerInterval);
+  document.getElementById('loading-overlay').classList.add('show');
+  document.getElementById('loading-text').textContent = 'Analyzing your performance...';
+
   try{
-    const score=await getScore();
-    renderReport(score);
+    const score = await getScore();
+    renderDebrief(score);
   }catch(e){
     console.error(e);
-    const fallback={overall:50,scores:{rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},strengths:['Completed the call from start to finish'],improvements:['Work on asking more discovery questions','Practice handling objections more confidently'],tip:'Focus on building rapport early in the conversation before jumping into your pitch.'};
-    renderReport(fallback);
+    renderDebrief(fallbackScore());
   }
-  document.getElementById('loading').style.display='none';
-  showScreen('report');
+
+  document.getElementById('loading-overlay').classList.remove('show');
+  showScreen('debrief');
 }
 
 async function getScore(){
-  const transcript=state.messages.map(m=>(m.role==='user'?'Salesperson: '+m.content:'Buyer: '+m.content)).join('\n');
-  const scoringPrompt=`You are a sales coach. Review this sales conversation and score it.
-Product: ${state.product}
-Buyer persona: ${state.persona.label} (${state.persona.name})
+  const transcript = S.messages.map(m => (m.role === 'user' ? 'Salesperson: ' : 'Buyer: ') + m.content).join('\n');
+  const prompt = `You are a sales coach grading a completed sales call.\n\nProduct: ${S.productDesc}\nBuyer: ${S.buyerName}, ${S.buyerDesc}\nSalesperson level: ${S.level}\nFinal difficulty reached: ${S.currentDifficulty}\n\nFull conversation:\n${transcript}\n\nGrade the call. Return ONLY valid JSON (no markdown):\n{"overall_score": 75, "grade": "B", "difficulty_start": ${S.startDifficulty}, "difficulty_peak": ${Math.max(...S.difficultyHistory)}, "scores": {"rapport":7,"discovery":5,"objection":6,"product":8,"closing":4,"communication":7}, "strengths": ["specific thing 1", "specific thing 2", "specific thing 3"], "weaknesses": ["specific thing 1", "specific thing 2", "specific thing 3"], "best_moment": "quote their best line", "worst_moment": "quote their worst line", "tip": "one actionable tip", "annotations": [{"message_index": 0, "type": "good", "note": "explanation"}]}\n\nmessage_index is 0-based index in the conversation. type is "good", "missed", or "mistake". Provide 4-8 annotations across the conversation. Be specific with examples.`;
 
-Transcript:
-${transcript}
-
-Score each category 1-10:
-- rapport: Rapport Building
-- discovery: Discovery / Needs Assessment
-- objection: Objection Handling
-- product: Product Knowledge
-- closing: Closing Technique
-- communication: Communication / Pacing
-
-Also provide: 2-3 specific things done well, 2-3 specific things to improve, 1 actionable pro tip.
-
-Return ONLY valid JSON in this exact format, no markdown:
-{"overall":75,"scores":{"rapport":7,"discovery":6,"objection":5,"product":8,"closing":6,"communication":7},"strengths":["thing1","thing2"],"improvements":["thing1","thing2"],"tip":"one tip here"}`;
-
-  const resp=await fetch('https://text.pollinations.ai/',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({messages:[{role:'system',content:scoringPrompt},{role:'user',content:'Provide the JSON scoring now.'}],model:'openai',seed:Math.floor(Math.random()*10000)})
-  });
-  const data=await resp.json();
-  const raw=data.choices?.[0]?.message?.content||'';
-  // Extract JSON from response
-  const jsonMatch=raw.match(/\{[\s\S]*\}/);
-  if(jsonMatch){
-    return JSON.parse(jsonMatch[0]);
-  }
-  throw new Error('No JSON found');
+  const raw = await callAI([
+    {role:'system', content: prompt},
+    {role:'user', content: 'Provide the scoring JSON now.'}
+  ]);
+  const jsonStr = raw.match(/\{[\s\S]*\}/)?.[0];
+  if(!jsonStr) throw new Error('No JSON');
+  return JSON.parse(jsonStr);
 }
 
-function renderReport(score){
-  const s=score.scores||{};
-  const categories=[
-    {key:'rapport',label:'Rapport Building'},
-    {key:'discovery',label:'Discovery / Needs Assessment'},
-    {key:'objection',label:'Objection Handling'},
-    {key:'product',label:'Product Knowledge'},
-    {key:'closing',label:'Closing Technique'},
-    {key:'communication',label:'Communication / Pacing'}
-  ];
-  const overall=score.overall||50;
-  const color=overall>=70?'var(--green)':overall>=50?'var(--yellow)':'var(--red)';
+function fallbackScore(){
+  return {
+    overall_score: 50, grade: 'C',
+    difficulty_start: S.startDifficulty, difficulty_peak: S.currentDifficulty,
+    scores: {rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},
+    strengths: ['Completed the call'], weaknesses: ['Needs more practice'],
+    best_moment: '', worst_moment: '', tip: 'Focus on asking open-ended discovery questions.',
+    annotations: []
+  };
+}
 
-  let bars='';
-  categories.forEach(c=>{
-    const v=s[c.key]||5;
-    const pct=v*10;
-    const bc=v>=7?'var(--green)':v>=5?'var(--yellow)':'var(--red)';
-    bars+=`<div class="category"><span class="cat-name">${c.label}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${bc}"></div></div><span class="cat-score">${v}</span></div>`;
+function renderDebrief(score){
+  const s = score.scores || {};
+  const overall = score.overall_score || 50;
+  const grade = score.grade || 'C';
+  const peak = score.difficulty_peak || S.currentDifficulty;
+  const start = score.difficulty_start || S.startDifficulty;
+  const color = overall >= 70 ? 'var(--green)' : overall >= 50 ? 'var(--amber)' : 'var(--red)';
+
+  const categories = [
+    {key:'rapport', label:'Rapport Building'},
+    {key:'discovery', label:'Discovery & Needs Assessment'},
+    {key:'objection', label:'Objection Handling'},
+    {key:'product', label:'Product Knowledge'},
+    {key:'closing', label:'Closing Technique'},
+    {key:'communication', label:'Communication & Pacing'}
+  ];
+
+  let bars = categories.map((c, i) => {
+    const v = s[c.key] || 5;
+    const pct = v * 10;
+    const bc = v >= 7 ? 'var(--green)' : v >= 5 ? 'var(--amber)' : 'var(--red)';
+    return `<div class="category"><span class="cat-name">${c.label}</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${bc}" data-target="${pct}"></div></div><span class="cat-score">${v}</span></div>`;
+  }).join('');
+
+  // Replay with annotations
+  const annotations = score.annotations || [];
+  const annotationMap = {};
+  annotations.forEach(a => { if(a.message_index !== undefined) annotationMap[a.message_index] = a; });
+
+  let replay = '';
+  S.messages.forEach((m, i) => {
+    const isUser = m.role === 'user';
+    replay += `<div class="replay-msg ${isUser ? 'user-msg' : 'ai-msg'}">`;
+    replay += `<div class="replay-sender">${isUser ? 'You' : S.buyerName}</div>`;
+    replay += escapeHtml(m.content);
+    replay += `</div>`;
+    if(annotationMap[i]){
+      const a = annotationMap[i];
+      replay += `<div class="replay-annotation ${a.type === 'good' ? 'good' : a.type === 'missed' ? 'missed' : 'mistake'}">${a.note}</div>`;
+    }
   });
 
-  const strengths=(score.strengths||[]).map(s=>`<li>${s}</li>`).join('');
-  const improvements=(score.improvements||[]).map(s=>`<li>${s}</li>`).join('');
+  const strengths = (score.strengths || []).map(s => `<li>${s}</li>`).join('');
+  const weaknesses = (score.weaknesses || []).map(s => `<li>${s}</li>`).join('');
+  const bestMoment = score.best_moment ? `<div class="fb-quote">${escapeHtml(score.best_moment)}</div>` : '';
+  const worstMoment = score.worst_moment ? `<div class="fb-quote bad">${escapeHtml(score.worst_moment)}</div>` : '';
 
-  document.getElementById('report-content').innerHTML=`
-    <h1 style="margin-top:32px">Call <span>Report</span></h1>
-    <p class="subtitle">${state.product} -- ${state.persona.label} (${state.difficulty}) -- ${formatTime(state.seconds)}</p>
-    <div class="score-ring">
-      <div class="big-score" style="color:${color}">${overall}</div>
-      <div class="out-of">/ 100</div>
-      <div class="score-label">${overall>=80?'Outstanding':overall>=70?'Great job':overall>=60?'Good effort':overall>=50?'Needs work':'Keep practicing'}</div>
+  // Difficulty curve mini viz
+  const maxH = 40;
+  const diffCurve = S.difficultyHistory.map((d, i) => {
+    const h = (d / 10) * maxH;
+    return `<div style="width:${100/Math.max(S.difficultyHistory.length,1)}%;height:${h}px;background:${d>=7?'var(--red)':d>=4?'var(--amber)':'var(--green)'};border-radius:2px 2px 0 0;opacity:${0.5 + (i/S.difficultyHistory.length)*0.5}"></div>`;
+  }).join('');
+
+  const el = document.getElementById('debrief-content');
+  el.innerHTML = `
+    <div style="height:40px"></div>
+    <div class="debrief-header">
+      <h1>Call <span>Complete</span></h1>
+      <div class="sub">${S.productPreset === 'custom' ? 'Custom Product' : (PRODUCT_PRESETS.find(p=>p.id===S.productPreset)?.label||'Product')} -- ${S.buyerName} -- ${formatTime(S.seconds)}</div>
     </div>
-    <div class="card">
-      <h3>Score Breakdown</h3>
+
+    <div class="score-hero">
+      <div class="big-num" style="color:${color}">${overall}</div>
+      <div class="out-of">/ 100</div>
+      <div class="grade" style="color:${color}">Grade: ${grade}</div>
+      <div class="diff-range">Started at Level ${start}, peaked at Level ${peak}</div>
+      <div style="display:flex;align-items:flex-end;gap:1px;height:${maxH}px;margin:12px auto 0;max-width:200px">${diffCurve}</div>
+    </div>
+
+    <div class="card" style="animation-delay:.1s">
+      <h3>Category Breakdown</h3>
       ${bars}
     </div>
-    <div class="card strengths">
-      <h3>What You Did Well</h3>
-      <ul>${strengths}</ul>
+
+    <div class="card" style="animation-delay:.2s">
+      <h3>Conversation Replay</h3>
+      ${replay}
     </div>
-    <div class="card improvements">
-      <h3>What to Improve</h3>
-      <ul>${improvements}</ul>
+
+    <div class="card" style="animation-delay:.3s">
+      <h3 style="color:var(--green)">What You Did Well</h3>
+      <ul class="fb-list green">${strengths}</ul>
     </div>
-    <div class="card tip">
-      <h3>Pro Tip</h3>
-      <div class="tip-text">${score.tip||''}</div>
+
+    <div class="card" style="animation-delay:.4s">
+      <h3 style="color:var(--red)">What Cost You Points</h3>
+      <ul class="fb-list red">${weaknesses}</ul>
     </div>
-    <div class="actions">
-      <button class="btn-again" onclick="startCall()">Try Again</button>
-      <button class="btn-new" onclick="showScreen('setup')">New Scenario</button>
+
+    ${bestMoment ? `<div class="card" style="animation-delay:.5s"><h3 style="color:var(--green)">Your Strongest Moment</h3>${bestMoment}</div>` : ''}
+    ${worstMoment ? `<div class="card" style="animation-delay:.55s"><h3 style="color:var(--red)">Your Weakest Moment</h3>${worstMoment}</div>` : ''}
+
+    ${score.tip ? `<div class="card" style="animation-delay:.6s"><h3>Pro Tip for Next Time</h3><div class="tip-box">${escapeHtml(score.tip)}</div></div>` : ''}
+
+    <div class="actions" style="animation-delay:.7s">
+      <button class="btn-primary-action" onclick="retryHarder()">Try Again (Harder)</button>
+      <button class="btn-secondary-action" onclick="newBuyer()">New Buyer</button>
+      <button class="btn-tertiary-action" onclick="newProduct()">New Product</button>
     </div>
-    <div style="height:32px"></div>
+    <div style="height:40px"></div>
   `;
+
+  // Animate bars
+  setTimeout(() => {
+    el.querySelectorAll('.bar-fill[data-target]').forEach(b => {
+      b.style.width = b.dataset.target + '%';
+    });
+  }, 100);
 }
 
 function formatTime(sec){
-  const m=Math.floor(sec/60);const s=sec%60;
-  return m+'m '+s+'s';
+  return Math.floor(sec/60) + 'm ' + (sec%60) + 's';
 }
+
+function retryHarder(){
+  S.startDifficulty = Math.min(10, S.currentDifficulty + 1);
+  startCall();
+}
+
+function newBuyer(){
+  // Random buyer, same product
+  const keys = BUYER_PRESETS.filter(b => b.id !== 'custom').map(b => b.id);
+  const pick = keys[Math.floor(Math.random()*keys.length)];
+  selectBuyer(pick);
+  S.startDifficulty = S.startDifficulty === 'auto' ? 3 : S.startDifficulty;
+  startCall();
+}
+
+function newProduct(){
+  showScreen('setup');
+}
+
+// ===== KEYBOARD =====
+document.getElementById('msg-input').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+});
+
+// Auto-resize textarea
+document.getElementById('msg-input').addEventListener('input', function(){
+  this.style.height = '48px';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
 </script>
 </body>
 </html>
