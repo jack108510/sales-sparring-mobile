@@ -522,7 +522,16 @@ function pageSetup(){
         <button class="toggle-btn" data-level="advanced" onclick="setLevel('advanced')">Advanced</button>
       </div>
     </div>
-    <button class="btn-start" onclick="startCall()">Start Call</button>
+    <button class="btn-start" onclick="startCall()">Start Text Call</button>
+    <div class="section" style="margin-top:20px">
+      <div class="section-title">Voice Practice</div>
+      <p style="color:#a8a29e;font-size:13px;margin-bottom:10px">Practice your pitch over the phone with a live AI buyer. Enter your number and we will call you.</p>
+      <div style="display:flex;gap:10px;align-items:center">
+        <input type="tel" id="phone-input" placeholder="+1 (555) 123-4567" style="flex:1;padding:12px 16px;border-radius:10px;border:1px solid #292524;background:#1c1917;color:#fafaf9;font-size:15px">
+        <button class="btn" style="padding:12px 24px;white-space:nowrap" onclick="startVoiceCall()">Call Me</button>
+      </div>
+      <p id="voice-status" style="color:#a8a29e;font-size:12px;margin-top:8px"></p>
+    </div>
     <div style="height:30px"></div>
   </div>
 </div>`;
@@ -757,6 +766,49 @@ async function sendMessage(){
   S.buyerBusy=false;
   document.getElementById('send-btn').disabled=false;
   input.focus();
+}
+
+async function startVoiceCall(){
+  const phoneEl=document.getElementById('phone-input');
+  const statusEl=document.getElementById('voice-status');
+  let phone=phoneEl.value.replace(/[^0-9+]/g,'');
+  if(!phone||phone.length<10){statusEl.textContent='Enter a valid phone number';statusEl.style.color='#ef4444';return}
+  if(!phone.startsWith('+'))phone='+1'+phone;
+  if(!S.productDesc&&!S.productPreset){statusEl.textContent='Select a product first';statusEl.style.color='#ef4444';return}
+  if(!S.buyerDesc&&!S.buyerPreset){statusEl.textContent='Select a buyer persona first';statusEl.style.color='#ef4444';return}
+
+  const product=PRODUCTS.find(x=>x.id===S.productPreset);
+  const buyer=BUYERS.find(x=>x.id===S.buyerPreset);
+  const productName=product?product.label:S.productDesc.substring(0,80);
+  const buyerPersona=S.buyerDesc||buyer.description;
+  const diff=S.startDifficulty==='auto'?5:Number(S.startDifficulty);
+
+  statusEl.textContent='Calling you now...';statusEl.style.color='#f97316';
+
+  try{
+    const resp=await fetch('https://api.retellai.com/v2/create-phone-call',{
+      method:'POST',
+      headers:{'Authorization':'Bearer key_c833df9a891bacfc002cf8714c0c','Content-Type':'application/json'},
+      body:JSON.stringify({
+        from_number:'+12063505569',
+        to_number:phone,
+        override_agent_id:'agent_2d2969f4f54ab3192ceaf4ab5e',
+        metadata:{product:productName,buyer_persona:buyerPersona,difficulty:String(diff)}
+      })
+    });
+    const data=await resp.json();
+    if(resp.ok&&data.call_id){
+      statusEl.textContent='Call connected! Pick up your phone. Call ID: '+data.call_id;
+      statusEl.style.color='#10b981';
+      addCall({date:new Date().toISOString().split('T')[0],persona:buyer?buyer.label:'Custom',product:productName,score:0,grade:'-',duration:'Voice',difficulty_peak:diff,type:'voice',call_id:data.call_id});
+    }else{
+      statusEl.textContent='Error: '+(data.error_message||'Could not connect call');
+      statusEl.style.color='#ef4444';
+    }
+  }catch(e){
+    statusEl.textContent='Connection failed. Try again.';
+    statusEl.style.color='#ef4444';
+  }
 }
 
 async function endCall(){
