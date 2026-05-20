@@ -202,6 +202,13 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:11px 22px;border-radius:10px;font-size:.88rem;font-weight:600;z-index:200;animation:toastIn .3s ease}
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mode-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px 12px;cursor:pointer;transition:.15s;text-align:center}
+.mode-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(249,115,22,.1)}
+.mode-card.active{border-color:var(--primary);background:var(--primary-dim)}
+.mode-icon{font-size:1.4rem;margin-bottom:6px;color:var(--primary);font-weight:700}
+.mode-title{font-weight:700;font-size:.88rem;margin-bottom:3px}
+.mode-desc{color:var(--muted);font-size:.76rem;line-height:1.4}
 @media(max-width:768px){
   .call-layout{flex-direction:column}
   .call-left{flex:none;height:55vh;border-right:none;border-bottom:1px solid var(--border)}
@@ -211,7 +218,8 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min
   .landing-hero h1{font-size:2.2rem}.landing-hero .logo-text{font-size:2.2rem}
   .ms-grid{grid-template-columns:1fr}
   .hero-buttons{flex-direction:column;align-items:center}
-  .pricing-grid,.testimonials,.features-grid{grid-template-columns:1fr}
+  .pricing-grid,.testimonials,.features-grid,.mode-grid{grid-template-columns:1fr}
+  .mode-grid{grid-template-columns:repeat(2,1fr)}
 }
 </style>
 </head>
@@ -285,7 +293,7 @@ const TIPS = [
 let S = {
   productPreset:null,productDesc:'',pitchScript:'',buyerPreset:null,buyerName:'',buyerDesc:'',
   startDifficulty:3,currentDifficulty:3,difficultyHistory:[3],level:'intermediate',
-  messages:[],timerInterval:null,seconds:0,
+  messages:[],timerInterval:null,seconds:0,selectedMode:'cold_call',
   runningScores:{rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},
   buyerBusy:false,coachBusy:false
 };
@@ -522,6 +530,41 @@ function pageSetup(){
         <button class="toggle-btn" data-level="advanced" onclick="setLevel('advanced')">Advanced</button>
       </div>
     </div>
+    <div class="section">
+      <div class="section-title">Training Mode</div>
+      <div class="mode-grid" id="mode-grid">
+        <div class="mode-card" data-mode="cold_call" onclick="selectMode('cold_call')">
+          <div class="mode-icon">&#9742;</div>
+          <div class="mode-title">Cold Call</div>
+          <div class="mode-desc">Get past gatekeepers, pitch from scratch</div>
+        </div>
+        <div class="mode-card" data-mode="discovery" onclick="selectMode('discovery')">
+          <div class="mode-icon">&#9906;</div>
+          <div class="mode-title">Discovery Call</div>
+          <div class="mode-desc">Qualify prospects, uncover real needs</div>
+        </div>
+        <div class="mode-card" data-mode="demo" onclick="selectMode('demo')">
+          <div class="mode-icon">&#9635;</div>
+          <div class="mode-title">Product Demo</div>
+          <div class="mode-desc">Present your product, handle live questions</div>
+        </div>
+        <div class="mode-card" data-mode="negotiation" onclick="selectMode('negotiation')">
+          <div class="mode-icon">&#9878;</div>
+          <div class="mode-title">Negotiation</div>
+          <div class="mode-desc">Price pushback, terms, closing the deal</div>
+        </div>
+        <div class="mode-card" data-mode="follow_up" onclick="selectMode('follow_up')">
+          <div class="mode-icon">&#8634;</div>
+          <div class="mode-title">Follow-up</div>
+          <div class="mode-desc">Re-engage a cold lead</div>
+        </div>
+        <div class="mode-card" data-mode="angry_customer" onclick="selectMode('angry_customer')">
+          <div class="mode-icon">&#9888;</div>
+          <div class="mode-title">Angry Customer</div>
+          <div class="mode-desc">De-escalate and save the relationship</div>
+        </div>
+      </div>
+    </div>
     <button class="btn-start" onclick="startCall()">Start Text Call</button>
     <div class="section" style="margin-top:20px">
       <div class="section-title">Voice Practice</div>
@@ -566,7 +609,7 @@ function initSetup(){
   if(saved.difficulty) setDiff(saved.difficulty);
   if(saved.level) setLevel(saved.level);
   if(saved.pitch) document.getElementById('pitch-script').value=saved.pitch;
-}
+  selectMode(S.selectedMode||'cold_call');
 
 function selectProduct(id){
   S.productPreset=id;
@@ -594,6 +637,11 @@ function setDiff(v){
 function setLevel(v){
   S.level=v;
   document.querySelectorAll('[data-level]').forEach(b=>b.classList.toggle('active',b.dataset.level===v));
+}
+
+function selectMode(mode){
+  S.selectedMode=mode;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('active',c.dataset.mode===mode));
 }
 
 // Call
@@ -957,7 +1005,7 @@ async function startBrowserCall() {
 
   try {
     // Get access token from our backend proxy
-    const resp = await fetch('http://localhost:3002/api/create-call', { method: 'POST' });
+    const resp = await fetch('http://localhost:3002/api/create-call', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ mode: S.selectedMode || 'cold_call' }) });
     if (!resp.ok) throw new Error('Failed to get call token');
     const { access_token } = await resp.json();
     if (!access_token) throw new Error('No access token returned');
