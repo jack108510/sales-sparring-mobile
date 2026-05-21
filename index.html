@@ -1132,89 +1132,353 @@ const debriefObs=new MutationObserver(()=>{
 });
 debriefObs.observe(document.getElementById('app'),{childList:true,subtree:true});
 
-// ===== BROWSER VOICE CALL (Retell AI) =====
+// ===== DIY VOICE STACK =====
+// Web Speech API (STT) + WebSocket + Browser TTS / ElevenLabs fallback
+// Retell is still available as fallback via startRetellCall()
+
+let voiceWS = null;
+let voiceRecognition = null;
+let voiceCallTimer = null;
+let voiceCallSeconds = 0;
+let isTTSSpeaking = false;
+let voiceSessionActive = false;
+let lastTranscript = '';
 let retellClient = null;
-let browserCallTimer = null;
-let browserCallSeconds = 0;
+
+// Get the backend URL (works from localhost or deployed)
+function getVoiceBackendURL() {
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  // If served from GitHub Pages or remote, use localhost for dev
+  if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    return proto + '//localhost:3002/voice-call';
+  }
+  return proto + '//localhost:3002/voice-call';
+}
 
 async function startBrowserCall() {
   const statusBtn = document.getElementById('btn-browser-call');
-  if (statusBtn) {
-    statusBtn.textContent = 'Connecting...';
-    statusBtn.disabled = true;
+  if (statusBtn) { statusBtn.textContent = 'Connecting...'; statusBtn.disabled = true; }
+
+  // Validate setup
+  if (!S.productDesc && !S.productPreset) {
+    alert('Select a product first.'); 
+    if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
+    return;
+  }
+  if (!S.buyerDesc && !S.buyerPreset) {
+    alert('Select a buyer persona first.');
+    if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
+    return;
   }
 
+  const product = PRODUCTS.find(x => x.id === S.productPreset);
+  const buyer = BUYERS.find(x => x.id === S.buyerPreset);
+  const productDesc = S.productPreset === 'custom' ? (document.getElementById('product-desc')?.value || S.productDesc) : (product?.desc || S.productDesc);
+  const buyerName = S.buyerPreset === 'custom' ? (document.getElementById('buyer-desc')?.value || 'Custom Buyer') : (buyer?.name || S.buyerName);
+  const buyerDesc = S.buyerPreset === 'custom' ? (document.getElementById('buyer-desc')?.value || '') : (buyer?.desc || S.buyerDesc);
+  const pitchScript = document.getElementById('pitch-script')?.value || S.pitchScript || '';
+  const difficulty = S.startDifficulty === 'auto' ? 3 : Number(S.startDifficulty);
+
   try {
-    // Get access token from our backend proxy
-    const resp = await fetch('http://localhost:3002/api/create-call', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ mode: S.selectedMode || 'cold_call' }) });
-    if (!resp.ok) throw new Error('Failed to get call token');
-    const { access_token } = await resp.json();
-    if (!access_token) throw new Error('No access token returned');
+    // Connect WebSocket
+    voiceWS = new WebSocket(getVoiceBackendURL());
 
-    // Initialize Retell client
-    retellClient = new RetellWebClient();
+    voiceWS.onopen = () => {
+      // Send start message
+      voiceWS.send(JSON.stringify({
+        type: 'start',
+        mode: S.selectedMode || 'cold_call',
+        productDesc: productDesc,
+        buyerName: buyerName,
+        buyerDesc: buyerDesc,
+        difficulty: difficulty,
+        level: S.level || 'intermediate',
+        pitchScript: pitchScript
+      }));
 
-    // Wire up events
-    retellClient.on('call_started', () => {
+      voiceSessionActive = true;
       showBrowserCallUI(true);
-      browserCallSeconds = 0;
-      clearInterval(browserCallTimer);
-      browserCallTimer = setInterval(() => {
-        browserCallSeconds++;
+      updateCallStatus('Connected', 'var(--green)');
+
+      // Start timer
+      voiceCallSeconds = 0;
+      clearInterval(voiceCallTimer);
+      voiceCallTimer = setInterval(() => {
+        voiceCallSeconds++;
         const el = document.getElementById('call-timer-display');
-        if (el) el.textContent = String(Math.floor(browserCallSeconds/60)).padStart(2,'0')+':'+String(browserCallSeconds%60).padStart(2,'0');
+        if (el) el.textContent = String(Math.floor(voiceCallSeconds/60)).padStart(2,'0')+':'+String(voiceCallSeconds%60).padStart(2,'0');
       }, 1000);
-    });
 
-    retellClient.on('call_ended', () => {
-      showBrowserCallUI(false);
-      clearInterval(browserCallTimer);
-      retellClient = null;
-    });
+      // Start speech recognition
+      startSTT();
+    };
 
-    retellClient.on('agent_speaking', () => {
-      const ind = document.getElementById('mic-indicator');
-      if (ind) ind.style.background = 'var(--primary)';
-    });
+    voiceWS.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        handleVoiceMessage(msg);
+      } catch(e) { console.error('Voice WS parse error:', e); }
+    };
 
-    retellClient.on('user_speaking', () => {
-      const ind = document.getElementById('mic-indicator');
-      if (ind) ind.style.background = 'var(--green)';
-    });
+    voiceWS.onerror = (err) => {
+      console.error('Voice WS error:', err);
+      updateCallStatus('Connection error', 'var(--red)');
+    };
 
-    retellClient.on('segment', (seg) => {
-      const el = document.getElementById('live-transcript');
-      if (el && seg) {
-        const who = seg.role === 'agent' ? 'AI' : 'You';
-        el.innerHTML += `<div><strong>${who}:</strong> ${escHtml(seg.text || '')}</div>`;
-        el.scrollTop = el.scrollHeight;
+    voiceWS.onclose = () => {
+      if (voiceSessionActive) {
+        updateCallStatus('Disconnected', 'var(--red)');
       }
-    });
-
-    retellClient.on('error', (err) => {
-      console.error('Retell error:', err);
-      showBrowserCallUI(false);
-      clearInterval(browserCallTimer);
-      if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
-      alert('Call error: ' + (err.message || 'Unknown error'));
-    });
-
-    // Start the call
-    await retellClient.startCall({ accessToken: access_token });
+      voiceSessionActive = false;
+      stopSTT();
+    };
 
   } catch (err) {
     console.error('Browser call error:', err);
     if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
-    alert('Could not start call. Make sure the PitchForge server is running on port 3002.');
+    alert('Could not start voice call. Make sure the PitchForge server is running on port 3002.');
   }
 }
 
-function stopBrowserCall() {
-  if (retellClient) {
-    retellClient.stopCall();
+function handleVoiceMessage(msg) {
+  switch(msg.type) {
+    case 'ai_response':
+      // Add to transcript
+      addVoiceTranscript('AI', msg.text);
+      // Speak via TTS
+      speakTTS(msg.text);
+      break;
+
+    case 'coach_tip':
+      updateCallStatus('Listening', 'var(--green)');
+      if (msg.data) {
+        addVoiceCoachTip(msg.data);
+      }
+      break;
+
+    case 'difficulty':
+      // Could show difficulty change indicator
+      break;
+
+    case 'scoring':
+      updateCallStatus(msg.text || 'Scoring...', 'var(--amber)');
+      break;
+
+    case 'scores':
+      // Store scores and navigate to debrief
+      window._lastScore = msg.data;
+      if (msg.data.difficultyHistory) S.difficultyHistory = msg.data.difficultyHistory;
+      if (msg.data.messages) S.messages = msg.data.messages;
+      S.currentDifficulty = msg.data.difficulty_peak || S.currentDifficulty;
+      S.seconds = voiceCallSeconds;
+
+      // Save call
+      const dur = Math.floor(voiceCallSeconds/60)+':'+String(voiceCallSeconds%60).padStart(2,'0');
+      addCall({
+        date: new Date().toISOString().slice(0,10),
+        persona: S.buyerName,
+        product: PRODUCTS.find(p=>p.id===S.productPreset)?.label||'Custom',
+        score: msg.data.overall_score,
+        grade: msg.data.grade,
+        duration: dur,
+        difficulty_peak: msg.data.difficulty_peak || S.currentDifficulty
+      });
+
+      stopBrowserCall();
+      navigate('#/debrief');
+      break;
+
+    case 'error':
+      addVoiceTranscript('System', 'Error: ' + msg.text);
+      break;
   }
+}
+
+function addVoiceTranscript(who, text) {
+  const el = document.getElementById('live-transcript');
+  if (el) {
+    el.innerHTML += `<div><strong>${escHtml(who)}:</strong> ${escHtml(text)}</div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+function addVoiceCoachTip(data) {
+  const el = document.getElementById('live-transcript');
+  if (!el) return;
+  if (data.tip) {
+    el.innerHTML += `<div style="color:var(--amber);font-size:.8rem;padding:2px 0"><em>Coach: ${escHtml(data.tip)}</em></div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+  if (data.warning) {
+    el.innerHTML += `<div style="color:var(--red);font-size:.8rem;padding:2px 0"><em>Warning: ${escHtml(data.warning)}</em></div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+  if (data.praise) {
+    el.innerHTML += `<div style="color:var(--green);font-size:.8rem;padding:2px 0"><em>Great: ${escHtml(data.praise)}</em></div>`;
+    el.scrollTop = el.scrollHeight;
+  }
+}
+
+function updateCallStatus(text, color) {
+  const el = document.getElementById('call-status-text');
+  if (el) { el.textContent = text; el.style.color = color; }
+  const ind = document.getElementById('mic-indicator');
+  if (ind) {
+    if (text === 'Listening') { ind.style.background = 'var(--green)'; }
+    else if (text === 'AI Speaking...') { ind.style.background = 'var(--primary)'; }
+    else { ind.style.background = color; }
+  }
+}
+
+// ===== Speech Recognition (STT) =====
+function startSTT() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    addVoiceTranscript('System', 'Speech recognition not supported. Use Chrome or Safari.');
+    return;
+  }
+
+  voiceRecognition = new SpeechRecognition();
+  voiceRecognition.continuous = true;
+  voiceRecognition.interimResults = true;
+  voiceRecognition.lang = 'en-US';
+
+  voiceRecognition.onresult = (event) => {
+    if (isTTSSpeaking) return; // Don't process while AI is speaking
+
+    let interimTranscript = '';
+    let finalTranscript = '';
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript;
+      } else {
+        interimTranscript += transcript;
+      }
+    }
+
+    // Show interim results in transcript
+    if (interimTranscript) {
+      updateCallStatus('Listening...', 'var(--green)');
+    }
+
+    // Send final transcript to server
+    if (finalTranscript.trim() && finalTranscript.trim() !== lastTranscript) {
+      lastTranscript = finalTranscript.trim();
+      addVoiceTranscript('You', finalTranscript.trim());
+      if (voiceWS && voiceWS.readyState === 1) {
+        voiceWS.send(JSON.stringify({ type: 'transcript', text: finalTranscript.trim() }));
+      }
+      updateCallStatus('Processing...', 'var(--amber)');
+    }
+  };
+
+  voiceRecognition.onerror = (event) => {
+    console.log('STT error:', event.error);
+    if (event.error === 'no-speech' || event.error === 'aborted') {
+      // Restart if session still active
+      if (voiceSessionActive && !isTTSSpeaking) {
+        setTimeout(() => { if (voiceSessionActive) restartSTT(); }, 500);
+      }
+    }
+  };
+
+  voiceRecognition.onend = () => {
+    // Auto-restart if session is still active
+    if (voiceSessionActive && !isTTSSpeaking) {
+      setTimeout(() => { if (voiceSessionActive) restartSTT(); }, 300);
+    }
+  };
+
+  try {
+    voiceRecognition.start();
+  } catch(e) {
+    console.error('STT start error:', e);
+  }
+}
+
+function restartSTT() {
+  stopSTT();
+  setTimeout(() => { if (voiceSessionActive) startSTT(); }, 100);
+}
+
+function stopSTT() {
+  if (voiceRecognition) {
+    try { voiceRecognition.stop(); } catch(e) {}
+    voiceRecognition = null;
+  }
+}
+
+// ===== Text-to-Speech (TTS) =====
+function speakTTS(text) {
+  isTTSSpeaking = true;
+  updateCallStatus('AI Speaking...', 'var(--primary)');
+  stopSTT(); // Stop listening while AI speaks
+
+  // Cancel any ongoing speech
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.rate = 1.0;
+  utterance.pitch = 1.0;
+
+  // Pick a good English voice
+  const voices = speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.name.includes('Google') && v.lang === 'en-US')
+    || voices.find(v => v.name.includes('Samantha'))
+    || voices.find(v => v.lang === 'en-US' && !v.localService)
+    || voices.find(v => v.lang === 'en-US')
+    || voices[0];
+  if (preferred) utterance.voice = preferred;
+
+  utterance.onend = () => {
+    isTTSSpeaking = false;
+    if (voiceSessionActive) {
+      updateCallStatus('Listening', 'var(--green)');
+      startSTT(); // Resume listening
+    }
+  };
+
+  utterance.onerror = () => {
+    isTTSSpeaking = false;
+    if (voiceSessionActive) {
+      updateCallStatus('Listening', 'var(--green)');
+      startSTT();
+    }
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+// Ensure voices are loaded (Chrome loads async)
+speechSynthesis.onvoiceschanged = () => { speechSynthesis.getVoices(); };
+
+function stopTTS() {
+  speechSynthesis.cancel();
+  isTTSSpeaking = false;
+}
+
+// ===== End voice call =====
+function stopBrowserCall() {
+  voiceSessionActive = false;
+
+  // Request scores from server
+  if (voiceWS && voiceWS.readyState === 1) {
+    voiceWS.send(JSON.stringify({ type: 'end' }));
+    // Give server a moment to respond with scores before closing
+    setTimeout(() => {
+      if (voiceWS) { voiceWS.close(); voiceWS = null; }
+    }, 5000);
+  } else {
+    if (voiceWS) { voiceWS.close(); voiceWS = null; }
+  }
+
+  stopSTT();
+  stopTTS();
+  clearInterval(voiceCallTimer);
+  lastTranscript = '';
   showBrowserCallUI(false);
-  clearInterval(browserCallTimer);
 }
 
 function showBrowserCallUI(active) {
@@ -1224,6 +1488,39 @@ function showBrowserCallUI(active) {
   if (activeUI) activeUI.style.display = active ? 'block' : 'none';
   const btn = document.getElementById('btn-browser-call');
   if (btn && !active) { btn.textContent = 'Start Practice Call'; btn.disabled = false; }
+}
+
+// ===== Retell AI fallback (still available) =====
+async function startRetellCall() {
+  const statusBtn = document.getElementById('btn-browser-call');
+  if (statusBtn) { statusBtn.textContent = 'Connecting via Retell...'; statusBtn.disabled = true; }
+
+  try {
+    const resp = await fetch('http://localhost:3002/api/create-call', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ mode: S.selectedMode || 'cold_call' })
+    });
+    if (!resp.ok) throw new Error('Failed to get call token');
+    const { access_token } = await resp.json();
+    if (!access_token) throw new Error('No access token returned');
+
+    retellClient = new RetellWebClient();
+
+    retellClient.on('call_started', () => { showBrowserCallUI(true); });
+    retellClient.on('call_ended', () => { showBrowserCallUI(false); retellClient = null; });
+    retellClient.on('error', (err) => {
+      showBrowserCallUI(false);
+      if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
+      alert('Retell error: ' + (err.message || 'Unknown error'));
+    });
+
+    await retellClient.startCall({ accessToken: access_token });
+  } catch (err) {
+    console.error('Retell error:', err);
+    if (statusBtn) { statusBtn.textContent = 'Start Practice Call'; statusBtn.disabled = false; }
+    alert('Could not start Retell call.');
+  }
 }
 </script>
 <script src="https://unpkg.com/retell-client-js-sdk@latest/dist/index.js"></script>
