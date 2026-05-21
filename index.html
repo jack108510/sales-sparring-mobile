@@ -417,42 +417,97 @@ function pageLanding(){
   <div class="landing-hero">
     ${logoHTML('3rem')}
     <h1>Master the Art of the <span class="sale-word">Sale</span></h1>
-    <p>Practice your pitch against AI buyers that adapt to your skill level. Get real-time coaching. Close more deals.</p>
+    <p>Practice your pitch against AI buyers that adapt to your skill level. For solo reps and sales teams.</p>
     <div class="hero-buttons">
       <button class="btn btn-primary btn-lg" onclick="navigate('#/signup')">Get Started Free</button>
       <button class="btn btn-outline btn-lg" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See How It Works</button>
     </div>
   </div>
-  <div class="landing-section" id="features">
-    <h2>Why PitchForge Works</h2>
-    <p class="section-sub">Real practice. Real feedback. Real results.</p>
-    <div class="features-grid">
-      <div class="feature-card"><div class="feature-icon"><div class="icon-bubbles"></div></div><h3>AI Buyers That Fight Back</h3><p>Our AI buyers have distinct personalities. They object, they negotiate, they hang up. Just like real prospects.</p></div>
-      <div class="feature-card"><div class="feature-icon"><div class="icon-target"></div></div><h3>Live Coaching</h3><p>A real-time AI coach watches your call and tells you what to do next. Warnings when you're messing up. Praise when you nail it.</p></div>
-      <div class="feature-card"><div class="feature-icon"><div class="icon-arrow-up"></div></div><h3>Adaptive Difficulty</h3><p>The better you get, the harder the buyer. Never stop improving.</p></div>
+
+  <!-- Who Is PitchForge For? -->
+  <div class="landing-section" style="max-width:1060px">
+    <h2>Who Is PitchForge For?</h2>
+    <p class="section-sub">Whether you're a solo closer or leading a team, we've got you covered.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px">
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:16px">For Sales Professionals</h3>
+        <ul style="list-style:none;margin-bottom:22px">
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Practice anytime, no manager needed</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>6 training modes: cold calls, demos, negotiations, and more</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Randomized products and buyer personalities</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Real-time AI coaching on every call</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Track your scores and watch your close rate climb</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%" onclick="navigate('#/signup')">Start Free</button>
+      </div>
+      <div style="background:var(--card);border:2px solid var(--primary);border-radius:16px;padding:30px;box-shadow:0 0 30px rgba(249,115,22,.12);position:relative">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700">For Teams</div>
+        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:16px">For Sales Teams</h3>
+        <ul style="list-style:none;margin-bottom:22px">
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Custom product scenarios loaded with YOUR actual products</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Buyer personas based on your real customers and competitors</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Manager dashboard to track team progress</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Onboard new hires before they touch a real prospect</li>
+          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Standardize your sales methodology across the team</li>
+        </ul>
+        <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">Request Demo</button>
+      </div>
     </div>
   </div>
+
+  <!-- How It Works -->
+  <div class="landing-section" id="features">
+    <h2>Why PitchForge Works</h2>
+    <p class="section-sub">Real practice. Real feedback. Real results -- for individuals and teams.</p>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon"><div class="icon-bubbles"></div></div><h3>AI Buyers That Fight Back</h3><p>Our AI buyers have distinct personalities -- from skeptical CEOs to friendly procurement managers. They object, negotiate, and push back. Train solo or assign scenarios to your team.</p></div>
+      <div class="feature-card"><div class="feature-icon"><div class="icon-target"></div></div><h3>Live Coaching</h3><p>A real-time AI coach watches every call and tells you what to do next. Individuals get instant feedback; managers get visibility into where reps need help.</p></div>
+      <div class="feature-card"><div class="feature-icon"><div class="icon-arrow-up"></div></div><h3>Adaptive Difficulty</h3><p>The better you get, the harder the buyer. Whether you're onboarding a new hire or sharpening a veteran, PitchForge scales to match.</p></div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
   <div class="landing-section">
     <h2>Trusted by 2,000+ Sales Professionals</h2>
     <p class="section-sub">Hear from people who leveled up their close rate.</p>
     <div class="testimonials">
       <div class="testimonial"><p>"I went from dreading cold calls to booking 3x more demos in just two weeks. The AI coach catches things my manager never did."</p><div class="testimonial-name">Alex Rivera</div><div class="testimonial-role">Account Executive, CloudStack</div></div>
       <div class="testimonial"><p>"The difficulty scaling is genius. By the time I got to level 8 buyers, real prospects felt easy. Best training investment I've made."</p><div class="testimonial-name">Priya Sharma</div><div class="testimonial-role">Sales Director, Nexus Group</div></div>
-      <div class="testimonial"><p>"I use PitchForge every morning before my calls. It's like a warm-up for my brain. My close rate went from 18% to 31%."</p><div class="testimonial-name">Marcus Cole</div><div class="testimonial-role">Founder, Cole Consulting</div></div>
+      <div class="testimonial"><p>"We rolled PitchForge out to our 30-person sales team. Onboarding time dropped from 6 weeks to 2. New hires are hitting quota faster than our veterans used to."</p><div class="testimonial-name">David Park</div><div class="testimonial-role">VP of Sales, Meridian Tech</div></div>
     </div>
   </div>
+
+  <!-- Pricing -->
   <div class="landing-section">
     <h2>Simple Pricing</h2>
-    <p class="section-sub">Start free. Upgrade when you're ready.</p>
-    <div class="pricing-grid">
+    <p class="section-sub">Start free. Upgrade when you're ready. Go enterprise when your team needs it.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:900px;margin:0 auto">
       <div class="price-card dim"><h3>Free</h3><div class="price">$0<span>/mo</span></div><div class="price-desc">Get started with the basics</div><ul><li>5 practice calls per month</li><li>3 buyer personas</li><li>Basic coaching</li><li>Score tracking</li></ul><button class="btn btn-outline" style="width:100%" onclick="navigate('#/signup')">Get Started</button></div>
-      <div class="price-card featured"><h3>Pro</h3><div class="price">$19<span>/mo</span></div><div class="price-desc">For serious sales professionals</div><ul><li>Unlimited practice calls</li><li>All buyer personas</li><li>Advanced live coaching</li><li>Performance tracking</li><li>Difficulty scaling</li></ul><button class="btn btn-primary" style="width:100%" onclick="navigate('#/signup')">Start Pro Trial</button></div>
+      <div class="price-card featured"><h3>Pro</h3><div class="price">$19<span>/mo</span></div><div class="price-desc">For serious sales professionals</div><ul><li>Unlimited practice calls</li><li>All buyer personas & training modes</li><li>Advanced live coaching</li><li>Performance analytics</li><li>Difficulty scaling</li></ul><button class="btn btn-primary" style="width:100%" onclick="navigate('#/signup')">Start Pro Trial</button></div>
+      <div class="price-card" style="border-color:var(--border)"><h3>Enterprise</h3><div class="price" style="font-size:1.6rem">Contact Us</div><div class="price-desc">Everything in Pro, built for teams</div><ul><li>Custom product scenarios</li><li>Custom buyer personas</li><li>Manager dashboard</li><li>Team analytics</li><li>Priority support</li></ul><button class="btn btn-outline" style="width:100%" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">Contact Sales</button></div>
     </div>
   </div>
+
+  <!-- Enterprise Demo Request Form -->
+  <div class="landing-section" id="demo-form" style="max-width:600px">
+    <h2>Get PitchForge for Your Team</h2>
+    <p class="section-sub">Tell us about your sales team and we'll set up a custom demo.</p>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px">
+      <div class="form-group"><label>Name</label><input id="demo-name" placeholder="Your full name" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
+      <div class="form-group"><label>Company</label><input id="demo-company" placeholder="Company name" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
+      <div class="form-group"><label>Email</label><input id="demo-email" type="email" placeholder="you@company.com" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
+      <div class="form-group"><label>Team Size</label><select id="demo-size" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"><option value="">Select team size</option><option>5-10</option><option>11-25</option><option>26-50</option><option>50+</option></select></div>
+      <div class="form-group"><label>What CRM do you use?</label><input id="demo-crm" placeholder="e.g. Salesforce, HubSpot, Pipedrive" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
+      <div class="form-group"><label>Message</label><textarea id="demo-message" placeholder="Tell us about your team's needs..." style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit;min-height:80px;resize:vertical"></textarea></div>
+      <button class="btn btn-primary" style="width:100%" onclick="submitDemoRequest()">Request Demo</button>
+      <p style="color:var(--dimmed);font-size:.78rem;text-align:center;margin-top:12px">Or email us directly: <a href="mailto:jack@wildroseautomations.ca" style="color:var(--primary)">jack@wildroseautomations.ca</a></p>
+    </div>
+  </div>
+
   <div class="landing-footer">
     ${logoHTML('1.3rem')}
     <div class="footer-tagline">Sharpen your pitch. Close more deals.</div>
-    <div class="footer-links"><a href="#/landing">Features</a><a href="#/landing">Pricing</a><a href="#/landing">About</a><a href="#/landing">Contact</a></div>
+    <div class="footer-links"><a href="#/landing">Features</a><a href="#/landing">Pricing</a><a href="javascript:void(0)" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">For Teams</a><a href="javascript:void(0)" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">Contact Sales</a><a href="#/landing">About</a></div>
     <div class="footer-copy">&copy; 2026 PitchForge. All rights reserved.</div>
   </div>
 </div>`;
@@ -507,6 +562,26 @@ function doLogin(){
 function doLogout(){
   localStorage.removeItem('pitchforge_user');
   navigate('#/landing');
+}
+
+function submitDemoRequest(){
+  const name=document.getElementById('demo-name').value.trim();
+  const company=document.getElementById('demo-company').value.trim();
+  const email=document.getElementById('demo-email').value.trim();
+  const size=document.getElementById('demo-size').value;
+  const crm=document.getElementById('demo-crm').value.trim();
+  const message=document.getElementById('demo-message').value.trim();
+  if(!name||!company||!email){showToast('Please fill in name, company, and email');return}
+  const requests=JSON.parse(localStorage.getItem('pitchforge_demo_requests')||'[]');
+  requests.push({name,company,email,size,crm,message,date:new Date().toISOString()});
+  localStorage.setItem('pitchforge_demo_requests',JSON.stringify(requests));
+  showToast('Demo request submitted! We\'ll be in touch soon.');
+  document.getElementById('demo-name').value='';
+  document.getElementById('demo-company').value='';
+  document.getElementById('demo-email').value='';
+  document.getElementById('demo-size').value='';
+  document.getElementById('demo-crm').value='';
+  document.getElementById('demo-message').value='';
 }
 
 // Dashboard
