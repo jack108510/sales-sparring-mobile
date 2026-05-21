@@ -192,7 +192,7 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 .card h3{font-size:.9rem;font-weight:700;margin-bottom:8px}
 .category{display:flex;align-items:center;gap:8px;margin-bottom:7px}.category:last-child{margin-bottom:0}
-.cat-name{width:150px;font-size:.78rem;font-weight:500;color:var(--muted);flex-shrink:0}
+.cat-name{width:180px;font-size:.78rem;font-weight:500;color:var(--muted);flex-shrink:0}
 .bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
 .bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
 .cat-score{width:26px;text-align:right;font-weight:700;font-size:.86rem}
@@ -284,17 +284,38 @@ body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min
 
 <script>
 // ===== DATA =====
-const PRODUCTS = [
-  {id:'website',label:'Website Design',desc:'I sell website design and hosting for small businesses. $29/month, no contracts, includes custom design, hosting, SSL, and ongoing support. Mobile-responsive and SEO-optimized.'},
-  {id:'crm',label:'CRM Software',desc:'I sell a CRM platform for small-to-medium businesses. $49/user/month, includes contact management, pipeline tracking, email automation, and reporting. Free 14-day trial.'},
-  {id:'cleaning',label:'Cleaning Service',desc:'I run a commercial cleaning company. We offer nightly/weekly office cleaning, deep cleaning, and sanitization services. Fully insured, vetted staff, eco-friendly products.'},
-  {id:'insurance',label:'Insurance',desc:'I sell commercial insurance packages. General liability, professional liability, workers comp, and property insurance. Custom packages for small businesses.'},
-  {id:'marketing',label:'Marketing',desc:'I run a digital marketing agency. We offer SEO, social media management, PPC advertising, and content creation. Monthly packages starting at $1,500.'},
-  {id:'accounting',label:'Accounting',desc:'I provide outsourced accounting and bookkeeping for small businesses. Monthly packages include bookkeeping, tax prep, payroll, and financial reporting.'},
-  {id:'pos',label:'POS System',desc:'I sell POS systems for retail and restaurants. Hardware + software bundle, $79/month. Includes inventory management, employee scheduling, and analytics.'},
-  {id:'cloud',label:'Cloud Hosting',desc:'I sell managed cloud hosting and IT infrastructure. 99.99% uptime, auto-scaling, 24/7 support. Migration assistance included. Plans from $99/month.'},
-  {id:'custom',label:'Custom',desc:''}
+const PRODUCT_GROUPS = [
+  {label:'Tech & Software',items:[
+    {id:'crm',label:'CRM Software',price:'$49/user/mo',desc:'CRM platform for small-to-medium businesses. $49/user/month includes contact management, pipeline tracking, email automation, and reporting. Free 14-day trial. Selling points: centralizes all customer data so nothing falls through the cracks; automated follow-ups ensure no lead goes cold; pipeline visibility and reporting helps managers forecast revenue. Common objections: "We\'re fine with spreadsheets"; "My team won\'t actually use it — we\'ve tried CRMs before"; "$49 per user adds up fast." Ideal customer: sales manager at 5-50 employee company currently using spreadsheets, losing deals to poor follow-up.'},
+    {id:'cloud',label:'Cloud Hosting',price:'$99/mo',desc:'Managed cloud hosting and IT infrastructure. $99/month, 99.99% uptime, auto-scaling, 24/7 support, migration assistance included. Selling points: blazing-fast load times and 99.99% uptime; managed security with automatic updates, malware scanning, and DDoS protection; expert support team available 24/7. Common objections: "We\'re on AWS/DigitalOcean already and it\'s cheaper"; "We don\'t have enough traffic"; "Our developer handles all the server stuff." Ideal customer: CTO or technical founder of a SaaS/e-commerce company ($500K-$5M revenue) currently on budget hosting, has experienced downtime.'},
+    {id:'cybersecurity',label:'Cybersecurity',price:'$199/user/mo',desc:'Enterprise-grade cybersecurity software. $199/user/month includes endpoint detection, phishing prevention, 24/7 SOC monitoring, and compliance-ready reporting for HIPAA, SOC 2. Selling points: enterprise-grade protection for businesses of any size; 24/7 SOC monitoring catches threats before breaches; compliance-ready reporting for frameworks clients require. Common objections: "We have antivirus — that\'s enough"; "$199 per user is too expensive"; "We\'re too small to be a target." Ideal customer: IT director at a professional services firm (law, accounting, medical) with 10-100 employees handling sensitive data.'},
+    {id:'pos',label:'POS System',price:'$79/mo',desc:'POS system for restaurants. $79/month hardware + software bundle includes fast intuitive interface, real-time inventory tracking, food cost analysis, integrated online ordering, loyalty program, and analytics. Selling points: fast interface that reduces order errors and speeds up service; real-time inventory tracking protects margins; integrated online ordering, loyalty, and analytics in one system. Common objections: "We already have a POS system"; "Switching systems is a nightmare"; "My staff isn\'t tech-savvy." Ideal customer: restaurant owner with 1-3 locations using outdated/overpriced POS, struggling with inventory shrinkage and order errors.'},
+    {id:'hr_payroll',label:'HR/Payroll',price:'$6/employee/mo',desc:'HR and payroll software. $6/employee/month includes automated payroll processing with tax filing, self-service employee portal for PTO/pay stubs/tax docs, and built-in compliance tools. Selling points: automated payroll with tax filing — never miss a deadline; self-service portal reduces HR admin by 50%; built-in compliance for labor laws and benefits. Common objections: "We already use ADP/Paychex/QuickBooks"; "$6 per employee adds up"; "Switching payroll systems is risky." Ideal customer: HR manager at a growing company with 15-200 employees, spending too much time on manual HR tasks.'},
+    {id:'voip',label:'VoIP Phone',price:'$25/line/mo',desc:'VoIP business phone system. $25/line/month includes auto-attendant, call routing, voicemail-to-email, mobile app, and cuts current phone bill by 40-60%. Selling points: professional phone presence with auto-attendant and call routing; works anywhere — team takes business calls on cell phones without giving out personal numbers; cut current phone bill by 40-60% with more features. Common objections: "We already have a phone system"; "What if the internet goes down?"; "We use cell phones for everything now." Ideal customer: office manager at a professional services firm with 5-50 employees, currently overpaying for traditional PBX.'},
+    {id:'analytics',label:'SaaS Analytics',price:'$299/mo',desc:'SaaS analytics platform. $299/month provides unified dashboard pulling data from all tools, AI-powered insights surfacing trends and anomalies, and executive-ready reports in one click. Selling points: unified dashboard from all your tools — no more jumping between apps; AI-powered insights you\'d never catch manually; executive-ready reports in one click — stop spending hours on spreadsheets. Common objections: "We already have dashboards in our existing tools"; "$299/month seems steep — can\'t we build this ourselves?"; "Our team won\'t actually use it." Ideal customer: VP of Operations or data-driven founder at mid-size SaaS/e-commerce ($1M-$20M revenue), cobbling together reports from multiple tools.'}
+  ]},
+  {label:'Professional Services',items:[
+    {id:'marketing',label:'Marketing Agency',price:'$1,500/mo',desc:'Digital marketing agency. $1,500/month for full-service SEO, paid ads, social media, and content with transparent reporting and proven ROI framework. Selling points: data-driven campaigns with transparent reporting; full-service SEO, ads, social, content — one team; proven ROI framework with monthly strategy reviews. Common objections: "We\'ve tried agencies before and didn\'t see results"; "$1,500/month — how do I know it\'ll pay off?"; "We handle marketing in-house." Ideal customer: founder or marketing director of a growing business ($1M-$10M revenue) spending on ads but seeing poor ROI.'},
+    {id:'accounting',label:'Accounting',price:'$800/mo',desc:'Outsourced accounting and bookkeeping. $800/month includes accurate up-to-date books, dedicated accountant who knows your business, cash flow forecasting, and financial insights. Selling points: accurate books means no surprises at tax time; dedicated accountant — not a rotating cast; cash flow forecasting that helps you grow. Common objections: "My spouse/I handle the books ourselves"; "We already have an accountant — just at tax time"; "$800/month feels like a lot." Ideal customer: small business owner ($200K-$3M revenue) doing their own books, stressed about cash flow.'},
+    {id:'legal',label:'Legal Services',price:'$3,000/mo',desc:'Legal services retainer. $3,000/month for on-demand legal counsel without surprise hourly bills, covering employment law, contracts, IP, and corporate governance. Selling points: on-demand counsel without surprise bills; proactive legal protection — risks identified before lawsuits; covers all legal needs — one firm. Common objections: "$3,000/month is a lot for something we might not use"; "We only need a lawyer occasionally"; "We already have a lawyer." Ideal customer: CEO/COO of a growing company ($2M-$20M revenue) calling lawyers reactively for emergencies.'},
+    {id:'recruitment',label:'Recruitment',price:'20% of salary',desc:'Recruitment/staffing agency. Fee is 20% of first year salary (contingency). Provides access to pre-vetted talent pool, guaranteed placement with replacement guarantee, handles sourcing, screening, and initial interviews. Selling points: access to pre-vetted talent you can\'t reach on your own; guaranteed placement with replacement guarantee; we handle everything — you only meet qualified finalists. Common objections: "20% is a huge fee — we can hire on our own"; "We\'ve used agencies before and candidates were terrible"; "We\'re not hiring right now." Ideal customer: hiring manager at a growing company needing to fill specialized roles, struggling to find good candidates.'},
+    {id:'events',label:'Event Planning',price:'$5K-$50K/event',desc:'Event planning service. $5,000-$50,000 per event for end-to-end management including venue, catering, AV, decor, logistics. Access to exclusive venues and vendor networks. Selling points: end-to-end management — you focus on guests; access to exclusive venues not available to public; flawless execution with contingency plans. Common objections: "We\'ve planned our own events before"; "Your fee on top of the budget makes it too expensive"; "Not sure the ROI justifies it." Ideal customer: marketing director or business owner planning a company event, previous event had logistical issues.'}
+  ]},
+  {label:'Physical / Trade',items:[
+    {id:'cleaning',label:'Cleaning Service',price:'$2,000/mo',desc:'Commercial cleaning service. $2,000/month for professional vetted cleaning staff with consistent quality guarantees, flexible scheduling (daily/weekly/custom), and fully insured, bonded, OSHA-compliant teams. Selling points: professional vetted staff with quality guarantees; flexible scheduling around your business hours; reduced liability with insured, bonded, OSHA-compliant teams. Common objections: "We already have a cleaning person"; "$2,000/month is too expensive for cleaning"; "We\'ve had bad experiences — they start strong then get sloppy." Ideal customer: office manager at a company with 5,000-50,000 sq ft, using unreliable independent cleaner.'},
+    {id:'landscaping',label:'Landscaping',price:'$1,200/mo',desc:'Commercial landscaping service. $1,200/month for year-round curb appeal with seasonal programs (spring cleanup, summer maintenance, fall leaves, winter snow), reliable scheduled service with dedicated crews. Selling points: curb appeal that attracts customers year-round; seasonal programs — handled so you don\'t have to; reliable scheduled service — no no-shows. Common objections: "We have a guy who does it for half that price"; "Our property doesn\'t need that much landscaping"; "Can\'t justify $1,200/month for grass and bushes." Ideal customer: property manager or HOA board member, currently using unreliable "guy with a truck."'},
+    {id:'furniture',label:'Office Furniture',price:'$15,000 one-time',desc:'Office furniture supplier. $15,000 one-time for ergonomic modern furniture with full space planning and design service included, bulk pricing and financing options. Selling points: ergonomic furniture that boosts productivity and reduces sick days; full space planning and design included; bulk pricing and financing make it affordable. Common objections: "We can get cheaper furniture from IKEA/Amazon"; "$15K is a big upfront cost"; "Our current furniture is fine." Ideal customer: office manager or HR director moving into new space or renovating, 10-50 employees, currently using mismatched cheap furniture.'},
+    {id:'fleet',label:'Fleet Vehicles',price:'$450/vehicle/mo',desc:'Fleet vehicle leasing. $450/vehicle/month with maintenance included, predictable monthly costs, flexible fleet management (add/swap/return vehicles), and branded professional vehicles. Selling points: predictable costs with maintenance included — no surprise repairs; flexible fleet management as needs change; branded professional vehicles that look established. Common objections: "We own our vehicles — leasing doesn\'t make sense"; "$450 per vehicle is more than our current costs"; "We don\'t have enough vehicles for a fleet deal." Ideal customer: operations manager of a service company with 5-50 vehicles, dealing with unpredictable repair costs.'}
+  ]},
+  {label:'Financial / Insurance',items:[
+    {id:'insurance',label:'Insurance',price:'$500/mo',desc:'Commercial insurance package. $500/month for comprehensive coverage (general liability, professional liability, property) bundled for savings, with risk assessment and dedicated claims advocate. Selling points: comprehensive coverage bundled for savings; risk assessment identifies gaps you didn\'t know existed; dedicated claims advocate who fights for you. Common objections: "We already have insurance through our broker"; "We\'ve never had a claim — don\'t need that much coverage"; "I need to think about it." Ideal customer: business owner/CFO of a small-to-mid-size company ($500K-$10M revenue) who hasn\'t reviewed their policy in 2+ years.'},
+    {id:'realestate',label:'Real Estate',price:'$3,500/mo',desc:'Commercial real estate lease. $3,500/month for prime location with high foot traffic, flexible lease terms with tenant improvement allowances, and professional property management. Selling points: prime location with high foot traffic and visibility; flexible lease terms with improvement allowances; professional property management handles everything. Common objections: "$3,500/month is more than we\'re paying now"; "We\'re locked into our current lease"; "The space isn\'t quite right." Ideal customer: business owner looking to expand or relocate, currently in a space that\'s too small or poorly located.'},
+    {id:'solar',label:'Solar Installation',price:'$80,000 one-time',desc:'Commercial solar installation. $80,000 one-time cuts electricity bill by 40-70% with 5-7 year payback. Federal and state tax incentives cover 30-50% of cost. Selling points: cut electricity bill by 40-70% — pays for itself in 5-7 years; tax incentives cover 30-50% of installation cost; demonstrates environmental leadership. Common objections: "$80K is a massive investment — payback is too long"; "Our roof isn\'t suitable / we don\'t own the building"; "Solar keeps improving — shouldn\'t we wait?" Ideal customer: business owner of a company with large commercial building, high electricity bills ($5K+/month), owns the building.'},
+    {id:'website',label:'Website Design',price:'$29/mo',desc:'Website design and hosting for small businesses. $29/month, no contracts, includes custom mobile-responsive design, managed hosting with 99.9% uptime, SSL, automatic backups, built-in SEO optimization, and analytics dashboard. Selling points: mobile-responsive site that converts visitors into customers; managed hosting with 99.9% uptime and automatic backups; built-in SEO and analytics dashboard. Common objections: "I already have a website / my nephew made me one"; "I don\'t need a website — my business is all word-of-mouth"; "$29/month seems like a lot." Ideal customer: small business owner (plumber, electrician, bakery) with little to no online presence, relies on referrals but struggling to grow.'}
+  ]}
 ];
+
+const PRODUCTS = PRODUCT_GROUPS.flatMap(g=>g.items).concat([{id:'custom',label:'Custom',price:'',desc:''}]);
 
 const BUYERS = [
   {id:'ceo',label:'The Busy CEO',name:'Sarah Chen',desc:'CEO of a 50-person manufacturing company. Back-to-back meetings, zero patience for small talk. Wants bottom-line value fast or she\'s done.'},
@@ -317,8 +338,16 @@ const MODES = [
 ];
 
 const SCORE_CATS = [
-  {key:'rapport',label:'Rapport'},{key:'discovery',label:'Discovery'},{key:'objection',label:'Objections'},
-  {key:'product',label:'Product'},{key:'closing',label:'Closing'},{key:'communication',label:'Pacing'}
+  {key:'opening',label:'Opening & First Impression',weight:0.08},
+  {key:'discovery',label:'Discovery & Questioning',weight:0.15},
+  {key:'listening',label:'Active Listening & Empathy',weight:0.12},
+  {key:'value',label:'Value Framing',weight:0.12},
+  {key:'objections',label:'Objection Handling',weight:0.12},
+  {key:'persuasion',label:'Persuasion & Influence',weight:0.08},
+  {key:'negotiation',label:'Negotiation',weight:0.10},
+  {key:'closing',label:'Closing',weight:0.10},
+  {key:'communication',label:'Communication & Pacing',weight:0.08},
+  {key:'structure',label:'Call Structure',weight:0.05}
 ];
 
 const DIFF_DESC = {
@@ -352,7 +381,7 @@ let S = {
   productPreset:null,productDesc:'',pitchScript:'',buyerPreset:null,buyerName:'',buyerDesc:'',
   startDifficulty:3,currentDifficulty:3,difficultyHistory:[3],level:'intermediate',
   messages:[],timerInterval:null,seconds:0,selectedMode:'cold_call',
-  runningScores:{rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},
+  runningScores:{opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5},
   buyerBusy:false,coachBusy:false
 };
 
@@ -710,7 +739,7 @@ function pageSetup(){
 
 function initSetup(){
   const pp=document.getElementById('product-presets');
-  if(pp) pp.innerHTML=PRODUCTS.map(p=>`<div class="preset-chip" data-id="${p.id}" onclick="selectProduct('${p.id}')">${p.label}</div>`).join('');
+  if(pp) pp.innerHTML=PRODUCT_GROUPS.map(g=>`<div style="margin-bottom:6px;width:100%"><div style="font-size:.72rem;font-weight:700;color:var(--dimmed);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;margin-top:8px">${g.label}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${g.items.map(p=>`<div class="preset-chip" data-id="${p.id}" onclick="selectProduct('${p.id}')">${p.label} <span style="color:var(--dimmed);font-size:.7rem">${p.price}</span></div>`).join('')}</div></div>`).join('')+'<div class="preset-chip" data-id="custom" onclick="selectProduct(\'custom\')" style="margin-top:6px">Custom</div>';
   const bp=document.getElementById('buyer-presets');
   if(bp) bp.innerHTML=BUYERS.map(b=>`<div class="preset-chip" data-id="${b.id}" onclick="selectBuyer('${b.id}')">${b.label}</div>`).join('');
   const saved=loadSetup();
@@ -813,7 +842,7 @@ async function initCall(){
   S.currentDifficulty=S.startDifficulty;
   S.difficultyHistory=[S.startDifficulty];
   S.messages=[];S.seconds=0;
-  S.runningScores={rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5};
+  S.runningScores={opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5};
   S.buyerBusy=false;S.coachBusy=false;
   saveSetup();
 
@@ -856,7 +885,7 @@ function buildBuyerPrompt(){
 function buildCoachPrompt(){
   const ch=S.messages.map(m=>(m.role==='user'?'Salesperson: ':'Buyer: ')+m.content).join('\n');
   const lg=S.level==='beginner'?'The salesperson is a beginner — give more detailed guidance and encouragement.':S.level==='advanced'?'The salesperson is advanced — be subtle and strategic in coaching.':'The salesperson is at intermediate level.';
-  return `You are an expert sales coach monitoring a live sales call. The salesperson is selling: ${S.productDesc}\n\nThe buyer is: ${S.buyerName}, ${S.buyerDesc}\n\nThe salesperson's level: ${S.level}. ${lg}\n\nHere is the conversation so far:\n${ch}\n\nAnalyze the last exchange and provide coaching in this EXACT JSON format (no markdown, just raw JSON):\n{"difficulty_adjustment": 0, "current_difficulty": ${S.currentDifficulty}, "next_move": "one specific suggestion for what to do next (5-10 words)", "warning": "a warning if relevant, or null", "praise": "a specific praise if relevant, or null", "tip": "a contextual tip based on what's happening (1 sentence)", "running_scores": {"rapport": 5, "discovery": 5, "objection": 5, "product": 5, "closing": 5, "communication": 5}}\n\nBe specific. Reference what they actually said. Scores are 1-10. difficulty_adjustment is -2 to +2 based on how well they're performing.`;
+  return `You are an expert sales coach monitoring a live sales call. The salesperson is selling: ${S.productDesc}\n\nThe buyer is: ${S.buyerName}, ${S.buyerDesc}\n\nThe salesperson's level: ${S.level}. ${lg}\n\nHere is the conversation so far:\n${ch}\n\nAnalyze the last exchange and provide coaching in this EXACT JSON format (no markdown, just raw JSON):\n{"difficulty_adjustment": 0, "current_difficulty": ${S.currentDifficulty}, "next_move": "one specific suggestion for what to do next (5-10 words)", "warning": "a warning if relevant, or null", "praise": "a specific praise if relevant, or null", "tip": "a contextual tip based on what's happening (1 sentence)", "running_scores": {"opening":5,"discovery":5,"listening":5,"value":5,"objections":5,"persuasion":5,"negotiation":5,"closing":5,"communication":5,"structure":5}}\n\nBe specific. Reference what they actually said. Scores are 1-10. difficulty_adjustment is -2 to +2 based on how well they're performing.`;
 }
 
 async function callAI(messages){
@@ -1010,13 +1039,13 @@ async function endCall(){
 
 async function getScore(){
   const tr=S.messages.map(m=>(m.role==='user'?'Salesperson: ':'Buyer: ')+m.content).join('\n');
-  const prompt=`You are a sales coach grading a completed sales call.\n\nProduct: ${S.productDesc}\nBuyer: ${S.buyerName}, ${S.buyerDesc}\nSalesperson level: ${S.level}\nFinal difficulty reached: ${S.currentDifficulty}\n\nFull conversation:\n${tr}\n\nGrade the call. Return ONLY valid JSON (no markdown):\n{"overall_score": 75, "grade": "B", "difficulty_start": ${S.startDifficulty}, "difficulty_peak": ${Math.max(...S.difficultyHistory)}, "scores": {"rapport":7,"discovery":5,"objection":6,"product":8,"closing":4,"communication":7}, "strengths": ["specific thing 1", "specific thing 2", "specific thing 3"], "weaknesses": ["specific thing 1", "specific thing 2", "specific thing 3"], "best_moment": "quote their best line", "worst_moment": "quote their worst line", "tip": "one actionable tip", "annotations": [{"message_index": 0, "type": "good", "note": "explanation"}]}\n\nmessage_index is 0-based. type is "good", "missed", or "mistake". Provide 4-8 annotations. Be specific.`;
+  const prompt=`You are a sales coach grading a completed sales call.\n\nProduct: ${S.productDesc}\nBuyer: ${S.buyerName}, ${S.buyerDesc}\nSalesperson level: ${S.level}\nFinal difficulty reached: ${S.currentDifficulty}\n\nFull conversation:\n${tr}\n\nGrade the call using this 10-category rubric (each 1-10): Opening & First Impression, Discovery & Questioning, Active Listening & Empathy, Value Framing, Objection Handling, Persuasion & Influence, Negotiation, Closing, Communication & Pacing, Call Structure. Calculate overall_score as weighted average: Opening×0.08 + Discovery×0.15 + Listening×0.12 + Value×0.12 + Objections×0.12 + Persuasion×0.08 + Negotiation×0.10 + Closing×0.10 + Communication×0.08 + Structure×0.05, then multiply by 10 for a 0-100 scale. Assign grade label: 90-100="Elite", 80-89="Strong", 70-79="Competent", 60-69="Developing", 50-59="Beginner", below 50="Raw". Return ONLY valid JSON (no markdown):\n{"overall_score": 75, "grade": "Competent", "difficulty_start": ${S.startDifficulty}, "difficulty_peak": ${Math.max(...S.difficultyHistory)}, "scores": {"opening":7,"discovery":5,"listening":8,"value":5,"objections":6,"persuasion":7,"negotiation":5,"closing":6,"communication":7,"structure":7}, "strengths": ["specific thing 1", "specific thing 2", "specific thing 3"], "weaknesses": ["specific thing 1", "specific thing 2", "specific thing 3"], "best_moment": "quote their best line", "worst_moment": "quote their worst line", "tip": "one actionable tip", "annotations": [{"message_index": 0, "type": "good", "note": "explanation"}]}\n\nmessage_index is 0-based. type is "good", "missed", or "mistake". Provide 4-8 annotations. Be specific.`;
   const raw=await callAI([{role:'system',content:prompt},{role:'user',content:'Provide the scoring JSON now.'}]);
   const j=raw.match(/\{[\s\S]*\}/)?.[0];if(!j)throw new Error('No JSON');return JSON.parse(j);
 }
 
 function fallbackScore(){
-  return{overall_score:50,grade:'C',difficulty_start:S.startDifficulty,difficulty_peak:S.currentDifficulty,scores:{rapport:5,discovery:5,objection:5,product:5,closing:5,communication:5},strengths:['Completed the call'],weaknesses:['Needs more practice'],best_moment:'',worst_moment:'',tip:'Focus on asking open-ended discovery questions.',annotations:[]};
+  return{overall_score:50,grade:'Developing',difficulty_start:S.startDifficulty,difficulty_peak:S.currentDifficulty,scores:{opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5},strengths:['Completed the call'],weaknesses:['Needs more practice'],best_moment:'',worst_moment:'',tip:'Focus on asking open-ended discovery questions.',annotations:[]};
 }
 
 // Debrief
@@ -1025,19 +1054,15 @@ function pageDebrief(){
   const s=sc.scores||{};
   const ov=sc.overall_score||50;
   const col=ov>=70?'var(--green)':ov>=50?'var(--amber)':'var(--red)';
+  const gradeLabel=ov>=90?'Elite':ov>=80?'Strong':ov>=70?'Competent':ov>=60?'Developing':ov>=50?'Beginner':'Raw';
   const peak=sc.difficulty_peak||S.currentDifficulty;
   const start=sc.difficulty_start||S.startDifficulty;
 
-  const cats=[
-    {key:'rapport',label:'Rapport Building'},{key:'discovery',label:'Discovery & Needs'},
-    {key:'objection',label:'Objection Handling'},{key:'product',label:'Product Knowledge'},
-    {key:'closing',label:'Closing Technique'},{key:'communication',label:'Communication & Pacing'}
-  ];
-
-  const bars=cats.map(c=>{
+  const bars=SCORE_CATS.map(c=>{
     const v=s[c.key]||5;const pct=v*10;
     const bc=v>=7?'var(--green)':v>=5?'var(--amber)':'var(--red)';
-    return`<div class="category"><span class="cat-name">${c.label}</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${bc}" data-target="${pct}"></div></div><span class="cat-score">${v}</span></div>`;
+    const wt=Math.round(c.weight*100);
+    return`<div class="category"><span class="cat-name">${c.label} <span style="font-size:.65rem;color:var(--dimmed)">(${wt}%)</span></span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${bc}" data-target="${pct}"></div></div><span class="cat-score">${v}</span></div>`;
   }).join('');
 
   const ann=sc.annotations||[];
@@ -1067,7 +1092,7 @@ function pageDebrief(){
     <div class="debrief-header"><h1>Call <span>Complete</span></h1><div class="sub">${PRODUCTS.find(p=>p.id===S.productPreset)?.label||'Custom Product'} -- ${S.buyerName} -- ${fmtTime(S.seconds)}</div></div>
     <div class="score-hero">
       <div class="big-num" style="color:${col}">${ov}</div><div class="out-of">/ 100</div>
-      <div class="grade" style="color:${col}">Grade: ${sc.grade||'C'}</div>
+      <div class="grade" style="color:${col}">${gradeLabel} — Grade: ${sc.grade||'C'}</div>
       <div class="diff-range">Started at Level ${start}, peaked at Level ${peak}</div>
       <div style="display:flex;align-items:flex-end;gap:1px;height:${maxH}px;margin:10px auto 0;max-width:180px">${curve}</div>
     </div>
