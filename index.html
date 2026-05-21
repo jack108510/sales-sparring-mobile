@@ -705,6 +705,8 @@ function pageSetup(){
       <div class="mode-context" id="mode-context"></div>
     </div>
     <button class="btn-start" onclick="startCall()">Start Practice Call</button>
+    <button class="btn-start" onclick="startRetellVoiceCall()" style="margin-top:10px;background:#f97316">Start Voice Call</button>
+    <p style="color:#a8a29e;font-size:12px;margin-top:6px;text-align:center">Talk to the AI buyer through your browser mic</p>
     <div style="height:30px"></div>
   </div>
 </div>`;
@@ -1261,7 +1263,99 @@ function speakResponse(text){
   u.onend=()=>{S.voiceEnabled=false};
   speechSynthesis.speak(u);
 }
+
+async function startRetellVoiceCall() {
+  const OPENAI_KEY = 'OPENAI_KEY_PLACEHOLDER';
+  const RETELL_KEY = 'key_c833df9a891bacfc002cf8714c0c';
+  const AGENT_ID = 'agent_2d2969f4f54ab3192ceaf4ab5e';
+  
+  const product = PRODUCTS.find(x => x.id === S.productPreset);
+  const buyer = BUYERS.find(x => x.id === S.buyerPreset);
+  const mode = MODES.find(x => x.id === (S.selectedMode || 'cold_call'));
+  
+  if (!product && S.productPreset !== 'custom') { alert('Select a product first'); return; }
+  if (!buyer && S.buyerPreset !== 'custom') { alert('Select a buyer first'); return; }
+  
+  const btn = event.target;
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
+  
+  try {
+    const resp = await fetch('https://api.retellai.com/v2/create-web-call', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + RETELL_KEY
+      },
+      body: JSON.stringify({
+        agent_id: AGENT_ID,
+        metadata: {
+          mode: S.selectedMode || 'cold_call',
+          product: product?.label || 'Custom',
+          buyer: buyer?.name || 'Custom',
+          difficulty: S.startDifficulty
+        },
+        retell_llm_dynamic_variables: {
+          mode: mode?.title || 'Cold Call',
+          mode_context: mode?.context || '',
+          product_name: product?.label || 'Custom Product',
+          product_desc: S.productPreset === 'custom' ? (document.getElementById('product-desc')?.value || '') : (product?.desc || ''),
+          product_price: product?.price || 'Custom pricing',
+          buyer_name: buyer?.name || 'Custom Buyer',
+          buyer_desc: S.buyerPreset === 'custom' ? (document.getElementById('buyer-desc')?.value || '') : (buyer?.desc || ''),
+          difficulty: String(S.startDifficulty || 5)
+        }
+      })
+    });
+    
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || 'Retell API error: ' + resp.status);
+    }
+    
+    const data = await resp.json();
+    const accessToken = data.access_token;
+    if (!accessToken) throw new Error('No access token received');
+    
+    const client = new RetellWebClient();
+    
+    client.on('call_started', () => {
+      console.log('Retell call started');
+      navigate('#/call');
+      S.seconds = 0;
+      clearInterval(S.timerInterval);
+      S.timerInterval = setInterval(() => { S.seconds++; updateTimer(); }, 1000);
+    });
+    
+    client.on('call_ended', () => {
+      console.log('Retell call ended');
+      clearInterval(S.timerInterval);
+      alert('Call ended. Duration: ' + String(Math.floor(S.seconds/60)).padStart(2,'0') + ':' + String(S.seconds%60).padStart(2,'0'));
+      navigate('#/setup');
+    });
+    
+    client.on('error', (err) => {
+      console.error('Retell error:', err);
+      alert('Call error: ' + (err.message || 'Unknown error'));
+      btn.textContent = 'Start Voice Call';
+      btn.disabled = false;
+    });
+    
+    client.on('transcript', (transcript) => {
+      console.log('Transcript:', transcript);
+    });
+    
+    await client.startCall({ accessToken: accessToken });
+    
+  } catch (err) {
+    console.error('Voice call error:', err);
+    alert('Could not start voice call: ' + err.message);
+    btn.textContent = 'Start Voice Call';
+    btn.disabled = false;
+  }
+}
 </script>
+<script src="https://unpkg.com/retell-client-js-sdk@latest/dist/index.js"></script>
 </body>
 </html>
 
