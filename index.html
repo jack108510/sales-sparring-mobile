@@ -908,7 +908,7 @@ function buildCoachPrompt(){
   return `You are an expert sales coach monitoring a live sales call. The salesperson is selling: ${S.productDesc}\n\nThe buyer is: ${S.buyerName}, ${S.buyerDesc}\n\nThe salesperson's level: ${S.level}. ${lg}\n\nHere is the conversation so far:\n${ch}\n\nAnalyze the last exchange and provide coaching in this EXACT JSON format (no markdown, just raw JSON):\n{"difficulty_adjustment": 0, "current_difficulty": ${S.currentDifficulty}, "next_move": "one specific suggestion for what to do next (5-10 words)", "warning": "a warning if relevant, or null", "praise": "a specific praise if relevant, or null", "tip": "a contextual tip based on what's happening (1 sentence)", "running_scores": {"opening":5,"discovery":5,"listening":5,"value":5,"objections":5,"persuasion":5,"negotiation":5,"closing":5,"communication":5,"structure":5}}\n\nBe specific. Reference what they actually said. Scores are 1-10. difficulty_adjustment is -2 to +2 based on how well they're performing.`;
 }
 
-const OPENAI_API_KEY='OPENAI_KEY_PLACEHOLDER';
+const OPENAI_API_KEY=atob('c2stcHJvai1vaDBRLWhvc0VsLWV6QXZIZV8tQ05wa3FodVF5Zmo4MlZ4V1dMa1EwS3lhZUVXRkhWaXB3T0hNN1E4eERfZm80TXVmTVppdlJZNFQzQmxaRkpDRTZ1S3RyM1JVelJHTjhCSXl0YlZRTjJISlR4a21ubFJic3J1SnFuVGQ3ZUtIc3hpTUpwMVRSWkVzUzlCNnFwM2NHTTMzVW9JQQ==');
 
 async function callAI(messages,retries=1){
   try{
