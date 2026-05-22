@@ -6,6 +6,7 @@
 <title>PitchForge - Sharpen your pitch. Close more deals.</title>
 <!-- v2.1 -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/retell-client-js-sdk@latest/dist/index.js" async onerror="console.warn('Retell SDK failed to load')"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--primary:#f97316;--primary-hover:#ea580c;--primary-dim:rgba(249,115,22,.12);--dark:#0c0a09;--card:#1c1917;--border:#292524;--text:#fafaf9;--muted:#a8a29e;--dimmed:#78716c;--green:#10b981;--green-dim:rgba(16,185,129,.12);--red:#ef4444;--red-dim:rgba(239,68,68,.12);--amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);--user-bubble:#9a3412;--ai-bubble:#292524}
@@ -1281,6 +1282,7 @@ function speakResponse(text){
 }
 
 async function startRetellVoiceCall() {
+  if (typeof RetellWebClient === 'undefined') { alert('Voice SDK not loaded. Try refreshing the page.'); return; }
   const RETELL_KEY = 'key_c833df9a891bacfc002cf8714c0c';
   const AGENT_ID = 'agent_2d2969f4f54ab3192ceaf4ab5e';
   
@@ -1370,7 +1372,6 @@ async function startRetellVoiceCall() {
   }
 }
 </script>
-<script src="https://unpkg.com/retell-client-js-sdk@latest/dist/index.js"></script>
 </body>
 </html>
 
