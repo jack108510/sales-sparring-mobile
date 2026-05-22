@@ -3,1375 +3,840 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PitchForge - Sharpen your pitch. Close more deals.</title>
-<!-- v2.1 -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/retell-client-js-sdk@latest/dist/index.js" async onerror="console.warn('Retell SDK failed to load')"></script>
+<title>PitchForge — AI Sales Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/retell-client-js@latest/sdk.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--primary:#f97316;--primary-hover:#ea580c;--primary-dim:rgba(249,115,22,.12);--dark:#0c0a09;--card:#1c1917;--border:#292524;--text:#fafaf9;--muted:#a8a29e;--dimmed:#78716c;--green:#10b981;--green-dim:rgba(16,185,129,.12);--red:#ef4444;--red-dim:rgba(239,68,68,.12);--amber:#f59e0b;--amber-dim:rgba(245,158,11,.12);--user-bubble:#9a3412;--ai-bubble:#292524}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;line-height:1.5;overflow-x:hidden}
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#app{min-height:100vh}
-.page{display:none;opacity:0;transition:opacity .3s ease}.page.active{display:block;opacity:1}
-.logo-text{font-weight:800;letter-spacing:-.02em}.logo-text .forge{background:linear-gradient(135deg,#f97316,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.top-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border);background:var(--dark);position:sticky;top:0;z-index:50}
-.top-nav .logo-text{font-size:1.25rem;cursor:pointer}.nav-right{display:flex;align-items:center;gap:12px}
-.avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff}
-.nav-name{font-size:.86rem;font-weight:600;color:var(--muted)}
-.btn-logout{padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--dimmed);font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s ease}.btn-logout:hover{border-color:var(--red);color:var(--red)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:10px;font-weight:600;font-size:.95rem;cursor:pointer;font-family:inherit;transition:.2s ease;text-decoration:none;border:none}
-.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:var(--primary-hover);transform:translateY(-1px)}
-.btn-outline{background:transparent;border:2px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--primary);color:var(--primary);transform:translateY(-1px)}
-.btn-lg{padding:16px 32px;font-size:1.1rem;border-radius:12px}
+body{font-family:'Inter',sans-serif;background:#0c0a09;color:#e7e5e4;min-height:100vh;line-height:1.6}
+a{color:#f97316;text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+input,select{font-family:inherit}
+
+/* Utility */
+.container{max-width:1100px;margin:0 auto;padding:0 20px}
+.hidden{display:none!important}
+.page{display:none}.page.active{display:block}
+
+/* Buttons */
+.btn{display:inline-block;padding:12px 28px;border-radius:8px;font-weight:600;font-size:15px;border:none;transition:all .2s}
+.btn-primary{background:#f97316;color:#fff}.btn-primary:hover{background:#ea580c}
+.btn-secondary{background:#1c1917;color:#e7e5e4;border:1px solid #292524}.btn-secondary:hover{border-color:#f97316}
+.btn-green{background:#10b981;color:#fff}.btn-green:hover{background:#059669}
+.btn-danger{background:#dc2626;color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-sm{padding:8px 16px;font-size:13px}
+
+/* Card */
+.card{background:#1c1917;border:1px solid #292524;border-radius:12px;padding:24px}
+.card:hover{border-color:#44403c}
+
+/* Nav */
+nav{padding:16px 0;border-bottom:1px solid #1c1917}
+nav .container{display:flex;justify-content:space-between;align-items:center}
+nav .logo{font-size:20px;font-weight:800;color:#f97316}
+nav .nav-links a{margin-left:24px;color:#a8a29e;font-size:14px;font-weight:500}
+nav .nav-links a:hover{color:#f97316}
 
 /* Landing */
-@keyframes heroGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-.landing-hero{padding:100px 24px 80px;text-align:center;max-width:800px;margin:0 auto;position:relative;overflow:hidden}
-.landing-hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#0c0a09 0%,#1c1917 25%,#1a1510 50%,#1c1917 75%,#0c0a09 100%);background-size:400% 400%;animation:heroGradient 12s ease infinite;z-index:-2}
-.landing-hero::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");z-index:-1;opacity:.5}
-.landing-hero .logo-text{font-size:3rem;margin-bottom:8px;position:relative;z-index:1}
-.landing-hero h1{font-size:3rem;font-weight:900;line-height:1.1;margin:24px 0 16px;letter-spacing:-.03em;position:relative;z-index:1}
-.landing-hero h1 .sale-word{background:linear-gradient(135deg,#f97316,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.landing-hero p{font-size:1.12rem;color:var(--muted);max-width:560px;margin:0 auto 32px;line-height:1.6;position:relative;z-index:1}
-.hero-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
-.landing-section{padding:60px 24px;max-width:1000px;margin:0 auto}
-.landing-section h2{text-align:center;font-size:1.7rem;font-weight:800;margin-bottom:8px}
-.section-sub{text-align:center;color:var(--muted);margin-bottom:36px;font-size:1rem}
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
-.feature-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:26px;transition:.2s ease}.feature-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:0 0 20px rgba(249,115,22,.08)}
-.feature-card h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}.feature-card p{color:var(--muted);font-size:.9rem;line-height:1.6}
-.feature-icon{width:42px;height:42px;border-radius:10px;background:var(--primary-dim);display:flex;align-items:center;justify-content:center;margin-bottom:12px;position:relative}
+.hero{padding:100px 0 60px;text-align:center}
+.hero h1{font-size:52px;font-weight:800;line-height:1.15;margin-bottom:20px}
+.hero h1 .gradient{background:linear-gradient(135deg,#f97316,#ef4444);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:20px;color:#a8a29e;margin-bottom:32px}
+.hero .ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.section{padding:80px 0}
+.section h2{text-align:center;font-size:32px;font-weight:700;margin-bottom:48px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.feature-card{text-align:center;padding:36px 24px}
+.feature-icon{width:56px;height:56px;border-radius:12px;background:rgba(249,115,22,.1);margin:0 auto 20px;display:flex;align-items:center;justify-content:center}
+.feature-icon svg{width:28px;height:28px;stroke:#f97316;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.feature-card h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.feature-card p{color:#a8a29e;font-size:14px}
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.price-card{text-align:center;padding:36px 24px}
+.price-card.popular{border-color:#f97316;position:relative}
+.price-card.popular::before{content:"POPULAR";position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#f97316;color:#fff;padding:4px 12px;border-radius:4px;font-size:11px;font-weight:700}
+.price-card h3{font-size:18px;margin-bottom:8px}
+.price-card .price{font-size:40px;font-weight:800;margin:16px 0}
+.price-card .price span{font-size:16px;color:#a8a29e;font-weight:400}
+.price-card ul{list-style:none;margin:20px 0;text-align:left}
+.price-card li{padding:8px 0;color:#a8a29e;font-size:14px;border-bottom:1px solid #292524}
+.cta-section{text-align:center;padding:80px 0}
+.cta-section h2{font-size:32px;margin-bottom:16px}
+.cta-section p{color:#a8a29e;margin-bottom:32px}
+footer{text-align:center;padding:40px 0;border-top:1px solid #1c1917;color:#78716c;font-size:13px}
 
-/* CSS Icons for features */
-.icon-bubbles{width:20px;height:16px;position:relative}
-.icon-bubbles::before,.icon-bubbles::after{content:'';position:absolute;background:var(--primary);border-radius:6px}
-.icon-bubbles::before{width:16px;height:12px;bottom:0;left:0;border-radius:0 8px 8px 8px}
-.icon-bubbles::after{width:13px;height:10px;top:0;right:0;border-radius:8px 0 8px 8px;opacity:.7}
-
-.icon-target{width:20px;height:20px;position:relative}
-.icon-target::before{content:'';position:absolute;inset:0;border:3px solid var(--primary);border-radius:50%}
-.icon-target::after{content:'';position:absolute;width:8px;height:8px;background:var(--primary);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
-
-.icon-arrow-up{width:18px;height:18px;position:relative}
-.icon-arrow-up::before{content:'';position:absolute;bottom:2px;left:2px;width:14px;height:14px;border-right:3px solid var(--primary);border-top:3px solid var(--primary);transform:rotate(-45deg);border-radius:0 3px 0 0}
-
-.testimonials{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-.testimonial{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:14px;padding:22px;transition:.2s ease}.testimonial:hover{box-shadow:0 0 20px rgba(249,115,22,.08)}
-.testimonial p{font-style:italic;color:var(--muted);font-size:.9rem;line-height:1.6;margin-bottom:12px}
-.testimonial-name{font-weight:600;font-size:.86rem}.testimonial-role{color:var(--dimmed);font-size:.78rem}
-.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;max-width:680px;margin:0 auto}
-.price-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px;text-align:center;transition:.2s ease}
-.price-card.dim{opacity:.85}
-.price-card:hover{transform:translateY(-1px)}
-.price-card.featured{border-color:var(--primary);position:relative;box-shadow:0 0 30px rgba(249,115,22,.12)}
-.price-card.featured::before{content:'Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700}
-.price-card h3{font-size:1.15rem;font-weight:700;margin-bottom:4px}
-.price-card .price{font-size:2.2rem;font-weight:900;margin:10px 0}.price-card .price span{font-size:1rem;font-weight:400;color:var(--muted)}
-.price-card .price-desc{color:var(--muted);font-size:.88rem;margin-bottom:18px;line-height:1.5}
-.price-card ul{list-style:none;text-align:left;margin-bottom:22px}.price-card li{padding:5px 0;color:var(--muted);font-size:.86rem}
-.price-card li::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--primary);margin-right:10px;vertical-align:middle}
-.landing-footer{border-top:1px solid var(--border);border-top:2px solid var(--primary);padding:36px 24px;text-align:center}
-.footer-tagline{color:var(--dimmed);font-size:.85rem;margin:4px 0 16px}.footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:16px}
-.footer-links a{color:var(--muted);text-decoration:none;font-size:.86rem;font-weight:500;transition:.2s ease}.footer-links a:hover{color:var(--primary)}
-.footer-copy{color:var(--dimmed);font-size:.76rem}
-
-/* Auth */
-.auth-container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.auth-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:34px;max-width:400px;width:100%}
-.auth-card .logo-text{font-size:1.5rem;text-align:center;display:block;margin-bottom:4px}
-.auth-tagline{text-align:center;color:var(--dimmed);font-size:.85rem;margin-bottom:26px}
-.auth-tabs{display:flex;margin-bottom:22px;border-bottom:1px solid var(--border)}
-.auth-tab{flex:1;padding:10px;text-align:center;font-weight:600;font-size:.88rem;color:var(--dimmed);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;transition:.2s ease}
-.auth-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
-.auth-form{display:none}.auth-form.active{display:block}
-.form-group{margin-bottom:14px}.form-group label{display:block;font-weight:600;font-size:.82rem;color:var(--muted);margin-bottom:5px}
-.form-group input{width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit;transition:.2s ease}
-.form-group input:focus{outline:2px solid var(--primary);outline-offset:-1px}.form-group input::placeholder{color:var(--dimmed)}
-.auth-submit{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s ease}.auth-submit:hover{background:var(--primary-hover);transform:translateY(-1px)}
-.auth-switch{text-align:center;margin-top:14px;color:var(--dimmed);font-size:.85rem}.auth-switch a{color:var(--primary);cursor:pointer;font-weight:600;text-decoration:none}
-
-/* Dashboard */
-.dashboard{max-width:960px;margin:0 auto;padding:24px}
-.dash-welcome{margin-bottom:28px}.dash-welcome h1{font-size:1.5rem;font-weight:800}.dash-welcome p{color:var(--muted);font-size:.92rem}
-.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:28px}
-.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;transition:.2s ease}.stat-card:hover{border-color:var(--primary);box-shadow:0 0 15px rgba(249,115,22,.08)}
-.stat-card .stat-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--dimmed);margin-bottom:5px}
-.stat-card .stat-value{font-size:1.8rem;font-weight:800}
-.quick-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:28px}
-.action-card{border-radius:14px;padding:26px;cursor:pointer;transition:.2s ease;text-decoration:none;display:block}
-.action-card:hover{transform:translateY(-1px)}
-.action-card.primary-action{background:linear-gradient(135deg,#9a3412,#f97316);border:1px solid rgba(249,115,22,.3)}
-.action-card.secondary-action{background:var(--card);border:1px solid var(--border)}.action-card:hover.secondary-action{border-color:var(--primary)}
-.action-card h3{font-size:1.15rem;font-weight:700;margin-bottom:5px}.action-card p{color:rgba(255,255,255,.7);font-size:.88rem}
-.action-icon{font-size:1.6rem;margin-bottom:8px}
-.recent-section{margin-bottom:28px}.recent-section h2{font-size:1.05rem;font-weight:700;margin-bottom:12px}
-.call-item{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;transition:.2s ease}.call-item:hover{border-color:var(--border);box-shadow:0 0 12px rgba(249,115,22,.06)}
-.call-item-persona{font-weight:600;font-size:.88rem}.call-item-meta{font-size:.78rem;color:var(--dimmed)}
-.call-item-score{font-weight:700;font-size:1rem}.call-item-duration{font-size:.76rem;color:var(--dimmed);text-align:right}
-.empty-state{color:var(--dimmed);font-size:.9rem;text-align:center;padding:28px;background:var(--card);border:1px solid var(--border);border-radius:12px}
-.tip-section{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:28px}
-.tip-section h3{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:6px}
-.tip-section p{color:var(--muted);font-size:.9rem;line-height:1.6}
+/* Signup */
+.signup-page{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.signup-box{width:100%;max-width:400px}
+.signup-box h2{text-align:center;margin-bottom:8px;font-size:28px}
+.signup-box p{text-align:center;color:#a8a29e;margin-bottom:32px;font-size:14px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:6px;font-size:13px;font-weight:500;color:#a8a29e}
+.form-group input{width:100%;padding:12px 14px;background:#1c1917;border:1px solid #292524;border-radius:8px;color:#e7e5e4;font-size:15px;outline:none}
+.form-group input:focus{border-color:#f97316}
 
 /* Setup */
-.setup-page{max-width:620px;margin:0 auto;padding:24px}
-.setup-tagline{color:var(--muted);text-align:center;margin-bottom:28px;font-size:.92rem}
-.section{margin-bottom:22px}.section-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dimmed);margin-bottom:8px}
-.preset-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-.preset-chip{padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:20px;color:var(--muted);font-size:.8rem;font-weight:500;cursor:pointer;transition:.2s ease}
-.preset-chip:hover,.preset-chip.active{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}
-.field{margin-bottom:12px}.field label{display:block;font-weight:600;margin-bottom:5px;font-size:.82rem;color:var(--muted)}
-.field textarea{width:100%;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.9rem;font-family:inherit;min-height:90px;resize:vertical;line-height:1.5;transition:.2s ease}
-.field textarea::placeholder{color:var(--dimmed)}.field textarea:focus{outline:2px solid var(--primary);outline-offset:-1px}
-.toggle-group{display:flex;gap:8px}
-.toggle-btn{flex:1;padding:11px;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--muted);font-weight:600;cursor:pointer;text-align:center;font-family:inherit;font-size:.86rem;transition:.2s ease}
-.toggle-btn.active{border-color:var(--primary);color:var(--primary);background:var(--primary-dim)}.toggle-btn:hover{border-color:var(--primary)}
-.btn-start{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:14px;font-size:1.05rem;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px;transition:.2s ease}.btn-start:hover{background:var(--primary-hover);transform:translateY(-1px)}
+.setup-page{padding:40px 0}
+.setup-page h2{text-align:center;margin-bottom:32px;font-size:28px}
+.setup-section{margin-bottom:36px}
+.setup-section h3{font-size:16px;font-weight:600;margin-bottom:12px;color:#a8a29e}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{padding:8px 18px;border-radius:20px;background:#1c1917;border:1px solid #292524;color:#e7e5e4;font-size:14px;cursor:pointer;transition:all .2s}
+.chip:hover,.chip.active{border-color:#f97316;color:#f97316}
+.chip-input{margin-top:10px}
+.chip-input input{padding:8px 14px;background:#1c1917;border:1px solid #292524;border-radius:8px;color:#e7e5e4;font-size:14px;outline:none;width:100%;max-width:300px}
+.chip-input input:focus{border-color:#f97316}
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.mode-card{padding:16px;background:#1c1917;border:1px solid #292524;border-radius:10px;cursor:pointer;transition:all .2s}
+.mode-card:hover,.mode-card.active{border-color:#f97316}
+.mode-card h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.mode-card p{font-size:12px;color:#78716c}
+.difficulty-row{display:flex;align-items:center;gap:16px}
+.difficulty-row input[type=range]{flex:1;accent-color:#f97316}
+.difficulty-row span{font-size:20px;font-weight:700;color:#f97316;min-width:30px;text-align:center}
+.setup-actions{display:flex;gap:16px;justify-content:center;margin-top:40px;flex-wrap:wrap}
 
 /* Call */
-.call-layout{display:flex;height:calc(100vh - 53px)}
-.call-left{flex:0 0 60%;display:flex;flex-direction:column;border-right:1px solid var(--border)}
-.call-right{flex:0 0 40%;display:flex;flex-direction:column;overflow-y:auto;background:var(--dark)}
-.call-header{padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.call-header-left .label{font-size:.66rem;color:var(--dimmed);text-transform:uppercase;letter-spacing:.5px}
-.call-header-left .value{font-weight:600;font-size:.85rem}
-.timer{font-size:1.4rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--primary)}
-.chat-area{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:8px}
-.msg{max-width:82%;padding:9px 13px;border-radius:14px;font-size:.88rem;line-height:1.5;word-wrap:break-word;animation:msgIn .25s ease}
-@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.msg.ai{align-self:flex-start;background:var(--ai-bubble);border-bottom-left-radius:4px}
-.msg.user{align-self:flex-end;background:var(--user-bubble);border-bottom-right-radius:4px}
-.msg .sender{font-size:.68rem;font-weight:600;margin-bottom:2px;opacity:.7}.msg.user .sender{color:var(--primary)}
-.typing{align-self:flex-start;color:var(--muted);font-style:italic;font-size:.82rem;padding:6px 0;display:flex;align-items:center;gap:8px}
-.typing-dots span{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:bounce .6s ease infinite;display:inline-block;margin:0 1px}
-.typing-dots span:nth-child(2){animation-delay:.15s}.typing-dots span:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-.input-area{padding:8px 16px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--card);flex-shrink:0}
-.input-area textarea{flex:1;padding:9px 12px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.88rem;font-family:inherit;resize:none;height:44px;max-height:100px;transition:.2s ease}
-.input-area textarea:focus{outline:2px solid var(--primary);outline-offset:-1px}.input-area textarea::placeholder{color:var(--dimmed)}
-.send-btn{width:44px;height:44px;background:var(--primary);border:none;border-radius:10px;color:#fff;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s ease;flex-shrink:0}
-.send-btn:hover{background:var(--primary-hover);transform:translateY(-1px)}.send-btn:disabled{opacity:.4;cursor:not-allowed}
-#mic-btn.active{background:var(--red);color:#fff;border-color:var(--red)}
-.end-call-bar{padding:6px 16px;flex-shrink:0}
-.end-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.82rem;transition:.2s ease}.end-btn:hover{border-color:var(--red);color:var(--red);background:var(--red-dim)}
-.coach-panel{padding:16px;display:flex;flex-direction:column;gap:12px}
-.coach-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--dimmed);margin-bottom:4px}
-.diff-meter-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
-.diff-meter-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.diff-meter-label span:first-child{font-size:.76rem;font-weight:600;color:var(--muted)}
-.diff-num{font-size:1.5rem;font-weight:800;color:var(--primary)}.diff-max{font-size:.82rem;color:var(--dimmed)}
-.diff-bar{height:10px;background:var(--border);border-radius:5px;overflow:hidden}
-.diff-bar-fill{height:100%;border-radius:5px;transition:width .6s cubic-bezier(.4,0,.2,1),background .6s ease}
-.diff-desc{font-size:.74rem;color:var(--dimmed);margin-top:6px}
-.next-move{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
-.nm-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:4px}
-.nm-text{font-size:.88rem;font-weight:600}
-.alert{padding:9px 12px;border-radius:10px;font-size:.82rem;font-weight:500;animation:alertIn .3s ease}
-@keyframes alertIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:translateX(0)}}
-.alert.warning{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.25)}
-.alert.praise{background:var(--green-dim);color:var(--green);border:1px solid rgba(16,185,129,.25)}
-.alert.tip{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
-.mini-scores{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
-.ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.ms-label{font-size:.68rem;color:var(--dimmed);font-weight:500}
-.ms-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-.ms-bar-fill{height:100%;border-radius:2px;transition:width .5s ease;background:var(--primary)}
-.ms-bar-fill.low{background:var(--red)}.ms-bar-fill.mid{background:var(--amber)}.ms-bar-fill.high{background:var(--green)}
-.coach-loading{display:flex;align-items:center;gap:8px;color:var(--dimmed);font-size:.78rem;padding:4px 0}
-.spinner-sm{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.call-page{display:flex;flex-direction:column;height:100vh}
+.call-top{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:#1c1917;border-bottom:1px solid #292524}
+.call-top .timer{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.call-top .diff-badge{padding:4px 12px;border-radius:6px;background:rgba(249,115,22,.15);color:#f97316;font-size:13px;font-weight:600}
+.call-body{display:flex;flex:1;overflow:hidden}
+.chat-area{flex:1;display:flex;flex-direction:column}
+.messages{flex:1;overflow-y:auto;padding:20px}
+.msg{margin-bottom:16px;display:flex;gap:10px;max-width:80%}
+.msg.buyer{align-self:flex-start}
+.msg.seller{align-self:flex-end;flex-direction:row-reverse}
+.msg .bubble{padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.5}
+.msg.buyer .bubble{background:#292524;color:#e7e5e4}
+.msg.seller .bubble{background:#f97316;color:#fff}
+.msg .label{font-size:11px;color:#78716c;font-weight:600;margin-bottom:2px}
+.coach-panel{width:300px;background:#1c1917;border-left:1px solid #292524;padding:20px;overflow-y:auto}
+.coach-panel h3{font-size:14px;font-weight:700;color:#10b981;margin-bottom:16px}
+.coach-tip{padding:12px;background:#0c0a09;border-radius:8px;font-size:13px;color:#a8a29e;margin-bottom:12px;line-height:1.5}
+.input-area{display:flex;gap:10px;padding:16px 20px;background:#1c1917;border-top:1px solid #292524}
+.input-area input{flex:1;padding:12px 14px;background:#0c0a09;border:1px solid #292524;border-radius:8px;color:#e7e5e4;font-size:14px;outline:none}
+.input-area input:focus{border-color:#f97316}
+.input-area .mic-btn{width:44px;height:44px;border-radius:50%;background:#1c1917;border:1px solid #292524;color:#a8a29e;display:flex;align-items:center;justify-content:center;font-size:18px}
+.input-area .mic-btn.listening{background:#dc2626;color:#fff;border-color:#dc2626}
+.input-area .send-btn{width:44px;height:44px;border-radius:8px;background:#f97316;border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px}
+.typing{color:#78716c;font-size:13px;padding:4px 0}
 
 /* Debrief */
-.debrief-page{max-width:680px;margin:0 auto;padding:24px}
-.debrief-header{text-align:center;margin-bottom:24px}
-.debrief-header h1{font-size:1.7rem;font-weight:800}.debrief-header h1 span{color:var(--primary)}
-.debrief-header .sub{color:var(--muted);font-size:.88rem}
-.score-hero{text-align:center;margin:10px 0 22px}
-.big-num{font-size:4.2rem;font-weight:800;line-height:1}.out-of{font-size:1.2rem;color:var(--muted);font-weight:400}
-.grade{font-size:1rem;font-weight:700;margin-top:4px}.diff-range{color:var(--muted);font-size:.82rem;margin-top:5px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;animation:fadeUp .4s ease both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.card h3{font-size:.9rem;font-weight:700;margin-bottom:8px}
-.category{display:flex;align-items:center;gap:8px;margin-bottom:7px}.category:last-child{margin-bottom:0}
-.cat-name{width:180px;font-size:.78rem;font-weight:500;color:var(--muted);flex-shrink:0}
-.bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-.bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-.cat-score{width:26px;text-align:right;font-weight:700;font-size:.86rem}
-.replay-msg{padding:7px 11px;border-radius:8px;margin-bottom:3px;font-size:.84rem;line-height:1.5}
-.replay-msg.user-msg{background:rgba(154,52,18,.2)}.replay-msg.ai-msg{background:rgba(41,37,36,.5)}
-.replay-sender{font-size:.66rem;font-weight:600;color:var(--dimmed);margin-bottom:1px}
-.replay-annotation{font-size:.76rem;padding:5px 9px;border-radius:6px;margin:2px 0 5px 9px;font-weight:500}
-.replay-annotation.good{background:var(--green-dim);color:var(--green);border-left:3px solid var(--green)}
-.replay-annotation.missed{background:var(--amber-dim);color:var(--amber);border-left:3px solid var(--amber)}
-.replay-annotation.mistake{background:var(--red-dim);color:var(--red);border-left:3px solid var(--red)}
-.fb-list{list-style:none;padding:0}.fb-list li{padding:4px 0;font-size:.86rem;color:var(--muted);padding-left:16px;position:relative}
-.fb-list li::before{content:'';position:absolute;left:0;top:12px;width:5px;height:5px;border-radius:50%}
-.fb-list.green li::before{background:var(--green)}.fb-list.red li::before{background:var(--red)}
-.fb-quote{padding:9px 13px;border-left:3px solid var(--primary);background:var(--primary-dim);border-radius:0 8px 8px 0;margin:5px 0;font-size:.86rem;font-style:italic}
-.fb-quote.bad{border-left-color:var(--red);background:var(--red-dim)}
-.tip-box{padding:11px 15px;background:var(--amber-dim);border:1px solid rgba(245,158,11,.25);border-radius:10px;font-size:.88rem;color:var(--amber);font-weight:500}
-.actions{display:flex;gap:10px;margin-top:18px}
-.actions button{flex:1;padding:13px;border-radius:10px;font-weight:600;cursor:pointer;font-family:inherit;font-size:.88rem;transition:.2s ease}
-.btn-primary-action{background:var(--primary);color:#fff;border:none}.btn-primary-action:hover{background:var(--primary-hover);transform:translateY(-1px)}
-.btn-secondary-action{background:transparent;border:2px solid var(--border);color:var(--text)}.btn-secondary-action:hover{border-color:var(--primary);color:var(--primary)}
-.btn-tertiary-action{background:transparent;border:2px solid var(--border);color:var(--muted)}.btn-tertiary-action:hover{border-color:var(--muted);color:var(--text)}
+.debrief-page{padding:40px 0}
+.debrief-page h2{text-align:center;font-size:28px;margin-bottom:32px}
+.score-hero{text-align:center;margin-bottom:48px}
+.score-hero .big-score{font-size:80px;font-weight:800;background:linear-gradient(135deg,#f97316,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-hero .grade{font-size:24px;font-weight:700;margin-top:-8px}
+.score-bars{max-width:600px;margin:0 auto 48px}
+.score-bar-row{display:flex;align-items:center;margin-bottom:14px;gap:12px}
+.score-bar-row .label{width:120px;font-size:13px;font-weight:500;text-align:right;color:#a8a29e}
+.score-bar-row .bar-bg{flex:1;height:10px;background:#292524;border-radius:5px;overflow:hidden}
+.score-bar-row .bar-fill{height:100%;border-radius:5px;transition:width .6s}
+.score-bar-row .val{width:30px;font-size:14px;font-weight:700}
+.debrief-section{max-width:600px;margin:0 auto 40px}
+.debrief-section h3{font-size:18px;font-weight:700;margin-bottom:16px}
+.debrief-section.green h3{color:#10b981}
+.debrief-section.red h3{color:#ef4444}
+.debrief-section ul{list-style:none}
+.debrief-section li{padding:8px 0;border-bottom:1px solid #1c1917;font-size:14px;color:#a8a29e}
+.debrief-actions{display:flex;gap:16px;justify-content:center;margin-top:40px;flex-wrap:wrap}
 
-/* Loading */
-.loading-overlay{position:fixed;inset:0;background:rgba(12,10,9,.9);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:14px}
-.loading-overlay.show{display:flex}
-.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
-
-.loading-text{color:var(--muted);font-size:.9rem}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;padding:11px 22px;border-radius:10px;font-size:.88rem;font-weight:600;z-index:200;animation:toastIn .3s ease}
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-
-/* Mode cards */
-.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.mode-card{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px 12px;cursor:pointer;transition:.2s ease;text-align:center}
-.mode-card:hover{border-color:var(--primary);box-shadow:0 2px 12px rgba(249,115,22,.1)}
-.mode-card.active{border-color:var(--primary);background:var(--primary-dim);box-shadow:0 0 20px rgba(249,115,22,.15)}
-.mode-icon-wrap{width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center}
-.mode-title{font-weight:700;font-size:.88rem;margin-bottom:3px}
-.mode-desc{color:var(--muted);font-size:.76rem;line-height:1.4}
-
-/* CSS mode icons */
-.mode-icon-phone{width:14px;height:20px;border:2px solid var(--primary);border-radius:3px;position:relative}
-.mode-icon-phone::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:6px;height:3px;background:var(--primary);border-radius:1px 1px 0 0}
-.mode-icon-phone::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:8px;height:3px;background:var(--primary);border-radius:0 0 2px 2px}
-
-.mode-icon-magnify{width:14px;height:14px;border:3px solid var(--primary);border-radius:50%;position:relative}
-.mode-icon-magnify::after{content:'';position:absolute;bottom:-6px;right:-6px;width:8px;height:3px;background:var(--primary);border-radius:1px;transform:rotate(45deg)}
-
-.mode-icon-screen{width:20px;height:14px;border:2px solid var(--primary);border-radius:2px;position:relative}
-.mode-icon-screen::before{content:'';position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);width:10px;height:5px;border-left:2px solid transparent;border-right:2px solid transparent;border-bottom:4px solid var(--primary)}
-
-.mode-icon-scales{width:22px;height:18px;position:relative}
-.mode-icon-scales::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:18px;background:var(--primary)}
-.mode-icon-scales::after{content:'';position:absolute;top:0;left:2px;width:18px;height:2px;background:var(--primary);border-radius:1px}
-
-.mode-icon-refresh{width:18px;height:18px;border:3px solid var(--primary);border-radius:50%;border-top-color:transparent;position:relative}
-.mode-icon-refresh::before{content:'';position:absolute;top:-3px;right:-2px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:6px solid var(--primary);transform:rotate(30deg)}
-
-.mode-icon-alert{width:18px;height:18px;border:3px solid var(--primary);border-radius:50%;position:relative}
-.mode-icon-alert::before{content:'';position:absolute;top:3px;left:50%;transform:translateX(-50%);width:2px;height:5px;background:var(--primary);border-radius:1px}
-.mode-icon-alert::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:2px;height:2px;background:var(--primary);border-radius:50%}
-
-.mode-context{margin-top:12px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:10px;font-size:.86rem;color:var(--muted);line-height:1.6;display:none}
-.mode-context.visible{display:block}
-
+/* Responsive */
 @media(max-width:768px){
-  .call-layout{flex-direction:column}
-  .call-left{flex:none;height:55vh;border-right:none;border-bottom:1px solid var(--border)}
-  .call-right{flex:1;height:45vh;overflow-y:auto}
-  .msg{max-width:90%}.cat-name{width:110px;font-size:.72rem}
-  .big-num{font-size:3.2rem}.actions{flex-direction:column}
-  .landing-hero h1{font-size:2.2rem}.landing-hero .logo-text{font-size:2.2rem}
-  .ms-grid{grid-template-columns:1fr}
-  .hero-buttons{flex-direction:column;align-items:center}
-  .pricing-grid,.testimonials,.features-grid,.mode-grid{grid-template-columns:1fr}
-  .mode-grid{grid-template-columns:repeat(2,1fr)}
+  .hero h1{font-size:32px}
+  .hero p{font-size:16px}
+  .call-body{flex-direction:column}
+  .coach-panel{width:100%;max-height:150px;border-left:none;border-top:1px solid #292524}
+  .msg{max-width:95%}
+  .score-bar-row .label{width:80px;font-size:12px}
 }
 </style>
 </head>
 <body>
+
+<nav>
+  <div class="container">
+    <div class="logo">PitchForge</div>
+    <div class="nav-links">
+      <a href="#/landing">Home</a>
+      <a href="#/setup">Practice</a>
+    </div>
+  </div>
+</nav>
+
 <div id="app">
-  <!-- Pages injected by router -->
+
+<!-- Landing -->
+<div id="page-landing" class="page">
+  <div class="hero">
+    <div class="container">
+      <h1>Master the Art of the <span class="gradient">Sale</span></h1>
+      <p>Practice your pitch against AI buyers. For solo reps and sales teams.</p>
+      <div class="ctas">
+        <a href="#/signup" class="btn btn-primary">Get Started Free</a>
+        <a href="#features" class="btn btn-secondary">See How It Works</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="features">
+    <div class="container">
+      <h2>How It Works</h2>
+      <div class="features-grid">
+        <div class="card feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3>AI Buyers</h3>
+          <p>Practice against realistic AI prospects with distinct personalities and objection styles.</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3>Live Coaching</h3>
+          <p>Get real-time tips from an AI coach during your call using proven sales frameworks.</p>
+        </div>
+        <div class="card feature-card">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <h3>Adaptive Difficulty</h3>
+          <p>Scale from easy to impossible. Build confidence or test your limits against hostile buyers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="container">
+      <h2>Pricing</h2>
+      <div class="pricing-grid">
+        <div class="card price-card">
+          <h3>Free</h3>
+          <div class="price">$0<span>/mo</span></div>
+          <ul>
+            <li>5 practice calls per month</li>
+            <li>Text-based simulation</li>
+            <li>Basic scoring</li>
+          </ul>
+          <a href="#/signup" class="btn btn-secondary" style="width:100%">Get Started</a>
+        </div>
+        <div class="card price-card popular">
+          <h3>Pro</h3>
+          <div class="price">$19<span>/mo</span></div>
+          <ul>
+            <li>Unlimited practice calls</li>
+            <li>Voice call support</li>
+            <li>Detailed debrief reports</li>
+            <li>All buyer personas</li>
+          </ul>
+          <a href="#/signup" class="btn btn-primary" style="width:100%">Start Pro Trial</a>
+        </div>
+        <div class="card price-card">
+          <h3>Enterprise</h3>
+          <div class="price">Custom</div>
+          <ul>
+            <li>Team management</li>
+            <li>Custom scenarios</li>
+            <li>Analytics dashboard</li>
+            <li>Dedicated support</li>
+          </ul>
+          <a href="#/signup" class="btn btn-secondary" style="width:100%">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section">
+    <div class="container">
+      <h2>Ready to Close More Deals?</h2>
+      <p>Start practicing in under 60 seconds. No credit card required.</p>
+      <a href="#/signup" class="btn btn-primary">Get Started Free</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">PitchForge &mdash; AI-Powered Sales Training</div>
+  </footer>
 </div>
 
-<div id="loading-overlay" class="loading-overlay">
-  <div class="spinner"></div>
-  <div class="loading-text" id="loading-text">Analyzing your performance...</div>
+<!-- Signup -->
+<div id="page-signup" class="page">
+  <div class="signup-page">
+    <div class="signup-box">
+      <h2>Create Account</h2>
+      <p>Start practicing your sales calls today</p>
+      <div class="form-group"><label>Name</label><input type="text" id="signup-name" placeholder="Your name"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="signup-email" placeholder="you@company.com"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="signup-pass" placeholder="Create a password"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="doSignup()">Create Account</button>
+      <p style="text-align:center;margin-top:16px;font-size:13px;color:#78716c">Already have an account? <a href="#/setup">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Setup -->
+<div id="page-setup" class="page">
+  <div class="container setup-page">
+    <h2>Set Up Your Call</h2>
+
+    <div class="setup-section">
+      <h3>What are you selling?</h3>
+      <div class="chips" id="product-chips">
+        <div class="chip" data-val="CRM" onclick="pickChip('product',this)">CRM Software</div>
+        <div class="chip" data-val="Website Design" onclick="pickChip('product',this)">Website Design</div>
+        <div class="chip" data-val="Marketing Services" onclick="pickChip('product',this)">Marketing</div>
+        <div class="chip" data-val="Insurance" onclick="pickChip('product',this)">Insurance</div>
+        <div class="chip" data-val="Cleaning Service" onclick="pickChip('product',this)">Cleaning</div>
+        <div class="chip" data-val="POS System" onclick="pickChip('product',this)">POS System</div>
+        <div class="chip" data-val="custom" onclick="pickChip('product',this)">Custom</div>
+      </div>
+      <div class="chip-input hidden" id="product-custom-input">
+        <input type="text" id="product-custom-val" placeholder="Enter product name...">
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <h3>Who are you calling?</h3>
+      <div class="chips" id="buyer-chips">
+        <div class="chip" data-val="Busy CEO" data-desc="Always in a rush, delegates decisions, values bottom-line impact" onclick="pickChip('buyer',this)">Busy CEO</div>
+        <div class="chip" data-val="Skeptical Manager" data-desc="Needs proof, asks tough questions, compares competitors" onclick="pickChip('buyer',this)">Skeptical Manager</div>
+        <div class="chip" data-val="Price Shopper" data-desc="Only cares about cost, will negotiate hard, mentions cheaper options" onclick="pickChip('buyer',this)">Price Shopper</div>
+        <div class="chip" data-val="Happy with Current Solution" data-desc="Satisfied with status quo, resistant to change, needs strong ROI case" onclick="pickChip('buyer',this)">Happy with Current Solution</div>
+        <div class="chip" data-val="custom" onclick="pickChip('buyer',this)">Custom</div>
+      </div>
+      <div class="chip-input hidden" id="buyer-custom-input">
+        <input type="text" id="buyer-custom-val" placeholder="Describe the buyer persona...">
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <h3>Call Mode</h3>
+      <div class="mode-grid" id="mode-grid">
+        <div class="mode-card" data-val="Cold Call" onclick="pickMode(this)"><h4>Cold Call</h4><p>First contact, no prior relationship</p></div>
+        <div class="mode-card" data-val="Discovery" onclick="pickMode(this)"><h4>Discovery</h4><p>Uncover needs and pain points</p></div>
+        <div class="mode-card" data-val="Demo" onclick="pickMode(this)"><h4>Demo</h4><p>Show product features and value</p></div>
+        <div class="mode-card" data-val="Negotiation" onclick="pickMode(this)"><h4>Negotiation</h4><p>Handle objections and close terms</p></div>
+        <div class="mode-card" data-val="Follow-up" onclick="pickMode(this)"><h4>Follow-up</h4><p>Re-engage after initial contact</p></div>
+        <div class="mode-card" data-val="Angry Customer" onclick="pickMode(this)"><h4>Angry Customer</h4><p>De-escalate and recover the account</p></div>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <h3>Difficulty</h3>
+      <div class="difficulty-row">
+        <span style="color:#10b981">Easy</span>
+        <input type="range" id="difficulty-slider" min="1" max="10" value="5" oninput="document.getElementById('diff-val').textContent=this.value">
+        <span style="color:#ef4444">Hard</span>
+        <span id="diff-val">5</span>
+      </div>
+    </div>
+
+    <div class="setup-actions">
+      <button class="btn btn-primary" onclick="startCall('text')">Start Text Call</button>
+      <button class="btn btn-green" onclick="startCall('voice')">Start Voice Call</button>
+    </div>
+  </div>
+</div>
+
+<!-- Call -->
+<div id="page-call" class="page">
+  <div class="call-page">
+    <div class="call-top">
+      <div class="timer" id="call-timer">00:00</div>
+      <div class="diff-badge" id="call-diff-badge">Difficulty 5</div>
+      <button class="btn btn-danger btn-sm" onclick="endCall()">End Call</button>
+    </div>
+    <div class="call-body">
+      <div class="chat-area">
+        <div class="messages" id="chat-messages"></div>
+        <div class="input-area">
+          <button class="mic-btn" id="mic-btn" onclick="toggleMic()" title="Voice input">&#127908;</button>
+          <input type="text" id="chat-input" placeholder="Type your response..." onkeydown="if(event.key==='Enter')sendMessage()">
+          <button class="send-btn" onclick="sendMessage()" title="Send">&#10148;</button>
+        </div>
+      </div>
+      <div class="coach-panel">
+        <h3>Coach Tips</h3>
+        <div id="coach-tips"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Debrief -->
+<div id="page-debrief" class="page">
+  <div class="container debrief-page">
+    <h2>Call Debrief</h2>
+    <div class="score-hero">
+      <div class="big-score" id="debrief-score">--</div>
+      <div class="grade" id="debrief-grade"></div>
+    </div>
+    <div class="score-bars" id="debrief-bars"></div>
+    <div class="debrief-section green" id="debrief-well">
+      <h3>What You Did Well</h3>
+      <ul id="debrief-well-list"></ul>
+    </div>
+    <div class="debrief-section red" id="debrief-cost">
+      <h3>What Cost You Points</h3>
+      <ul id="debrief-cost-list"></ul>
+    </div>
+    <div class="debrief-actions">
+      <button class="btn btn-primary" onclick="tryAgain()">Try Again (Harder)</button>
+      <button class="btn btn-secondary" onclick="location.hash='#/setup'">New Setup</button>
+    </div>
+  </div>
+</div>
+
 </div>
 
 <script>
-// ===== DATA =====
-const PRODUCT_GROUPS = [
-  {label:'Tech & Software',items:[
-    {id:'crm',label:'CRM Software',price:'$49/user/mo',desc:'CRM platform for small-to-medium businesses. $49/user/month includes contact management, pipeline tracking, email automation, and reporting. Free 14-day trial. Selling points: centralizes all customer data so nothing falls through the cracks; automated follow-ups ensure no lead goes cold; pipeline visibility and reporting helps managers forecast revenue. Common objections: "We\'re fine with spreadsheets"; "My team won\'t actually use it — we\'ve tried CRMs before"; "$49 per user adds up fast." Ideal customer: sales manager at 5-50 employee company currently using spreadsheets, losing deals to poor follow-up.'},
-    {id:'cloud',label:'Cloud Hosting',price:'$99/mo',desc:'Managed cloud hosting and IT infrastructure. $99/month, 99.99% uptime, auto-scaling, 24/7 support, migration assistance included. Selling points: blazing-fast load times and 99.99% uptime; managed security with automatic updates, malware scanning, and DDoS protection; expert support team available 24/7. Common objections: "We\'re on AWS/DigitalOcean already and it\'s cheaper"; "We don\'t have enough traffic"; "Our developer handles all the server stuff." Ideal customer: CTO or technical founder of a SaaS/e-commerce company ($500K-$5M revenue) currently on budget hosting, has experienced downtime.'},
-    {id:'cybersecurity',label:'Cybersecurity',price:'$199/user/mo',desc:'Enterprise-grade cybersecurity software. $199/user/month includes endpoint detection, phishing prevention, 24/7 SOC monitoring, and compliance-ready reporting for HIPAA, SOC 2. Selling points: enterprise-grade protection for businesses of any size; 24/7 SOC monitoring catches threats before breaches; compliance-ready reporting for frameworks clients require. Common objections: "We have antivirus — that\'s enough"; "$199 per user is too expensive"; "We\'re too small to be a target." Ideal customer: IT director at a professional services firm (law, accounting, medical) with 10-100 employees handling sensitive data.'},
-    {id:'pos',label:'POS System',price:'$79/mo',desc:'POS system for restaurants. $79/month hardware + software bundle includes fast intuitive interface, real-time inventory tracking, food cost analysis, integrated online ordering, loyalty program, and analytics. Selling points: fast interface that reduces order errors and speeds up service; real-time inventory tracking protects margins; integrated online ordering, loyalty, and analytics in one system. Common objections: "We already have a POS system"; "Switching systems is a nightmare"; "My staff isn\'t tech-savvy." Ideal customer: restaurant owner with 1-3 locations using outdated/overpriced POS, struggling with inventory shrinkage and order errors.'},
-    {id:'hr_payroll',label:'HR/Payroll',price:'$6/employee/mo',desc:'HR and payroll software. $6/employee/month includes automated payroll processing with tax filing, self-service employee portal for PTO/pay stubs/tax docs, and built-in compliance tools. Selling points: automated payroll with tax filing — never miss a deadline; self-service portal reduces HR admin by 50%; built-in compliance for labor laws and benefits. Common objections: "We already use ADP/Paychex/QuickBooks"; "$6 per employee adds up"; "Switching payroll systems is risky." Ideal customer: HR manager at a growing company with 15-200 employees, spending too much time on manual HR tasks.'},
-    {id:'voip',label:'VoIP Phone',price:'$25/line/mo',desc:'VoIP business phone system. $25/line/month includes auto-attendant, call routing, voicemail-to-email, mobile app, and cuts current phone bill by 40-60%. Selling points: professional phone presence with auto-attendant and call routing; works anywhere — team takes business calls on cell phones without giving out personal numbers; cut current phone bill by 40-60% with more features. Common objections: "We already have a phone system"; "What if the internet goes down?"; "We use cell phones for everything now." Ideal customer: office manager at a professional services firm with 5-50 employees, currently overpaying for traditional PBX.'},
-    {id:'analytics',label:'SaaS Analytics',price:'$299/mo',desc:'SaaS analytics platform. $299/month provides unified dashboard pulling data from all tools, AI-powered insights surfacing trends and anomalies, and executive-ready reports in one click. Selling points: unified dashboard from all your tools — no more jumping between apps; AI-powered insights you\'d never catch manually; executive-ready reports in one click — stop spending hours on spreadsheets. Common objections: "We already have dashboards in our existing tools"; "$299/month seems steep — can\'t we build this ourselves?"; "Our team won\'t actually use it." Ideal customer: VP of Operations or data-driven founder at mid-size SaaS/e-commerce ($1M-$20M revenue), cobbling together reports from multiple tools.'}
-  ]},
-  {label:'Professional Services',items:[
-    {id:'marketing',label:'Marketing Agency',price:'$1,500/mo',desc:'Digital marketing agency. $1,500/month for full-service SEO, paid ads, social media, and content with transparent reporting and proven ROI framework. Selling points: data-driven campaigns with transparent reporting; full-service SEO, ads, social, content — one team; proven ROI framework with monthly strategy reviews. Common objections: "We\'ve tried agencies before and didn\'t see results"; "$1,500/month — how do I know it\'ll pay off?"; "We handle marketing in-house." Ideal customer: founder or marketing director of a growing business ($1M-$10M revenue) spending on ads but seeing poor ROI.'},
-    {id:'accounting',label:'Accounting',price:'$800/mo',desc:'Outsourced accounting and bookkeeping. $800/month includes accurate up-to-date books, dedicated accountant who knows your business, cash flow forecasting, and financial insights. Selling points: accurate books means no surprises at tax time; dedicated accountant — not a rotating cast; cash flow forecasting that helps you grow. Common objections: "My spouse/I handle the books ourselves"; "We already have an accountant — just at tax time"; "$800/month feels like a lot." Ideal customer: small business owner ($200K-$3M revenue) doing their own books, stressed about cash flow.'},
-    {id:'legal',label:'Legal Services',price:'$3,000/mo',desc:'Legal services retainer. $3,000/month for on-demand legal counsel without surprise hourly bills, covering employment law, contracts, IP, and corporate governance. Selling points: on-demand counsel without surprise bills; proactive legal protection — risks identified before lawsuits; covers all legal needs — one firm. Common objections: "$3,000/month is a lot for something we might not use"; "We only need a lawyer occasionally"; "We already have a lawyer." Ideal customer: CEO/COO of a growing company ($2M-$20M revenue) calling lawyers reactively for emergencies.'},
-    {id:'recruitment',label:'Recruitment',price:'20% of salary',desc:'Recruitment/staffing agency. Fee is 20% of first year salary (contingency). Provides access to pre-vetted talent pool, guaranteed placement with replacement guarantee, handles sourcing, screening, and initial interviews. Selling points: access to pre-vetted talent you can\'t reach on your own; guaranteed placement with replacement guarantee; we handle everything — you only meet qualified finalists. Common objections: "20% is a huge fee — we can hire on our own"; "We\'ve used agencies before and candidates were terrible"; "We\'re not hiring right now." Ideal customer: hiring manager at a growing company needing to fill specialized roles, struggling to find good candidates.'},
-    {id:'events',label:'Event Planning',price:'$5K-$50K/event',desc:'Event planning service. $5,000-$50,000 per event for end-to-end management including venue, catering, AV, decor, logistics. Access to exclusive venues and vendor networks. Selling points: end-to-end management — you focus on guests; access to exclusive venues not available to public; flawless execution with contingency plans. Common objections: "We\'ve planned our own events before"; "Your fee on top of the budget makes it too expensive"; "Not sure the ROI justifies it." Ideal customer: marketing director or business owner planning a company event, previous event had logistical issues.'}
-  ]},
-  {label:'Physical / Trade',items:[
-    {id:'cleaning',label:'Cleaning Service',price:'$2,000/mo',desc:'Commercial cleaning service. $2,000/month for professional vetted cleaning staff with consistent quality guarantees, flexible scheduling (daily/weekly/custom), and fully insured, bonded, OSHA-compliant teams. Selling points: professional vetted staff with quality guarantees; flexible scheduling around your business hours; reduced liability with insured, bonded, OSHA-compliant teams. Common objections: "We already have a cleaning person"; "$2,000/month is too expensive for cleaning"; "We\'ve had bad experiences — they start strong then get sloppy." Ideal customer: office manager at a company with 5,000-50,000 sq ft, using unreliable independent cleaner.'},
-    {id:'landscaping',label:'Landscaping',price:'$1,200/mo',desc:'Commercial landscaping service. $1,200/month for year-round curb appeal with seasonal programs (spring cleanup, summer maintenance, fall leaves, winter snow), reliable scheduled service with dedicated crews. Selling points: curb appeal that attracts customers year-round; seasonal programs — handled so you don\'t have to; reliable scheduled service — no no-shows. Common objections: "We have a guy who does it for half that price"; "Our property doesn\'t need that much landscaping"; "Can\'t justify $1,200/month for grass and bushes." Ideal customer: property manager or HOA board member, currently using unreliable "guy with a truck."'},
-    {id:'furniture',label:'Office Furniture',price:'$15,000 one-time',desc:'Office furniture supplier. $15,000 one-time for ergonomic modern furniture with full space planning and design service included, bulk pricing and financing options. Selling points: ergonomic furniture that boosts productivity and reduces sick days; full space planning and design included; bulk pricing and financing make it affordable. Common objections: "We can get cheaper furniture from IKEA/Amazon"; "$15K is a big upfront cost"; "Our current furniture is fine." Ideal customer: office manager or HR director moving into new space or renovating, 10-50 employees, currently using mismatched cheap furniture.'},
-    {id:'fleet',label:'Fleet Vehicles',price:'$450/vehicle/mo',desc:'Fleet vehicle leasing. $450/vehicle/month with maintenance included, predictable monthly costs, flexible fleet management (add/swap/return vehicles), and branded professional vehicles. Selling points: predictable costs with maintenance included — no surprise repairs; flexible fleet management as needs change; branded professional vehicles that look established. Common objections: "We own our vehicles — leasing doesn\'t make sense"; "$450 per vehicle is more than our current costs"; "We don\'t have enough vehicles for a fleet deal." Ideal customer: operations manager of a service company with 5-50 vehicles, dealing with unpredictable repair costs.'}
-  ]},
-  {label:'Financial / Insurance',items:[
-    {id:'insurance',label:'Insurance',price:'$500/mo',desc:'Commercial insurance package. $500/month for comprehensive coverage (general liability, professional liability, property) bundled for savings, with risk assessment and dedicated claims advocate. Selling points: comprehensive coverage bundled for savings; risk assessment identifies gaps you didn\'t know existed; dedicated claims advocate who fights for you. Common objections: "We already have insurance through our broker"; "We\'ve never had a claim — don\'t need that much coverage"; "I need to think about it." Ideal customer: business owner/CFO of a small-to-mid-size company ($500K-$10M revenue) who hasn\'t reviewed their policy in 2+ years.'},
-    {id:'realestate',label:'Real Estate',price:'$3,500/mo',desc:'Commercial real estate lease. $3,500/month for prime location with high foot traffic, flexible lease terms with tenant improvement allowances, and professional property management. Selling points: prime location with high foot traffic and visibility; flexible lease terms with improvement allowances; professional property management handles everything. Common objections: "$3,500/month is more than we\'re paying now"; "We\'re locked into our current lease"; "The space isn\'t quite right." Ideal customer: business owner looking to expand or relocate, currently in a space that\'s too small or poorly located.'},
-    {id:'solar',label:'Solar Installation',price:'$80,000 one-time',desc:'Commercial solar installation. $80,000 one-time cuts electricity bill by 40-70% with 5-7 year payback. Federal and state tax incentives cover 30-50% of cost. Selling points: cut electricity bill by 40-70% — pays for itself in 5-7 years; tax incentives cover 30-50% of installation cost; demonstrates environmental leadership. Common objections: "$80K is a massive investment — payback is too long"; "Our roof isn\'t suitable / we don\'t own the building"; "Solar keeps improving — shouldn\'t we wait?" Ideal customer: business owner of a company with large commercial building, high electricity bills ($5K+/month), owns the building.'},
-    {id:'website',label:'Website Design',price:'$29/mo',desc:'Website design and hosting for small businesses. $29/month, no contracts, includes custom mobile-responsive design, managed hosting with 99.9% uptime, SSL, automatic backups, built-in SEO optimization, and analytics dashboard. Selling points: mobile-responsive site that converts visitors into customers; managed hosting with 99.9% uptime and automatic backups; built-in SEO and analytics dashboard. Common objections: "I already have a website / my nephew made me one"; "I don\'t need a website — my business is all word-of-mouth"; "$29/month seems like a lot." Ideal customer: small business owner (plumber, electrician, bakery) with little to no online presence, relies on referrals but struggling to grow.'}
-  ]}
-];
+// ---- Config ----
+var OPENAI_KEY = atob('c2stcHJvai1vaDBRLWhvc0VsLWV6QXZIZV8tQ05wa3FodVF5Zmo4MlZ4V1dMa1EwS3lhZUVXRkhWaXB3T0hNN1E4eERfZm80TXVmTVppdlJZNFQzQmxaRkpDRTZ1S3RyM1JVelJHTjhCSXl0YlZRTjJISlR4a21ubFJic3J1SnFuVGQ3ZUtIc3hpTUpwMVRSWkVzUzlCNnFwM2NHTTMzVW9JQQ==');
+var RETELL_KEY = 'key_c833df9a891bacfc002cf8714c0c';
+var RETELL_AGENT = 'agent_2d2969f4f54ab3192ceaf4ab5e';
 
-const PRODUCTS = PRODUCT_GROUPS.flatMap(g=>g.items).concat([{id:'custom',label:'Custom',price:'',desc:''}]);
+// ---- State ----
+var selectedProduct = '';
+var selectedBuyer = '';
+var selectedBuyerDesc = '';
+var selectedMode = '';
+var difficulty = 5;
+var callMessages = []; // {role, content} for AI
+var chatHistory = []; // {role, content} for display
+var coachTips = [];
+var callTimerInterval = null;
+var callSeconds = 0;
+var isListening = false;
+var usedVoiceInput = false;
+var speechSynthReady = false;
 
-const BUYERS = [
-  {id:'ceo',label:'The Busy CEO',name:'Sarah Chen',desc:'CEO of a 50-person manufacturing company. Back-to-back meetings, zero patience for small talk. Wants bottom-line value fast or she\'s done.'},
-  {id:'skeptic',label:'The Skeptic',name:'Mike Torres',desc:'Owner of a dental practice. Been burned by 3 vendors in 2 years. Demands evidence, case studies, and guarantees before trusting anyone.'},
-  {id:'price',label:'The Price Shopper',name:'Jennifer Park',desc:'Operations manager at a logistics company. Strict budget, 5 quotes on her desk. Only cares about the bottom line. Negotiates hard, mentions competitors.'},
-  {id:'friendly',label:'The Friendly Time-Waster',name:'Bob Williams',desc:'Owner of a family restaurant. Loves chatting, seems interested in everything, but never commits. Always "needs to think about it" or "talk to my partner."'},
-  {id:'gatekeeper',label:'The Gatekeeper',name:'Lisa',desc:'Office manager at a law firm. Not the decision maker -- screens calls for the senior partner. Needs convincing this is worth the partner\'s time.'},
-  {id:'tech',label:'The Tech Expert',name:'Dr. Raj Patel',desc:'CTO of a biotech startup with a PhD in CS. Has built similar systems. Asks detailed technical questions, catches BS. Loses interest if you can\'t keep up.'},
-  {id:'loyal',label:'The Loyal Customer',name:'Carol',desc:'Practice manager at a vet clinic. Used same provider for 8 years, very happy. Needs a compelling reason to even consider switching.'},
-  {id:'custom',label:'Custom',name:'Custom Buyer',desc:''}
-];
-
-const MODES = [
-  {id:'cold_call',title:'Cold Call',desc:'Get past gatekeepers, pitch from scratch',context:"You're calling a business out of the blue. The receptionist answers. You have 15 seconds to get past them and reach the decision maker. If you sound like a typical salesperson, you're getting hung up on.",iconClass:'mode-icon-phone'},
-  {id:'discovery',title:'Discovery Call',desc:'Qualify prospects, uncover real needs',context:"A lead filled out a form on your website. You're calling to learn about their needs. They're willing to talk but expect you to ask smart questions and not waste their time.",iconClass:'mode-icon-magnify'},
-  {id:'demo',title:'Product Demo',desc:'Present your product, handle live questions',context:"You've scheduled a 30-minute product demo with a VP. They've already seen your competitor's demo yesterday. You need to differentiate and address their specific concerns.",iconClass:'mode-icon-screen'},
-  {id:'negotiation',title:'Negotiation',desc:'Price pushback, terms, closing the deal',context:"The prospect wants to buy but your price is 20% above their budget. They're comparing your offer to two competitors. You need to defend your value and close without discounting.",iconClass:'mode-icon-scales'},
-  {id:'follow_up',title:'Follow-up',desc:'Re-engage a cold lead',context:"You had a great first meeting two weeks ago, but they've gone silent. No reply to your emails. You're calling to re-engage and figure out if they're still interested.",iconClass:'mode-icon-refresh'},
-  {id:'angry_customer',title:'Angry Customer',desc:'De-escalate and save the relationship',context:"A long-time client is furious. Your service had a major outage last week that cost them money. They're threatening to cancel and have already started looking at competitors.",iconClass:'mode-icon-alert'}
-];
-
-const SCORE_CATS = [
-  {key:'opening',label:'Opening & First Impression',weight:0.08},
-  {key:'discovery',label:'Discovery & Questioning',weight:0.15},
-  {key:'listening',label:'Active Listening & Empathy',weight:0.12},
-  {key:'value',label:'Value Framing',weight:0.12},
-  {key:'objections',label:'Objection Handling',weight:0.12},
-  {key:'persuasion',label:'Persuasion & Influence',weight:0.08},
-  {key:'negotiation',label:'Negotiation',weight:0.10},
-  {key:'closing',label:'Closing',weight:0.10},
-  {key:'communication',label:'Communication & Pacing',weight:0.08},
-  {key:'structure',label:'Call Structure',weight:0.05}
-];
-
-const DIFF_DESC = {
-  1:'Somewhat interested, asks basic questions, raises simple objections',
-  2:'Polite and curious, easy to engage',
-  3:'Warming up, starting to ask real questions',
-  4:'Busy and skeptical, asks pointed questions',
-  5:'Guarded but willing to listen if you make good points',
-  6:'Analytical, wants details and comparisons',
-  7:'Very skeptical, compares to competitors, challenges claims',
-  8:'Pushing back hard, tests your knowledge',
-  9:'Hostile, trying to end the call, argues every point',
-  10:'Nearly impossible to close, attacks every claim'
-};
-
-const TIPS = [
-  "Ask open-ended questions to uncover the prospect's real pain points before pitching.",
-  "Mirror the prospect's language and pace to build rapport faster.",
-  "Always confirm the next step before ending a call -- never leave it open-ended.",
-  "When hit with an objection, acknowledge it before countering. Don't get defensive.",
-  "Use specific numbers and case studies instead of vague claims.",
-  "Listen more than you talk. The best salespeople talk 30% of the time.",
-  "Name-drop similar clients in their industry to build credibility.",
-  "Create urgency by tying your solution to a deadline or pain point they mentioned.",
-  "Rehearse handling the top 5 objections for your product until they're automatic.",
-  "Ask 'What would need to happen for you to move forward?' to surface hidden objections."
-];
-
-// ===== STATE =====
-let S = {
-  productPreset:null,productDesc:'',pitchScript:'',buyerPreset:null,buyerName:'',buyerDesc:'',
-  startDifficulty:3,currentDifficulty:3,difficultyHistory:[3],level:'intermediate',
-  messages:[],timerInterval:null,seconds:0,selectedMode:'cold_call',
-  runningScores:{opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5},
-  buyerBusy:false,coachBusy:false
-};
-
-// ===== STORAGE =====
-function getUser(){try{return JSON.parse(localStorage.getItem('pitchforge_user'))}catch(e){return null}}
-function setUser(u){localStorage.setItem('pitchforge_user',JSON.stringify(u))}
-function getCalls(){try{return JSON.parse(localStorage.getItem('pitchforge_calls'))||[]}catch(e){return[]}}
-function addCall(c){const calls=getCalls();calls.unshift(c);if(calls.length>50)calls.length=50;localStorage.setItem('pitchforge_calls',JSON.stringify(calls))}
-function saveSetup(){localStorage.setItem('pitchforge_setup',JSON.stringify({product:S.productPreset,productDesc:S.productDesc,pitch:S.pitchScript,persona:S.buyerPreset,difficulty:S.startDifficulty,level:S.level}))}
-function loadSetup(){try{return JSON.parse(localStorage.getItem('pitchforge_setup'))||{}}catch(e){return{}}}
-
-// ===== ROUTER =====
-function navigate(hash){
-  if(!hash || hash==='#/' || hash==='#/landing') hash='#/landing';
-  if((hash==='#/dashboard'||hash==='#/setup'||hash==='#/call'||hash==='#/debrief') && !getUser()) hash='#/signup';
-  window.location.hash=hash;
-}
-
-function startPracticeCall(){
-  // Save setup state before navigating
-  if(typeof initCall==='function'){
-    // save custom fields
-    const pd=document.getElementById('product-desc');
-    const bd=document.getElementById('buyer-desc');
-    const ps=document.getElementById('pitch-script');
-    if(pd) S.productDesc=pd.value?.trim()||S.productDesc;
-    if(bd) S.buyerDesc=bd.value?.trim()||S.buyerDesc;
-    if(ps) S.pitchScript=ps.value?.trim()||'';
-    saveSetup();
+// ---- Router ----
+function navigate() {
+  var hash = location.hash || '#/landing';
+  if (hash === '#/' || hash === '') hash = '#/landing';
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  var name = hash.replace('#/', '');
+  var el = document.getElementById('page-' + name);
+  if (el) {
+    el.classList.add('active');
+  } else {
+    document.getElementById('page-landing').classList.add('active');
   }
-  navigate('#/call');
+  // show/hide nav
+  var nav = document.querySelector('nav');
+  if (name === 'call') nav.style.display = 'none'; else nav.style.display = '';
+}
+window.addEventListener('hashchange', navigate);
+window.addEventListener('load', navigate);
+
+// ---- Signup ----
+function doSignup() {
+  var name = document.getElementById('signup-name').value.trim();
+  var email = document.getElementById('signup-email').value.trim();
+  var pass = document.getElementById('signup-pass').value;
+  if (!name || !email || !pass) { alert('Please fill in all fields'); return; }
+  localStorage.setItem('pf_user', JSON.stringify({name: name, email: email}));
+  location.hash = '#/setup';
 }
 
-function getRoute(){return window.location.hash||'#/landing'}
-
-function route(){
-  const r=getRoute();
-  const app=document.getElementById('app');
-  let html='';
-  if(r==='#/landing'||r==='#/'||r==='') html=pageLanding();
-  else if(r==='#/signup'||r==='#/login') html=pageAuth();
-  else if(r==='#/dashboard') html=pageDashboard();
-  else if(r==='#/setup') html=pageSetup();
-  else if(r==='#/call') html=pageCall();
-  else if(r==='#/debrief') html=pageDebrief();
-  else html=pageLanding();
-  app.innerHTML=html;
-  // Trigger opacity
-  requestAnimationFrame(()=>{const p=app.querySelector('.page');if(p)p.classList.add('active')});
-  postRoute(r);
-}
-
-function postRoute(r){
-  if(r==='#/setup') initSetup();
-  if(r==='#/call') initCall();
-}
-
-window.addEventListener('hashchange',route);
-window.addEventListener('load',route);
-
-// ===== PAGE TEMPLATES =====
-function logoHTML(size){
-  size=size||'1.25rem';
-  return `<span class="logo-text" style="font-size:${size}" onclick="navigate('#/landing')">Pitch<span class="forge">Forge</span></span>`;
-}
-
-function navHTML(showUser){
-  if(!showUser) return `<div class="top-nav">${logoHTML()}<div style="width:80px"></div></div>`;
-  const u=getUser();
-  const initials=u?u.name.charAt(0).toUpperCase():'U';
-  return `<div class="top-nav">${logoHTML()}<div class="nav-right"><div style="display:flex;align-items:center;gap:8px"><div class="avatar">${initials}</div><span class="nav-name">${u?u.name:''}</span></div><button class="btn-logout" onclick="doLogout()">Log Out</button></div></div>`;
-}
-
-// Landing
-function pageLanding(){
-  return `<div class="page">
-  <div class="landing-hero">
-    ${logoHTML('3rem')}
-    <h1>Master the Art of the <span class="sale-word">Sale</span></h1>
-    <p>Practice your pitch against AI buyers that adapt to your skill level. For solo reps and sales teams.</p>
-    <div class="hero-buttons">
-      <button class="btn btn-primary btn-lg" onclick="navigate('#/signup')">Get Started Free</button>
-      <button class="btn btn-outline btn-lg" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">See How It Works</button>
-    </div>
-  </div>
-
-  <!-- Who Is PitchForge For? -->
-  <div class="landing-section" style="max-width:1060px">
-    <h2>Who Is PitchForge For?</h2>
-    <p class="section-sub">Whether you're a solo closer or leading a team, we've got you covered.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px">
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:30px">
-        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:16px">For Sales Professionals</h3>
-        <ul style="list-style:none;margin-bottom:22px">
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Practice anytime, no manager needed</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>6 training modes: cold calls, demos, negotiations, and more</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Randomized products and buyer personalities</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Real-time AI coaching on every call</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Track your scores and watch your close rate climb</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="navigate('#/signup')">Start Free</button>
-      </div>
-      <div style="background:var(--card);border:2px solid var(--primary);border-radius:16px;padding:30px;box-shadow:0 0 30px rgba(249,115,22,.12);position:relative">
-        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:700">For Teams</div>
-        <h3 style="font-size:1.2rem;font-weight:800;margin-bottom:16px">For Sales Teams</h3>
-        <ul style="list-style:none;margin-bottom:22px">
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Custom product scenarios loaded with YOUR actual products</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Buyer personas based on your real customers and competitors</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Manager dashboard to track team progress</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Onboard new hires before they touch a real prospect</li>
-          <li style="padding:6px 0;color:var(--muted);font-size:.9rem;line-height:1.5"><span style="color:var(--primary);margin-right:8px">&#10003;</span>Standardize your sales methodology across the team</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">Request Demo</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- How It Works -->
-  <div class="landing-section" id="features">
-    <h2>Why PitchForge Works</h2>
-    <p class="section-sub">Real practice. Real feedback. Real results -- for individuals and teams.</p>
-    <div class="features-grid">
-      <div class="feature-card"><div class="feature-icon"><div class="icon-bubbles"></div></div><h3>AI Buyers That Fight Back</h3><p>Our AI buyers have distinct personalities -- from skeptical CEOs to friendly procurement managers. They object, negotiate, and push back. Train solo or assign scenarios to your team.</p></div>
-      <div class="feature-card"><div class="feature-icon"><div class="icon-target"></div></div><h3>Live Coaching</h3><p>A real-time AI coach watches every call and tells you what to do next. Individuals get instant feedback; managers get visibility into where reps need help.</p></div>
-      <div class="feature-card"><div class="feature-icon"><div class="icon-arrow-up"></div></div><h3>Adaptive Difficulty</h3><p>The better you get, the harder the buyer. Whether you're onboarding a new hire or sharpening a veteran, PitchForge scales to match.</p></div>
-    </div>
-  </div>
-
-  <!-- Testimonials -->
-  <div class="landing-section">
-    <h2>Trusted by 2,000+ Sales Professionals</h2>
-    <p class="section-sub">Hear from people who leveled up their close rate.</p>
-    <div class="testimonials">
-      <div class="testimonial"><p>"I went from dreading cold calls to booking 3x more demos in just two weeks. The AI coach catches things my manager never did."</p><div class="testimonial-name">Alex Rivera</div><div class="testimonial-role">Account Executive, CloudStack</div></div>
-      <div class="testimonial"><p>"The difficulty scaling is genius. By the time I got to level 8 buyers, real prospects felt easy. Best training investment I've made."</p><div class="testimonial-name">Priya Sharma</div><div class="testimonial-role">Sales Director, Nexus Group</div></div>
-      <div class="testimonial"><p>"We rolled PitchForge out to our 30-person sales team. Onboarding time dropped from 6 weeks to 2. New hires are hitting quota faster than our veterans used to."</p><div class="testimonial-name">David Park</div><div class="testimonial-role">VP of Sales, Meridian Tech</div></div>
-    </div>
-  </div>
-
-  <!-- Pricing -->
-  <div class="landing-section">
-    <h2>Simple Pricing</h2>
-    <p class="section-sub">Start free. Upgrade when you're ready. Go enterprise when your team needs it.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:900px;margin:0 auto">
-      <div class="price-card dim"><h3>Free</h3><div class="price">$0<span>/mo</span></div><div class="price-desc">Get started with the basics</div><ul><li>5 practice calls per month</li><li>3 buyer personas</li><li>Basic coaching</li><li>Score tracking</li></ul><button class="btn btn-outline" style="width:100%" onclick="navigate('#/signup')">Get Started</button></div>
-      <div class="price-card featured"><h3>Pro</h3><div class="price">$19<span>/mo</span></div><div class="price-desc">For serious sales professionals</div><ul><li>Unlimited practice calls</li><li>All buyer personas & training modes</li><li>Advanced live coaching</li><li>Performance analytics</li><li>Difficulty scaling</li></ul><button class="btn btn-primary" style="width:100%" onclick="navigate('#/signup')">Start Pro Trial</button></div>
-      <div class="price-card" style="border-color:var(--border)"><h3>Enterprise</h3><div class="price" style="font-size:1.6rem">Contact Us</div><div class="price-desc">Everything in Pro, built for teams</div><ul><li>Custom product scenarios</li><li>Custom buyer personas</li><li>Manager dashboard</li><li>Team analytics</li><li>Priority support</li></ul><button class="btn btn-outline" style="width:100%" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">Contact Sales</button></div>
-    </div>
-  </div>
-
-  <!-- Enterprise Demo Request Form -->
-  <div class="landing-section" id="demo-form" style="max-width:600px">
-    <h2>Get PitchForge for Your Team</h2>
-    <p class="section-sub">Tell us about your sales team and we'll set up a custom demo.</p>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:28px">
-      <div class="form-group"><label>Name</label><input id="demo-name" placeholder="Your full name" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
-      <div class="form-group"><label>Company</label><input id="demo-company" placeholder="Company name" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
-      <div class="form-group"><label>Email</label><input id="demo-email" type="email" placeholder="you@company.com" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
-      <div class="form-group"><label>Team Size</label><select id="demo-size" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"><option value="">Select team size</option><option>5-10</option><option>11-25</option><option>26-50</option><option>50+</option></select></div>
-      <div class="form-group"><label>What CRM do you use?</label><input id="demo-crm" placeholder="e.g. Salesforce, HubSpot, Pipedrive" style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit"></div>
-      <div class="form-group"><label>Message</label><textarea id="demo-message" placeholder="Tell us about your team's needs..." style="width:100%;padding:11px 14px;background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.92rem;font-family:inherit;min-height:80px;resize:vertical"></textarea></div>
-      <button class="btn btn-primary" style="width:100%" onclick="submitDemoRequest()">Request Demo</button>
-      <p style="color:var(--dimmed);font-size:.78rem;text-align:center;margin-top:12px">Or email us directly: <a href="mailto:jack@wildroseautomations.ca" style="color:var(--primary)">jack@wildroseautomations.ca</a></p>
-    </div>
-  </div>
-
-  <div class="landing-footer">
-    ${logoHTML('1.3rem')}
-    <div class="footer-tagline">Sharpen your pitch. Close more deals.</div>
-    <div class="footer-links"><a href="#/landing">Features</a><a href="#/landing">Pricing</a><a href="javascript:void(0)" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">For Teams</a><a href="javascript:void(0)" onclick="document.getElementById('demo-form').scrollIntoView({behavior:'smooth'})">Contact Sales</a><a href="#/landing">About</a></div>
-    <div class="footer-copy">&copy; 2026 PitchForge. All rights reserved.</div>
-  </div>
-</div>`;
-}
-
-// Auth
-function pageAuth(){
-  const tab = getRoute()==='#/login' ? 'login' : 'signup';
-  return `<div class="page">
-  <div class="auth-container">
-    <div class="auth-card">
-      ${logoHTML('1.5rem')}
-      <div class="auth-tagline">Sharpen your pitch. Close more deals.</div>
-      <div class="auth-tabs">
-        <button class="auth-tab ${tab==='signup'?'active':''}" onclick="navigate('#/signup')">Sign Up</button>
-        <button class="auth-tab ${tab==='login'?'active':''}" onclick="navigate('#/login')">Log In</button>
-      </div>
-      <div class="auth-form ${tab==='signup'?'active':''}" id="form-signup">
-        <div class="form-group"><label>Name</label><input id="signup-name" placeholder="Your name"></div>
-        <div class="form-group"><label>Email</label><input id="signup-email" type="email" placeholder="you@example.com"></div>
-        <div class="form-group"><label>Password</label><input id="signup-pass" type="password" placeholder="Create a password"></div>
-        <button class="auth-submit" onclick="doSignup()">Create Account</button>
-        <div class="auth-switch">Already have an account? <a onclick="navigate('#/login')">Log in</a></div>
-      </div>
-      <div class="auth-form ${tab==='login'?'active':''}" id="form-login">
-        <div class="form-group"><label>Email</label><input id="login-email" type="email" placeholder="you@example.com"></div>
-        <div class="form-group"><label>Password</label><input id="login-pass" type="password" placeholder="Your password"></div>
-        <button class="auth-submit" onclick="doLogin()">Log In</button>
-        <div class="auth-switch">Don't have an account? <a onclick="navigate('#/signup')">Sign up</a></div>
-      </div>
-    </div>
-  </div>
-</div>`;
-}
-
-function doSignup(){
-  const name=document.getElementById('signup-name').value.trim();
-  const email=document.getElementById('signup-email').value.trim();
-  if(!name||!email){showToast('Please fill in all fields');return}
-  setUser({name,email});
-  navigate('#/dashboard');
-}
-
-function doLogin(){
-  const email=document.getElementById('login-email').value.trim();
-  if(!email){showToast('Please enter your email');return}
-  const existing=getUser();
-  setUser({name:existing?existing.name:email.split('@')[0],email});
-  navigate('#/dashboard');
-}
-
-function doLogout(){
-  localStorage.removeItem('pitchforge_user');
-  navigate('#/landing');
-}
-
-function submitDemoRequest(){
-  const name=document.getElementById('demo-name').value.trim();
-  const company=document.getElementById('demo-company').value.trim();
-  const email=document.getElementById('demo-email').value.trim();
-  const size=document.getElementById('demo-size').value;
-  const crm=document.getElementById('demo-crm').value.trim();
-  const message=document.getElementById('demo-message').value.trim();
-  if(!name||!company||!email){showToast('Please fill in name, company, and email');return}
-  const requests=JSON.parse(localStorage.getItem('pitchforge_demo_requests')||'[]');
-  requests.push({name,company,email,size,crm,message,date:new Date().toISOString()});
-  localStorage.setItem('pitchforge_demo_requests',JSON.stringify(requests));
-  showToast('Demo request submitted! We\'ll be in touch soon.');
-  document.getElementById('demo-name').value='';
-  document.getElementById('demo-company').value='';
-  document.getElementById('demo-email').value='';
-  document.getElementById('demo-size').value='';
-  document.getElementById('demo-crm').value='';
-  document.getElementById('demo-message').value='';
-}
-
-// Dashboard
-function pageDashboard(){
-  const u=getUser();
-  const calls=getCalls();
-  const weekCalls=calls.filter(c=>{const d=new Date(c.date);const now=new Date();return (now-d)<7*86400000});
-  const avgScore=weekCalls.length?Math.round(weekCalls.reduce((s,c)=>s+c.score,0)/weekCalls.length):0;
-  const bestScore=weekCalls.length?Math.max(...weekCalls.map(c=>c.score)):0;
-  const today=new Date();let streak=0;for(let i=0;i<365;i++){const d=new Date(today-i*86400000).toISOString().slice(0,10);if(calls.some(c=>c.date===d))streak++;else break}
-  const tip=TIPS[Math.floor(Date.now()/86400000)%TIPS.length];
-  const recent=calls.slice(0,5);
-
-  return `<div class="page">
-  ${navHTML(true)}
-  <div class="dashboard">
-    <div class="dash-welcome"><h1>Welcome back, ${u.name}</h1><p>Your stats this week:</p></div>
-    <div class="stats-row">
-      <div class="stat-card"><div class="stat-label">Calls Completed</div><div class="stat-value primary">${weekCalls.length}</div></div>
-      <div class="stat-card"><div class="stat-label">Average Score</div><div class="stat-value">${avgScore}/100</div></div>
-      <div class="stat-card"><div class="stat-label">Best Score</div><div class="stat-value green">${bestScore}/100</div></div>
-      <div class="stat-card"><div class="stat-label">Current Streak</div><div class="stat-value primary">${streak} days</div></div>
-    </div>
-    <div class="quick-actions">
-      <div class="action-card primary-action" onclick="navigate('#/setup')">
-        <div class="action-icon">&#9742;</div>
-        <h3>Start Practice Call</h3>
-        <p>Choose your product, buyer, and difficulty level</p>
-      </div>
-      <div class="action-card secondary-action" onclick="navigate('#/setup')">
-        <div class="action-icon">&#9776;</div>
-        <h3>Review Past Calls</h3>
-        <p>See your recent call history and scores below</p>
-      </div>
-    </div>
-    <div class="tip-section"><h3>Coach's Tip of the Day</h3><p>${tip}</p></div>
-    <div class="recent-section"><h2>Recent Activity</h2>
-      ${recent.length?recent.map(c=>`<div class="call-item"><div><div class="call-item-persona">${c.persona}</div><div class="call-item-meta">${c.product} -- ${c.date}</div></div><div style="text-align:right"><div class="call-item-score" style="color:${c.score>=70?'var(--green)':c.score>=50?'var(--amber)':'var(--red)'}">${c.score}/100</div><div class="call-item-duration">${c.duration}</div></div></div>`).join(''):`<div class="empty-state">No calls yet. Start your first practice call to see your history here.</div>`}
-    </div>
-  </div>
-</div>`;
-}
-
-// Setup
-function pageSetup(){
-  return `<div class="page">
-  ${navHTML(true)}
-  <div class="setup-page">
-    <div style="height:12px"></div>
-    ${logoHTML('1.7rem')}
-    <div class="setup-tagline">Configure your practice call</div>
-    <div class="section">
-      <div class="section-title">Your Product</div>
-      <div class="preset-row" id="product-presets"></div>
-      <div class="field" id="product-custom" style="display:none"><textarea id="product-desc" placeholder="Describe your product, pricing, and value proposition..."></textarea></div>
-    </div>
-    <div class="section">
-      <div class="section-title">Your Pitch (optional)</div>
-      <div class="field"><textarea id="pitch-script" placeholder="Paste your script or pitch here for better coaching..." style="min-height:70px"></textarea></div>
-    </div>
-    <div class="section">
-      <div class="section-title">The Buyer</div>
-      <div class="preset-row" id="buyer-presets"></div>
-      <div class="field" id="buyer-custom" style="display:none"><textarea id="buyer-desc" placeholder="Describe your buyer..."></textarea></div>
-      <div class="field" style="margin-top:10px"><label>Starting Difficulty</label>
-        <div class="toggle-group">
-          <button class="toggle-btn" data-diff="1" onclick="setDiff(1)">1 Easy</button>
-          <button class="toggle-btn" data-diff="5" onclick="setDiff(5)">5 Mid</button>
-          <button class="toggle-btn" data-diff="8" onclick="setDiff(8)">8 Hard</button>
-          <button class="toggle-btn active" data-diff="auto" onclick="setDiff('auto')">Auto</button>
-        </div>
-      </div>
-    </div>
-    <div class="section">
-      <div class="section-title">Your Level</div>
-      <div class="toggle-group">
-        <button class="toggle-btn" data-level="beginner" onclick="setLevel('beginner')">Beginner</button>
-        <button class="toggle-btn active" data-level="intermediate" onclick="setLevel('intermediate')">Intermediate</button>
-        <button class="toggle-btn" data-level="advanced" onclick="setLevel('advanced')">Advanced</button>
-      </div>
-    </div>
-    <div class="section">
-      <div class="section-title">Training Mode</div>
-      <div class="mode-grid" id="mode-grid">
-        ${MODES.map(m=>`<div class="mode-card" data-mode="${m.id}" onclick="selectMode('${m.id}')">
-          <div class="mode-icon-wrap"><div class="${m.iconClass}"></div></div>
-          <div class="mode-title">${m.title}</div>
-          <div class="mode-desc">${m.desc}</div>
-        </div>`).join('')}
-      </div>
-      <div class="mode-context" id="mode-context"></div>
-    </div>
-    <button class="btn-start" onclick="startPracticeCall()">Start Practice Call</button>
-    <button class="btn-start" onclick="startRetellVoiceCall()" style="margin-top:10px;background:#f97316">Start Voice Call</button>
-    <p style="color:#a8a29e;font-size:12px;margin-top:6px;text-align:center">Talk to the AI buyer through your browser mic</p>
-    <div style="height:30px"></div>
-  </div>
-</div>`;
-}
-
-
-function initSetup(){
-  const pp=document.getElementById('product-presets');
-  if(pp) pp.innerHTML=PRODUCT_GROUPS.map(g=>`<div style="margin-bottom:6px;width:100%"><div style="font-size:.72rem;font-weight:700;color:var(--dimmed);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;margin-top:8px">${g.label}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${g.items.map(p=>`<div class="preset-chip" data-id="${p.id}" onclick="selectProduct('${p.id}')">${p.label} <span style="color:var(--dimmed);font-size:.7rem">${p.price}</span></div>`).join('')}</div></div>`).join('')+'<div class="preset-chip" data-id="custom" onclick="selectProduct(\'custom\')" style="margin-top:6px">Custom</div>';
-  const bp=document.getElementById('buyer-presets');
-  if(bp) bp.innerHTML=BUYERS.map(b=>`<div class="preset-chip" data-id="${b.id}" onclick="selectBuyer('${b.id}')">${b.label}</div>`).join('');
-  const saved=loadSetup();
-  if(saved.product) selectProduct(saved.product);
-  if(saved.persona) selectBuyer(saved.persona);
-  if(saved.difficulty) setDiff(saved.difficulty);
-  if(saved.level) setLevel(saved.level);
-  if(saved.pitch) document.getElementById('pitch-script').value=saved.pitch;
-  selectMode(S.selectedMode||'cold_call');
-}
-
-function selectProduct(id){
-  S.productPreset=id;
-  document.querySelectorAll('#product-presets .preset-chip').forEach(c=>c.classList.toggle('active',c.dataset.id===id));
-  const p=PRODUCTS.find(x=>x.id===id);
-  const cd=document.getElementById('product-custom');
-  if(id==='custom'){cd.style.display='block';S.productDesc='';}
-  else{cd.style.display='none';S.productDesc=p.desc;}
-}
-
-function selectBuyer(id){
-  S.buyerPreset=id;
-  document.querySelectorAll('#buyer-presets .preset-chip').forEach(c=>c.classList.toggle('active',c.dataset.id===id));
-  const b=BUYERS.find(x=>x.id===id);
-  const cd=document.getElementById('buyer-custom');
-  if(id==='custom'){cd.style.display='block';S.buyerName='Custom Buyer';S.buyerDesc='';}
-  else{cd.style.display='none';S.buyerName=b.name;S.buyerDesc=b.desc;}
-}
-
-function setDiff(v){
-  S.startDifficulty=v==='auto'?'auto':Number(v);
-  document.querySelectorAll('[data-diff]').forEach(b=>b.classList.toggle('active',b.dataset.diff==v));
-}
-
-function setLevel(v){
-  S.level=v;
-  document.querySelectorAll('[data-level]').forEach(b=>b.classList.toggle('active',b.dataset.level===v));
-}
-
-function selectMode(mode){
-  S.selectedMode=mode;
-  document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('active',c.dataset.mode===mode));
-  const m=MODES.find(x=>x.id===mode);
-  const ctx=document.getElementById('mode-context');
-  if(ctx&&m){
-    ctx.textContent=m.context;
-    ctx.classList.add('visible');
+// ---- Setup chips ----
+function pickChip(group, el) {
+  var parent = el.parentElement;
+  var chips = parent.querySelectorAll('.chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.remove('active');
+  el.classList.add('active');
+  var val = el.getAttribute('data-val');
+  var customInput = document.getElementById(group + '-custom-input');
+  if (val === 'custom') {
+    customInput.classList.remove('hidden');
+  } else {
+    customInput.classList.add('hidden');
+    if (group === 'product') selectedProduct = val;
+    if (group === 'buyer') {
+      selectedBuyer = val;
+      selectedBuyerDesc = el.getAttribute('data-desc') || '';
+    }
   }
 }
 
-// Call
-function pageCall(){
-  return `<div class="page" style="display:block;opacity:1">
-  ${navHTML(true)}
-  <div class="call-layout">
-    <div class="call-left">
-      <div class="call-header">
-        <div class="call-header-left">
-          <div><span class="label">Product </span><span class="value" id="call-product-label"></span></div>
-          <div><span class="label">Buyer </span><span class="value" id="call-buyer-label"></span></div>
-        </div>
-        <div class="timer" id="timer">00:00</div>
-      </div>
-      <div class="chat-area" id="chat"></div>
-      <div class="input-area">
-        <textarea id="msg-input" placeholder="Type your response..." rows="1"></textarea>
-        <button class="send-btn" id="mic-btn" onclick="toggleMic()" title="Voice input" style="background:var(--card);border:1px solid var(--border);color:var(--muted);display:none">&#9673;</button>
-        <button class="send-btn" id="send-btn" onclick="sendMessage()">&#9654;</button>
-      </div>
-      <div class="end-call-bar"><button class="end-btn" onclick="endCall()">End Call</button></div>
-    </div>
-    <div class="call-right">
-      <div class="coach-panel">
-        <div class="coach-title">Live Coach</div>
-        <div class="diff-meter-wrap">
-          <div class="diff-meter-label"><span>Difficulty</span><div><span class="diff-num" id="diff-num">3</span><span class="diff-max">/10</span></div></div>
-          <div class="diff-bar"><div class="diff-bar-fill" id="diff-bar-fill" style="width:30%;background:linear-gradient(90deg,#10b981,#f59e0b)"></div></div>
-          <div class="diff-desc" id="diff-desc">Somewhat interested, basic questions</div>
-        </div>
-        <div class="next-move"><div class="nm-label">Next Move</div><div class="nm-text" id="next-move-text">Start the conversation with your prospect</div></div>
-        <div id="coach-alerts"></div>
-        <div id="coach-tip"></div>
-        <div class="mini-scores"><div class="coach-title" style="margin-bottom:6px">Running Scores</div><div class="ms-grid" id="ms-grid"></div></div>
-        <div class="coach-loading" id="coach-loading" style="display:none"><div class="spinner-sm"></div><span>Coach is analyzing...</span></div>
-      </div>
-    </div>
-  </div>
-</div>`;
+function pickMode(el) {
+  var cards = document.querySelectorAll('#mode-grid .mode-card');
+  for (var i = 0; i < cards.length; i++) cards[i].classList.remove('active');
+  el.classList.add('active');
+  selectedMode = el.getAttribute('data-val');
 }
 
-async function initCall(){
-  if(S.productPreset==='custom'||!S.productPreset){
-    S.productDesc=document.getElementById('product-desc')?.value?.trim()||S.productDesc;
-    if(!S.productDesc){navigate('#/setup');return}
+// ---- API ----
+async function callAI(messages) {
+  var resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + OPENAI_KEY},
+    body: JSON.stringify({model: 'gpt-4o-mini', messages: messages, max_tokens: 200, temperature: 0.8})
+  });
+  var data = await resp.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.choices[0].message.content;
+}
+
+// ---- Start Call ----
+async function startCall(type) {
+  // Gather values
+  var customProd = document.getElementById('product-custom-val').value.trim();
+  if (customProd) selectedProduct = customProd;
+  var customBuyer = document.getElementById('buyer-custom-val').value.trim();
+  if (customBuyer) { selectedBuyer = 'Custom'; selectedBuyerDesc = customBuyer; }
+  difficulty = parseInt(document.getElementById('difficulty-slider').value);
+
+  if (!selectedProduct || !selectedBuyer || !selectedMode) {
+    alert('Please select a product, buyer, and mode'); return;
   }
-  if(S.buyerPreset==='custom'||!S.buyerPreset){
-    S.buyerDesc=document.getElementById('buyer-desc')?.value?.trim()||S.buyerDesc;
-    if(!S.buyerDesc){navigate('#/setup');return}
+
+  if (type === 'voice') {
+    await startVoiceCall();
+    return;
   }
-  S.pitchScript=document.getElementById('pitch-script')?.value?.trim()||'';
-  S.startDifficulty=S.startDifficulty==='auto'?3:Number(S.startDifficulty);
-  S.currentDifficulty=S.startDifficulty;
-  S.difficultyHistory=[S.startDifficulty];
-  S.messages=[];S.seconds=0;
-  S.runningScores={opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5};
-  S.buyerBusy=false;S.coachBusy=false;S.voiceEnabled=false;S.micActive=false;
-  saveSetup();
 
-  const pl=document.getElementById('call-product-label');
-  const bl=document.getElementById('call-buyer-label');
-  if(pl) pl.textContent=S.productPreset==='custom'?'Custom':(PRODUCTS.find(p=>p.id===S.productPreset)?.label||'Product');
-  if(bl) bl.textContent=S.buyerName;
+  // Text call
+  callMessages = [];
+  chatHistory = [];
+  coachTips = [];
+  callSeconds = 0;
+  document.getElementById('chat-messages').innerHTML = '';
+  document.getElementById('coach-tips').innerHTML = '';
+  document.getElementById('call-diff-badge').textContent = 'Difficulty ' + difficulty;
 
-  document.getElementById('ms-grid').innerHTML=SCORE_CATS.map(c=>`<div><div class="ms-label">${c.label}</div><div class="ms-bar"><div class="ms-bar-fill" id="ms-${c.key}" style="width:50%"></div></div></div>`).join('');
-  updateDifficulty(S.currentDifficulty);
-  updateMiniScores(S.runningScores);
+  location.hash = '#/call';
 
-  clearInterval(S.timerInterval);
-  updateTimer();
-  S.timerInterval=setInterval(()=>{S.seconds++;updateTimer()},1000);
+  // Start timer
+  clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(function() {
+    callSeconds++;
+    var m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+    var s = String(callSeconds % 60).padStart(2, '0');
+    document.getElementById('call-timer').textContent = m + ':' + s;
+  }, 1000);
 
   // Get buyer opening
-  S.buyerBusy=true;
-  showTyping(true);
-  try{
-    const opening=await callAI([{role:'system',content:buildBuyerPrompt()},{role:'user',content:'The salesperson has just called you. Introduce yourself briefly (1-2 sentences) and set the scene. Wait for them to pitch. Keep it short and natural.'}]);
-    removeTyping();addChatMsg('ai',opening);S.messages.push({role:'assistant',content:opening});
-  }catch(e){
-    removeTyping();addChatMsg('ai','Hello? Who is this?');S.messages.push({role:'assistant',content:'Hello? Who is this?'});
-  }
-  S.buyerBusy=false;
-
-  // Wire input
-  const inp=document.getElementById('msg-input');
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
-  inp.addEventListener('input',function(){this.style.height='44px';this.style.height=Math.min(this.scrollHeight,100)+'px'});
-
-  // Show mic button if SpeechRecognition available
-  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const micBtn=document.getElementById('mic-btn');
-  if(SpeechRecognition&&micBtn){micBtn.style.display='flex'}
-
-  // Load voices for TTS
-  if(speechSynthesis) speechSynthesis.getVoices();
-}
-
-function buildBuyerPrompt(){
-  const mode=MODES.find(m=>m.id===S.selectedMode)||MODES[0];
-  const product=PRODUCTS.find(p=>p.id===S.productPreset);
-  const pName=product?product.label:'Custom Product';
-  const pPrice=product?product.price:'N/A';
-  const dd=DIFF_DESC[S.currentDifficulty]||'';
-  const pc=S.pitchScript?`\nThe salesperson's pitch/script context: "${S.pitchScript}"\n`:'';
-  return `You are a sales prospect in a practice simulation. Stay in character at all times.
-
-MODE: ${mode.title} - ${mode.context}
-
-PRODUCT BEING SOLD: ${pName} - ${S.productDesc} - Price: ${pPrice}
-
-YOUR PERSONA: ${S.buyerName} - ${S.buyerDesc}
-
-DIFFICULTY: ${S.currentDifficulty}/10
-${dd}
-${pc}
-RULES:
-- Stay in character as the buyer. Never break character.
-- Respond naturally as this person would. Don't be overly helpful or give away buying signals easily.
-- At difficulty 1-3: Be somewhat receptive, ask basic questions, raise simple objections
-- At difficulty 4-6: Be skeptical, ask pointed questions, compare to competitors
-- At difficulty 7-8: Be hostile, push back hard, try to end the conversation, challenge every claim
-- At difficulty 9-10: Nearly impossible to sell to, attack every point, mention you're happy with current solution
-- Keep responses concise (1-3 sentences typically)
-- Don't reveal that you're an AI. You're a real person being sold to.
-- React to what the salesperson actually says, don't just follow a script`;
-}
-
-function buildCoachTipPrompt(){
-  const last4=S.messages.slice(-8).map(m=>(m.role==='user'?'Salesperson: ':'Buyer: ')+m.content).join('\n');
-  return `You are an expert sales coach watching a live sales call. Based on the conversation so far, give ONE specific, actionable tip. Be brief (1-2 sentences). Either praise something they did well or point out something they should improve. Reference specific sales techniques (SPIN selling, challenger sale, etc.) when relevant.
-
-Conversation so far:
-${last4}
-
-Respond with just the tip, no preamble.`;
-}
-
-function buildCoachPrompt(){
-  const ch=S.messages.map(m=>(m.role==='user'?'Salesperson: ':'Buyer: ')+m.content).join('\n');
-  const lg=S.level==='beginner'?'The salesperson is a beginner -- give more detailed guidance and encouragement.':S.level==='advanced'?'The salesperson is advanced -- be subtle and strategic in coaching.':'The salesperson is at intermediate level.';
-  return `You are an expert sales coach monitoring a live sales call. The salesperson is selling: ${S.productDesc}\n\nThe buyer is: ${S.buyerName}, ${S.buyerDesc}\n\nThe salesperson's level: ${S.level}. ${lg}\n\nHere is the conversation so far:\n${ch}\n\nAnalyze the last exchange and provide coaching in this EXACT JSON format (no markdown, just raw JSON):\n{"difficulty_adjustment": 0, "current_difficulty": ${S.currentDifficulty}, "next_move": "one specific suggestion for what to do next (5-10 words)", "warning": "a warning if relevant, or null", "praise": "a specific praise if relevant, or null", "tip": "a contextual tip based on what's happening (1 sentence)", "running_scores": {"opening":5,"discovery":5,"listening":5,"value":5,"objections":5,"persuasion":5,"negotiation":5,"closing":5,"communication":5,"structure":5}}\n\nBe specific. Reference what they actually said. Scores are 1-10. difficulty_adjustment is -2 to +2 based on how well they're performing.`;
-}
-
-const OPENAI_API_KEY=atob('c2stcHJvai1vaDBRLWhvc0VsLWV6QXZIZV8tQ05wa3FodVF5Zmo4MlZ4V1dMa1EwS3lhZUVXRkhWaXB3T0hNN1E4eERfZm80TXVmTVppdlJZNFQzQmxaRkpDRTZ1S3RyM1JVelJHTjhCSXl0YlZRTjJISlR4a21ubFJic3J1SnFuVGQ3ZUtIc3hpTUpwMVRSWkVzUzlCNnFwM2NHTTMzVW9JQQ==');
-
-async function callAI(messages,retries=1){
-  try{
-    const resp=await fetch('https://api.openai.com/v1/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+OPENAI_API_KEY},
-      body:JSON.stringify({model:'gpt-4o-mini',messages,max_tokens:200,temperature:0.8})
-    });
-    if(!resp.ok){
-      const err=await resp.json().catch(()=>({}));
-      if(resp.status===429&&retries>0){await new Promise(r=>setTimeout(r,2000));return callAI(messages,retries-1)}
-      throw new Error(err.error?.message||'API error '+resp.status);
-    }
-    const data=await resp.json();
-    return data.choices[0].message.content;
-  }catch(e){
-    if(retries>0){await new Promise(r=>setTimeout(r,1000));return callAI(messages,retries-1)}
-    throw e;
-  }
-}
-
-function updateTimer(){
-  const el=document.getElementById('timer');
-  if(el) el.textContent=String(Math.floor(S.seconds/60)).padStart(2,'0')+':'+String(S.seconds%60).padStart(2,'0');
-}
-
-function addChatMsg(role,text){
-  const chat=document.getElementById('chat');
-  if(!chat)return;
-  const div=document.createElement('div');
-  div.className='msg '+(role==='ai'?'ai':'user');
-  div.innerHTML=`<div class="sender">${role==='ai'?S.buyerName:'You'}</div><div>${escHtml(text)}</div>`;
-  chat.appendChild(div);chat.scrollTop=chat.scrollHeight;
-}
-
-function showTyping(show){
-  removeTyping();
-  if(show){
-    const chat=document.getElementById('chat');if(!chat)return;
-    const div=document.createElement('div');div.className='typing';div.id='typing-indicator';
-    div.innerHTML=`${S.buyerName} is thinking... <span class="typing-dots"><span></span><span></span><span></span></span>`;
-    chat.appendChild(div);chat.scrollTop=chat.scrollHeight;
-  }
-}
-
-function removeTyping(){const t=document.getElementById('typing-indicator');if(t)t.remove()}
-
-function escHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}
-
-function updateMiniScores(scores){
-  if(!scores)return;
-  S.runningScores={...S.runningScores,...scores};
-  SCORE_CATS.forEach(c=>{
-    const v=S.runningScores[c.key]||5;
-    const el=document.getElementById('ms-'+c.key);
-    if(el){el.style.width=(v*10)+'%';el.className='ms-bar-fill'+(v<=4?' low':v<=6?' mid':' high')}
-  });
-}
-
-function updateDifficulty(val){
-  val=Math.max(1,Math.min(10,Math.round(val)));
-  S.currentDifficulty=val;S.difficultyHistory.push(val);
-  const n=document.getElementById('diff-num');if(n)n.textContent=val;
-  const f=document.getElementById('diff-bar-fill');
-  if(f){f.style.width=(val*10)+'%';f.style.background=val<=4?'linear-gradient(90deg,#10b981,#f59e0b)':val<=7?'linear-gradient(90deg,#f59e0b,#f97316)':'linear-gradient(90deg,#f97316,#ef4444)'}
-  const d=document.getElementById('diff-desc');if(d)d.textContent=DIFF_DESC[val]||'';
-}
-
-function setCoachAlerts(data){
-  const el=document.getElementById('coach-alerts');if(el)el.innerHTML='';
-  if(data.warning&&el)el.innerHTML+=`<div class="alert warning">${data.warning}</div>`;
-  if(data.praise&&el)el.innerHTML+=`<div class="alert praise">${data.praise}</div>`;
-  const tip=document.getElementById('coach-tip');
-  if(tip)tip.innerHTML=data.tip?`<div class="alert tip">${data.tip}</div>`:'';
-  if(data.next_move){const nm=document.getElementById('next-move-text');if(nm)nm.textContent=data.next_move}
-}
-
-async function sendMessage(){
-  const input=document.getElementById('msg-input');
-  const text=input.value.trim();
-  if(!text||S.buyerBusy)return;
-  input.value='';input.style.height='44px';
-  addChatMsg('user',text);
-  S.messages.push({role:'user',content:text});
-  document.getElementById('send-btn').disabled=true;
-  S.buyerBusy=true;
-  showTyping(true);
-  document.getElementById('coach-loading').style.display='flex';
-
-  const exchangeCount=S.messages.filter(m=>m.role==='user').length;
-
-  let buyerReply,coachRaw=null;
-  try{
-    buyerReply=await callAI([{role:'system',content:buildBuyerPrompt()},...S.messages]);
-  }catch(e){
-    buyerReply='Hmm, sorry, can you repeat that?';
-  }
-
-  // Coach every 4 exchanges
-  if(exchangeCount>0&&exchangeCount%4===0){
-    try{
-      const [coachJSON,coachTip]=[await callAI([{role:'system',content:buildCoachPrompt()},{role:'user',content:'Analyze the last exchange and provide coaching JSON now.'}]),await callAI([{role:'system',content:buildCoachTipPrompt()},{role:'user',content:'Give your tip now.'}])];
-      coachRaw=coachJSON;
-      if(coachTip){
-        const tipEl=document.getElementById('coach-tip');
-        if(tipEl)tipEl.innerHTML=`<div class="alert tip">${escHtml(coachTip)}</div>`;
-      }
-    }catch(e){}
-  }else{
-    // Lightweight coach every other exchange
-    if(exchangeCount%2===0){
-      try{coachRaw=await callAI([{role:'system',content:buildCoachPrompt()},{role:'user',content:'Analyze the last exchange and provide coaching JSON now.'}])}catch(e){}
-    }
-  }
-
-  removeTyping();addChatMsg('ai',buyerReply);S.messages.push({role:'assistant',content:buyerReply});
-
-  // Speak the buyer response
-  if(S.voiceEnabled){speakResponse(buyerReply)}
-
-  document.getElementById('coach-loading').style.display='none';
-
-  if(coachRaw){
-    try{const j=coachRaw.match(/\{[\s\S]*\}/)?.[0];if(j){const c=JSON.parse(j);if(c.difficulty_adjustment)updateDifficulty(S.currentDifficulty+c.difficulty_adjustment);if(c.running_scores)updateMiniScores(c.running_scores);setCoachAlerts(c)}}catch(e){}
-  }
-
-  S.buyerBusy=false;
-  document.getElementById('send-btn').disabled=false;
-  input.focus();
-}
-</script>
-</body>
-</html>
-
-  const product=PRODUCTS.find(x=>x.id===S.productPreset);
-  const buyer=BUYERS.find(x=>x.id===S.buyerPreset);
-  const productName=product?product.label:S.productDesc.substring(0,80);
-  const buyerPersona=S.buyerDesc||buyer.description;
-  const diff=S.startDifficulty==='auto'?5:Number(S.startDifficulty);
-
-  statusEl.textContent='Calling you now...';statusEl.style.color='#f97316';
-
-  try{
-    const resp=await fetch('https://api.retellai.com/v2/create-phone-call',{
-      method:'POST',
-      headers:{'Authorization':'Bearer key_c833df9a891bacfc002cf8714c0c','Content-Type':'application/json'},
-      body:JSON.stringify({
-        from_number:'+12063505569',
-        to_number:phone,
-        override_agent_id:'agent_2d2969f4f54ab3192ceaf4ab5e',
-        metadata:{product:productName,buyer_persona:buyerPersona,difficulty:String(diff)}
-      })
-    });
-    const data=await resp.json();
-    if(resp.ok&&data.call_id){
-      statusEl.textContent='Call connected! Pick up your phone. Call ID: '+data.call_id;
-      statusEl.style.color='#10b981';
-      addCall({date:new Date().toISOString().split('T')[0],persona:buyer?buyer.label:'Custom',product:productName,score:0,grade:'-',duration:'Voice',difficulty_peak:diff,type:'voice',call_id:data.call_id});
-    }else{
-      statusEl.textContent='Error: '+(data.error_message||'Could not connect call');
-      statusEl.style.color='#ef4444';
-    }
-  }catch(e){
-    statusEl.textContent='Connection failed. Try again.';
-    statusEl.style.color='#ef4444';
-  }
-}
-
-async function endCall(){
-  clearInterval(S.timerInterval);
-  document.getElementById('loading-overlay').classList.add('show');
-  document.getElementById('loading-text').textContent='Analyzing your performance...';
-  try{const score=await getScore();window._lastScore=score}catch(e){window._lastScore=fallbackScore()}
-  document.getElementById('loading-overlay').classList.remove('show');
-
-  // Save call result
-  const sc=window._lastScore;
-  const dur=Math.floor(S.seconds/60)+':'+String(S.seconds%60).padStart(2,'0');
-  addCall({date:new Date().toISOString().slice(0,10),persona:S.buyerName,product:PRODUCTS.find(p=>p.id===S.productPreset)?.label||'Custom',score:sc.overall_score,grade:sc.grade,duration:dur,difficulty_peak:sc.difficulty_peak||S.currentDifficulty});
-
-  navigate('#/debrief');
-}
-
-async function getScore(){
-  const tr=S.messages.map(m=>(m.role==='user'?'Salesperson: ':'Buyer: ')+m.content).join('\n');
-  const prompt=`You are a sales coach evaluating a practice call. Score this conversation on each category 1-10:
-
-1. Opening & First Impression (weight: 8%)
-2. Discovery & Questioning (weight: 15%)
-3. Active Listening & Empathy (weight: 12%)
-4. Value Framing (weight: 12%)
-5. Objection Handling (weight: 12%)
-6. Persuasion & Influence (weight: 8%)
-7. Negotiation (weight: 10%)
-8. Closing (weight: 10%)
-9. Communication & Pacing (weight: 8%)
-10. Overall Call Structure (weight: 5%)
-
-Conversation:
-${tr}
-
-Product: ${S.productDesc}
-Mode: ${MODES.find(m=>m.id===S.selectedMode)?.title||S.selectedMode}
-Difficulty: ${S.currentDifficulty}/10
-
-Calculate overall_score as weighted average using the weights above, multiplied by 10 for 0-100 scale. Assign grade: 90-100="Elite", 80-89="Strong", 70-79="Competent", 60-69="Developing", 50-59="Beginner", below 50="Raw".
-
-Return ONLY valid JSON (no markdown):
-{"overall_score": 75, "grade": "Competent", "difficulty_start": ${S.startDifficulty}, "difficulty_peak": ${Math.max(...S.difficultyHistory)}, "scores": {"opening":7,"discovery":5,"listening":8,"value":5,"objections":6,"persuasion":7,"negotiation":5,"closing":6,"communication":7,"structure":7}, "strengths": ["specific thing 1", "specific thing 2", "specific thing 3"], "weaknesses": ["specific thing 1", "specific thing 2", "specific thing 3"], "best_moment": "quote their best line", "worst_moment": "quote their worst line", "tip": "one actionable tip", "annotations": [{"message_index": 0, "type": "good", "note": "explanation"}]}
-
-message_index is 0-based. type is "good", "missed", or "mistake". Provide 4-8 annotations. Be specific.`;
-  const raw=await callAI([{role:'system',content:prompt},{role:'user',content:'Provide the scoring JSON now.'}]);
-  const j=raw.match(/\{[\s\S]*\}/)?.[0];if(!j)throw new Error('No JSON');return JSON.parse(j);
-}
-
-function fallbackScore(){
-  return{overall_score:50,grade:'Developing',difficulty_start:S.startDifficulty,difficulty_peak:S.currentDifficulty,scores:{opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5},strengths:['Completed the call'],weaknesses:['Needs more practice'],best_moment:'',worst_moment:'',tip:'Focus on asking open-ended discovery questions.',annotations:[]};
-}
-
-// Debrief
-function pageDebrief(){
-  const sc=window._lastScore||fallbackScore();
-  const s=sc.scores||{};
-  const ov=sc.overall_score||50;
-  const col=ov>=70?'var(--green)':ov>=50?'var(--amber)':'var(--red)';
-  const gradeLabel=ov>=90?'Elite':ov>=80?'Strong':ov>=70?'Competent':ov>=60?'Developing':ov>=50?'Beginner':'Raw';
-  const peak=sc.difficulty_peak||S.currentDifficulty;
-  const start=sc.difficulty_start||S.startDifficulty;
-
-  const bars=SCORE_CATS.map(c=>{
-    const v=s[c.key]||5;const pct=v*10;
-    const bc=v>=7?'var(--green)':v>=5?'var(--amber)':'var(--red)';
-    const wt=Math.round(c.weight*100);
-    return`<div class="category"><span class="cat-name">${c.label} <span style="font-size:.65rem;color:var(--dimmed)">(${wt}%)</span></span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${bc}" data-target="${pct}"></div></div><span class="cat-score">${v}</span></div>`;
-  }).join('');
-
-  const ann=sc.annotations||[];
-  const amap={};ann.forEach(a=>{if(a.message_index!==undefined)amap[a.message_index]=a});
-
-  let replay='';
-  S.messages.forEach((m,i)=>{
-    const u=m.role==='user';
-    replay+=`<div class="replay-msg ${u?'user-msg':'ai-msg'}"><div class="replay-sender">${u?'You':S.buyerName}</div>${escHtml(m.content)}</div>`;
-    if(amap[i]){const a=amap[i];replay+=`<div class="replay-annotation ${a.type==='good'?'good':a.type==='missed'?'missed':'mistake'}">${a.note}</div>`}
-  });
-
-  const strengths=(sc.strengths||[]).map(x=>`<li>${x}</li>`).join('');
-  const weaknesses=(sc.weaknesses||[]).map(x=>`<li>${x}</li>`).join('');
-  const best=sc.best_moment?`<div class="fb-quote">${escHtml(sc.best_moment)}</div>`:'';
-  const worst=sc.worst_moment?`<div class="fb-quote bad">${escHtml(sc.worst_moment)}</div>`:'';
-
-  const maxH=36;
-  const curve=S.difficultyHistory.map((d,i)=>{
-    const h=(d/10)*maxH;
-    return`<div style="width:${100/Math.max(S.difficultyHistory.length,1)}%;height:${h}px;background:${d>=7?'var(--red)':d>=4?'var(--amber)':'var(--green)'};border-radius:2px 2px 0 0;opacity:${.5+(i/S.difficultyHistory.length)*.5}"></div>`;
-  }).join('');
-
-  return `<div class="page">
-  ${navHTML(true)}
-  <div class="debrief-page">
-    <div class="debrief-header"><h1>Call <span>Complete</span></h1><div class="sub">${PRODUCTS.find(p=>p.id===S.productPreset)?.label||'Custom Product'} -- ${S.buyerName} -- ${fmtTime(S.seconds)}</div></div>
-    <div class="score-hero">
-      <div class="big-num" style="color:${col}">${ov}</div><div class="out-of">/ 100</div>
-      <div class="grade" style="color:${col}">${gradeLabel} — Grade: ${sc.grade||'C'}</div>
-      <div class="diff-range">Started at Level ${start}, peaked at Level ${peak}</div>
-      <div style="display:flex;align-items:flex-end;gap:1px;height:${maxH}px;margin:10px auto 0;max-width:180px">${curve}</div>
-    </div>
-    <div class="card" style="animation-delay:.1s"><h3>Category Breakdown</h3>${bars}</div>
-    <div class="card" style="animation-delay:.2s"><h3>Conversation Replay</h3>${replay}</div>
-    <div class="card" style="animation-delay:.3s"><h3 style="color:var(--green)">What You Did Well</h3><ul class="fb-list green">${strengths}</ul></div>
-    <div class="card" style="animation-delay:.4s"><h3 style="color:var(--red)">What Cost You Points</h3><ul class="fb-list red">${weaknesses}</ul></div>
-    ${best?`<div class="card" style="animation-delay:.5s"><h3 style="color:var(--green)">Your Strongest Moment</h3>${best}</div>`:''}
-    ${worst?`<div class="card" style="animation-delay:.55s"><h3 style="color:var(--red)">Your Weakest Moment</h3>${worst}</div>`:''}
-    ${sc.tip?`<div class="card" style="animation-delay:.6s"><h3>Pro Tip for Next Time</h3><div class="tip-box">${escHtml(sc.tip)}</div></div>`:''}
-    <div class="actions" style="animation-delay:.7s">
-      <button class="btn-primary-action" onclick="retryHarder()">Try Again (Harder)</button>
-      <button class="btn-secondary-action" onclick="navigate('#/setup')">New Setup</button>
-      <button class="btn-tertiary-action" onclick="navigate('#/dashboard')">Back to Dashboard</button>
-    </div>
-    <div style="height:36px"></div>
-  </div>
-</div>`;
-}
-
-function fmtTime(sec){return Math.floor(sec/60)+'m '+(sec%60)+'s'}
-
-function retryHarder(){
-  S.startDifficulty=Math.min(10,S.currentDifficulty+1);
-  S.productPreset=S.productPreset||'custom';
-  S.buyerPreset=S.buyerPreset||'custom';
-  navigate('#/call');
-}
-
-function showToast(msg){
-  const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);
-}
-
-// Animate bars on debrief
-const debriefObs=new MutationObserver(()=>{
-  document.querySelectorAll('.bar-fill[data-target]').forEach(b=>{setTimeout(()=>{b.style.width=b.dataset.target+'%'},100)});
-});
-debriefObs.observe(document.getElementById('app'),{childList:true,subtree:true});
-
-// ===== In-Call Voice (mic + TTS) =====
-let callSTT=null;
-
-function toggleMic(){
-  if(S.micActive){stopCallMic();return}
-  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SpeechRecognition){showToast('Speech recognition not supported in this browser');return}
-  S.micActive=true;
-  const btn=document.getElementById('mic-btn');
-  if(btn){btn.style.background='var(--red)';btn.style.color='#fff';btn.style.borderColor='var(--red)';btn.title='Stop listening'}
-
-  callSTT=new SpeechRecognition();
-  callSTT.continuous=false;
-  callSTT.interimResults=false;
-  callSTT.lang='en-US';
-
-  callSTT.onresult=(event)=>{
-    const transcript=event.results[0][0].transcript;
-    const inp=document.getElementById('msg-input');
-    S.voiceEnabled=true; // Enable TTS response when using voice input
-    if(inp&&transcript.trim()){inp.value=transcript.trim();sendMessage()}
-  };
-
-  callSTT.onerror=(e)=>{
-    if(e.error!=='no-speech'&&e.error!=='aborted') showToast('Mic error: '+e.error);
-    stopCallMic();
-  };
-
-  callSTT.onend=()=>{stopCallMic()};
-
-  try{callSTT.start()}catch(e){stopCallMic()}
-}
-
-function stopCallMic(){
-  S.micActive=false;
-  if(callSTT){try{callSTT.stop()}catch(e){}callSTT=null}
-  const btn=document.getElementById('mic-btn');
-  if(btn){btn.style.background='var(--card)';btn.style.color='var(--muted)';btn.style.borderColor='var(--border)';btn.title='Voice input'}
-}
-
-function speakResponse(text){
-  if(!speechSynthesis)return;
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(text);
-  u.rate=1.0;
-  const voices=speechSynthesis.getVoices();
-  const v=voices.find(v=>v.name.includes('Google')&&v.lang==='en-US')||voices.find(v=>v.lang==='en-US')||voices[0];
-  if(v)u.voice=v;
-  u.onend=()=>{S.voiceEnabled=false};
-  speechSynthesis.speak(u);
-}
-
-async function startRetellVoiceCall() {
-  if (typeof RetellWebClient === 'undefined') { alert('Voice SDK not loaded. Try refreshing the page.'); return; }
-  const RETELL_KEY = 'key_c833df9a891bacfc002cf8714c0c';
-  const AGENT_ID = 'agent_2d2969f4f54ab3192ceaf4ab5e';
-  
-  const product = PRODUCTS.find(x => x.id === S.productPreset);
-  const buyer = BUYERS.find(x => x.id === S.buyerPreset);
-  const mode = MODES.find(x => x.id === (S.selectedMode || 'cold_call'));
-  
-  if (!product && S.productPreset !== 'custom') { alert('Select a product first'); return; }
-  if (!buyer && S.buyerPreset !== 'custom') { alert('Select a buyer first'); return; }
-  
-  const btn = event.target;
-  btn.textContent = 'Connecting...';
-  btn.disabled = true;
-  
+  var sys = buildBuyerPrompt();
+  callMessages.push({role: 'system', content: sys});
+  callMessages.push({role: 'user', content: '[The salesperson is calling you. Respond with your opening reaction as the buyer.]'});
+
+  addTyping();
   try {
-    const resp = await fetch('https://api.retellai.com/v2/create-web-call', {
+    var reply = await callAI(callMessages);
+    removeTyping();
+    callMessages.push({role: 'assistant', content: reply});
+    chatHistory.push({role: 'buyer', content: reply});
+    addChatBubble('buyer', reply);
+  } catch(e) {
+    removeTyping();
+    addChatBubble('buyer', 'Hello? Who is this?');
+  }
+}
+
+function buildBuyerPrompt() {
+  var d = difficulty;
+  var diffDesc = 'somewhat receptive and willing to listen';
+  if (d >= 4 && d <= 6) diffDesc = 'neutral — you will engage but push back on weak points';
+  if (d >= 7 && d <= 8) diffDesc = 'hostile — you are busy and trying to end the call quickly';
+  if (d >= 9) diffDesc = 'nearly impossible — you are extremely resistant and dismissive';
+  return 'You are a sales prospect in a practice simulation. Stay in character.\nSELLING: ' + selectedProduct + '\nYOUR PERSONA: ' + selectedBuyer + ' — ' + selectedBuyerDesc + '\nCALL TYPE: ' + selectedMode + '\nDIFFICULTY: ' + d + '/10. You are ' + diffDesc + '.\nRespond in 1-3 sentences. Never break character. Never say you are an AI.';
+}
+
+// ---- Chat UI ----
+function addChatBubble(role, text) {
+  var container = document.getElementById('chat-messages');
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  var label = role === 'buyer' ? 'Prospect' : 'You';
+  div.innerHTML = '<div><div class="label">' + label + '</div><div class="bubble">' + escapeHtml(text) + '</div></div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function addTyping() {
+  var container = document.getElementById('chat-messages');
+  var div = document.createElement('div');
+  div.className = 'msg buyer';
+  div.id = 'typing-indicator';
+  div.innerHTML = '<div class="typing">Prospect is typing...</div>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+}
+
+function removeTyping() {
+  var el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function escapeHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ---- Send Message ----
+async function sendMessage() {
+  var input = document.getElementById('chat-input');
+  var text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  chatHistory.push({role: 'seller', content: text});
+  addChatBubble('seller', text);
+  callMessages.push({role: 'user', content: text});
+
+  // Coach tip every 4 exchanges (after user messages 4, 8, 12...)
+  var sellerCount = chatHistory.filter(function(m) { return m.role === 'seller'; }).length;
+  if (sellerCount % 4 === 0) {
+    getCoachTip();
+  }
+
+  // Get buyer response
+  addTyping();
+  try {
+    var reply = await callAI(callMessages);
+    removeTyping();
+    callMessages.push({role: 'assistant', content: reply});
+    chatHistory.push({role: 'buyer', content: reply});
+    addChatBubble('buyer', reply);
+
+    // Voice readback if user used voice
+    if (usedVoiceInput && window.speechSynthesis) {
+      var utter = new SpeechSynthesisUtterance(reply);
+      utter.rate = 1;
+      window.speechSynthesis.speak(utter);
+      usedVoiceInput = false;
+    }
+  } catch(e) {
+    removeTyping();
+    addChatBubble('buyer', '...');
+  }
+}
+
+// ---- Coach ----
+async function getCoachTip() {
+  var recent = callMessages.slice(-8);
+  var coachMsgs = [
+    {role: 'system', content: 'You are a sales coach watching a live call. Give ONE brief tip (1-2 sentences) based on the last few exchanges. Reference specific techniques (SPIN selling, challenger sale, etc.) when relevant.'},
+    {role: 'user', content: 'Recent exchange:\n' + recent.map(function(m) { return (m.role === 'user' ? 'Seller' : 'Buyer') + ': ' + m.content; }).join('\n')}
+  ];
+  try {
+    var tip = await callAI(coachMsgs);
+    coachTips.push(tip);
+    var container = document.getElementById('coach-tips');
+    var div = document.createElement('div');
+    div.className = 'coach-tip';
+    div.textContent = tip;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  } catch(e) {}
+}
+
+// ---- End Call ----
+async function endCall() {
+  clearInterval(callTimerInterval);
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+
+  // Score the call
+  var transcript = chatHistory.map(function(m) {
+    return (m.role === 'seller' ? 'Salesperson' : 'Prospect') + ': ' + m.content;
+  }).join('\n');
+
+  var scoreMsgs = [
+    {role: 'system', content: 'Score this sales call 1-10 on each category. Return ONLY valid JSON:\n{"opening":N,"discovery":N,"listening":N,"value":N,"objections":N,"persuasion":N,"negotiation":N,"closing":N,"communication":N,"structure":N}\nCategories: Opening (8%), Discovery (15%), Listening (12%), Value (12%), Objections (12%), Persuasion (8%), Negotiation (10%), Closing (10%), Communication (8%), Structure (5%)'},
+    {role: 'user', content: 'Call transcript:\n' + transcript}
+  ];
+
+  var scores = {};
+  try {
+    var raw = await callAI(scoreMsgs);
+    // Extract JSON from response
+    var match = raw.match(/\{[^}]+\}/);
+    if (match) scores = JSON.parse(match[0]);
+  } catch(e) {
+    // Default scores
+    scores = {opening:5,discovery:5,listening:5,value:5,objections:5,persuasion:5,negotiation:5,closing:5,communication:5,structure:5};
+  }
+
+  // Get feedback
+  var feedback = {well: [], cost: []};
+  try {
+    var fbMsgs = [
+      {role: 'system', content: 'Analyze this sales call. Give 2-3 specific things done well and 2-3 things that cost points. Return ONLY valid JSON: {"well":["tip1","tip2"],"cost":["tip1","tip2"]}'},
+      {role: 'user', content: 'Transcript:\n' + transcript + '\n\nScores: ' + JSON.stringify(scores)}
+    ];
+    var fbRaw = await callAI(fbMsgs);
+    var fbMatch = fbRaw.match(/\{[\s\S]*\}/);
+    if (fbMatch) feedback = JSON.parse(fbMatch[0]);
+  } catch(e) {}
+
+  showDebrief(scores, feedback);
+}
+
+// ---- Debrief ----
+var CATEGORIES = [
+  {key:'opening',label:'Opening',weight:8},
+  {key:'discovery',label:'Discovery',weight:15},
+  {key:'listening',label:'Listening',weight:12},
+  {key:'value',label:'Value Prop',weight:12},
+  {key:'objections',label:'Objections',weight:12},
+  {key:'persuasion',label:'Persuasion',weight:8},
+  {key:'negotiation',label:'Negotiation',weight:10},
+  {key:'closing',label:'Closing',weight:10},
+  {key:'communication',label:'Communication',weight:8},
+  {key:'structure',label:'Structure',weight:5}
+];
+
+function showDebrief(scores, feedback) {
+  // Calculate weighted score
+  var total = 0;
+  for (var i = 0; i < CATEGORIES.length; i++) {
+    var c = CATEGORIES[i];
+    var v = scores[c.key] || 5;
+    total += v * c.weight;
+  }
+  var overall = Math.round(total / 100);
+
+  document.getElementById('debrief-score').textContent = overall + '/10';
+
+  var grade = 'Raw';
+  if (overall >= 9) grade = 'Elite';
+  else if (overall >= 7.5) grade = 'Strong';
+  else if (overall >= 6) grade = 'Competent';
+  else if (overall >= 4.5) grade = 'Developing';
+  else if (overall >= 3) grade = 'Beginner';
+  document.getElementById('debrief-grade').textContent = grade;
+
+  // Bars
+  var barsHtml = '';
+  for (var i = 0; i < CATEGORIES.length; i++) {
+    var c = CATEGORIES[i];
+    var v = scores[c.key] || 5;
+    var pct = v * 10;
+    var color = v >= 7 ? '#10b981' : v >= 4 ? '#f97316' : '#ef4444';
+    barsHtml += '<div class="score-bar-row">';
+    barsHtml += '<div class="label">' + c.label + ' (' + c.weight + '%)</div>';
+    barsHtml += '<div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+    barsHtml += '<div class="val" style="color:' + color + '">' + v + '</div>';
+    barsHtml += '</div>';
+  }
+  document.getElementById('debrief-bars').innerHTML = barsHtml;
+
+  // Well
+  var wellList = document.getElementById('debrief-well-list');
+  wellList.innerHTML = '';
+  var well = feedback.well || ['Completed the call'];
+  for (var i = 0; i < well.length; i++) {
+    var li = document.createElement('li');
+    li.textContent = well[i];
+    wellList.appendChild(li);
+  }
+
+  // Cost
+  var costList = document.getElementById('debrief-cost-list');
+  costList.innerHTML = '';
+  var cost = feedback.cost || ['Keep practicing to improve'];
+  for (var i = 0; i < cost.length; i++) {
+    var li = document.createElement('li');
+    li.textContent = cost[i];
+    costList.appendChild(li);
+  }
+
+  location.hash = '#/debrief';
+}
+
+function tryAgain() {
+  difficulty = Math.min(10, difficulty + 1);
+  document.getElementById('difficulty-slider').value = difficulty;
+  document.getElementById('diff-val').textContent = difficulty;
+  startCall('text');
+}
+
+// ---- Voice (Retell) ----
+async function startVoiceCall() {
+  try {
+    var resp = await fetch('https://api.retellai.com/v2/create-web-call', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + RETELL_KEY
       },
       body: JSON.stringify({
-        agent_id: AGENT_ID,
-        metadata: {
-          mode: S.selectedMode || 'cold_call',
-          product: product?.label || 'Custom',
-          buyer: buyer?.name || 'Custom',
-          difficulty: S.startDifficulty
-        },
-        retell_llm_dynamic_variables: {
-          mode: mode?.title || 'Cold Call',
-          mode_context: mode?.context || '',
-          product_name: product?.label || 'Custom Product',
-          product_desc: S.productPreset === 'custom' ? (document.getElementById('product-desc')?.value || '') : (product?.desc || ''),
-          product_price: product?.price || 'Custom pricing',
-          buyer_name: buyer?.name || 'Custom Buyer',
-          buyer_desc: S.buyerPreset === 'custom' ? (document.getElementById('buyer-desc')?.value || '') : (buyer?.desc || ''),
-          difficulty: String(S.startDifficulty || 5)
+        agent_id: RETELL_AGENT,
+        dynamic_variables: {
+          product: selectedProduct,
+          buyer_persona: selectedBuyer,
+          call_mode: selectedMode,
+          difficulty: String(difficulty)
         }
       })
     });
-    
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.message || 'Retell API error: ' + resp.status);
+    var data = await resp.json();
+    if (data.access_token) {
+      if (typeof RetellWebClient !== 'undefined') {
+        // Init Retell — for now just alert since full integration needs SDK setup
+        alert('Voice call token received. Retell SDK integration would connect here with token: ' + data.access_token.substring(0, 10) + '...');
+        // In production: new RetellWebClient().startCall({accessToken: data.access_token})
+      } else {
+        alert('Voice SDK not loaded. Please refresh and try again.');
+      }
+    } else {
+      alert('Failed to create voice call: ' + (data.error || 'Unknown error'));
     }
-    
-    const data = await resp.json();
-    const accessToken = data.access_token;
-    if (!accessToken) throw new Error('No access token received');
-    
-    const client = new RetellWebClient();
-    
-    client.on('call_started', () => {
-      console.log('Retell call started');
-      navigate('#/call');
-      S.seconds = 0;
-      clearInterval(S.timerInterval);
-      S.timerInterval = setInterval(() => { S.seconds++; updateTimer(); }, 1000);
-    });
-    
-    client.on('call_ended', () => {
-      console.log('Retell call ended');
-      clearInterval(S.timerInterval);
-      alert('Call ended. Duration: ' + String(Math.floor(S.seconds/60)).padStart(2,'0') + ':' + String(S.seconds%60).padStart(2,'0'));
-      navigate('#/setup');
-    });
-    
-    client.on('error', (err) => {
-      console.error('Retell error:', err);
-      alert('Call error: ' + (err.message || 'Unknown error'));
-      btn.textContent = 'Start Voice Call';
-      btn.disabled = false;
-    });
-    
-    client.on('transcript', (transcript) => {
-      console.log('Transcript:', transcript);
-    });
-    
-    await client.startCall({ accessToken: accessToken });
-    
-  } catch (err) {
-    console.error('Voice call error:', err);
-    alert('Could not start voice call: ' + err.message);
-    btn.textContent = 'Start Voice Call';
-    btn.disabled = false;
+  } catch(e) {
+    alert('Voice call error: ' + e.message);
+  }
+}
+
+// ---- Mic (Web Speech API) ----
+function toggleMic() {
+  if (isListening) {
+    stopMic();
+    return;
+  }
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Speech recognition not supported in this browser');
+    return;
+  }
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+
+  recognition.onresult = function(event) {
+    var text = event.results[0][0].transcript;
+    document.getElementById('chat-input').value = text;
+    usedVoiceInput = true;
+    stopMic();
+    sendMessage();
+  };
+  recognition.onerror = function() { stopMic(); };
+  recognition.onend = function() { stopMic(); };
+
+  recognition.start();
+  isListening = true;
+  document.getElementById('mic-btn').classList.add('listening');
+  document.getElementById('mic-btn').title = 'Listening...';
+
+  window._currentRecognition = recognition;
+}
+
+function stopMic() {
+  isListening = false;
+  var btn = document.getElementById('mic-btn');
+  btn.classList.remove('listening');
+  btn.title = 'Voice input';
+  if (window._currentRecognition) {
+    try { window._currentRecognition.stop(); } catch(e) {}
+    window._currentRecognition = null;
   }
 }
 </script>
 </body>
 </html>
-
