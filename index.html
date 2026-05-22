@@ -401,6 +401,21 @@ function navigate(hash){
   window.location.hash=hash;
 }
 
+function startPracticeCall(){
+  // Save setup state before navigating
+  if(typeof initCall==='function'){
+    // save custom fields
+    const pd=document.getElementById('product-desc');
+    const bd=document.getElementById('buyer-desc');
+    const ps=document.getElementById('pitch-script');
+    if(pd) S.productDesc=pd.value?.trim()||S.productDesc;
+    if(bd) S.buyerDesc=bd.value?.trim()||S.buyerDesc;
+    if(ps) S.pitchScript=ps.value?.trim()||'';
+    saveSetup();
+  }
+  navigate('#/call');
+}
+
 function getRoute(){return window.location.hash||'#/landing'}
 
 function route(){
@@ -704,7 +719,7 @@ function pageSetup(){
       </div>
       <div class="mode-context" id="mode-context"></div>
     </div>
-    <button class="btn-start" onclick="startCall()">Start Practice Call</button>
+    <button class="btn-start" onclick="startPracticeCall()">Start Practice Call</button>
     <button class="btn-start" onclick="startRetellVoiceCall()" style="margin-top:10px;background:#f97316">Start Voice Call</button>
     <p style="color:#a8a29e;font-size:12px;margin-top:6px;text-align:center">Talk to the AI buyer through your browser mic</p>
     <div style="height:30px"></div>
