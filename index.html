@@ -779,9 +779,12 @@ async function startVoiceCall() {
     var data = await resp.json();
     if (data.access_token) {
       if (typeof RetellWebClient !== 'undefined') {
-        // Init Retell — for now just alert since full integration needs SDK setup
-        alert('Voice call token received. Retell SDK integration would connect here with token: ' + data.access_token.substring(0, 10) + '...');
-        // In production: new RetellWebClient().startCall({accessToken: data.access_token})
+        try {
+          const client = new RetellWebClient();
+          await client.startCall({accessToken: data.access_token});
+        } catch(e) {
+          alert('Voice call error: ' + e.message);
+        }
       } else {
         alert('Voice SDK not loaded. Please refresh and try again.');
       }
