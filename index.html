@@ -6,9 +6,9 @@
 <title>PitchForge — AI Sales Trainer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script type="module">
-import('https://esm.sh/retell-client-js-sdk@2.0.7').then(mod => {
-  window.RetellWebClient = mod.RetellWebClient;
-}).catch(e => console.warn('Retell SDK load failed:', e));
+import { RetellWebClient } from 'https://esm.sh/retell-client-js-sdk@2.0.7';
+window.RetellWebClient = RetellWebClient;
+window.dispatchEvent(new Event('retell-ready'));
 </script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -790,7 +790,15 @@ async function startVoiceCall() {
           alert('Voice call error: ' + e.message);
         }
       } else {
-        alert('Voice SDK not loaded. Please refresh and try again.');
+        // Wait for SDK to load then retry
+        window.addEventListener('retell-ready', async function() {
+          try {
+            const client = new window.RetellWebClient();
+            await client.startCall({accessToken: data.access_token});
+          } catch(e) {
+            alert('Voice call error: ' + e.message);
+          }
+        }, {once: true});
       }
     } else {
       alert('Failed to create voice call: ' + (data.error || 'Unknown error'));
