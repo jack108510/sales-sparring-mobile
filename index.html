@@ -763,7 +763,10 @@ function tryAgain() {
 
 // ---- Voice (Retell) ----
 async function startVoiceCall() {
+  showPage('page-call');
+  addChatMsg('system', 'Connecting voice call...');
   try {
+    addChatMsg('system', 'Requesting call token...');
     var resp = await fetch('https://api.retellai.com/v2/create-web-call', {
       method: 'POST',
       headers: {
@@ -781,30 +784,47 @@ async function startVoiceCall() {
       })
     });
     var data = await resp.json();
+    addChatMsg('system', 'Token received. Connecting to voice...');
     if (data.access_token) {
-      if (typeof RetellWebClient !== 'undefined') {
+      var RC = (typeof RetellWebClient !== 'undefined') ? RetellWebClient : window.RetellWebClient;
+      if (RC) {
         try {
-          const client = new RetellWebClient();
+          const client = new RC();
+          // Wire up events
+          client.on('agentTalk', (msg) => {
+            if (msg.transcript) addChatMsg('buyer', msg.transcript);
+          });
+          client.on('userTalk', (msg) => {
+            if (msg.transcript) addChatMsg('seller', msg.transcript);
+          });
+          client.on('close', () => {
+            addChatMsg('system', 'Call ended.');
+          });
+          client.on('error', (err) => {
+            addChatMsg('system', 'Voice error: ' + (err.message || JSON.stringify(err)));
+          });
           await client.startCall({accessToken: data.access_token});
+          addChatMsg('system', 'Voice call connected! Speak into your mic.');
         } catch(e) {
-          alert('Voice call error: ' + e.message);
+          addChatMsg('system', 'SDK error: ' + e.message);
         }
       } else {
-        // Wait for SDK to load then retry
+        addChatMsg('system', 'Retell SDK not loaded. Retrying...');
         window.addEventListener('retell-ready', async function() {
           try {
             const client = new window.RetellWebClient();
             await client.startCall({accessToken: data.access_token});
+            addChatMsg('system', 'Voice call connected!');
           } catch(e) {
-            alert('Voice call error: ' + e.message);
+            addChatMsg('system', 'SDK retry error: ' + e.message);
           }
         }, {once: true});
       }
     } else {
-      alert('Failed to create voice call: ' + (data.error || 'Unknown error'));
+      addChatMsg('system', 'Failed: ' + (data.error || data.message || JSON.stringify(data)));
     }
   } catch(e) {
-    alert('Voice call error: ' + e.message);
+    addChatMsg('system', 'Connection error: ' + e.message);
   }
 }
 
