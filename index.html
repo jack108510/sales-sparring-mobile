@@ -6,21 +6,68 @@
 <title>PitchForge - Voice Test</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0c0a09;color:#f5f5f4;font-family:Inter,-apple-system,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-h1{font-size:28px;margin-bottom:8px;color:#f97316}
-p{color:#a8a29e;margin-bottom:24px;text-align:center}
-#status{background:#1c1917;border:1px solid #292524;border-radius:12px;padding:20px;width:100%;max-width:500px;min-height:200px;margin-bottom:20px;font-family:monospace;font-size:14px;line-height:1.6;white-space:pre-wrap}
-.btn{padding:16px 40px;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;transition:all .2s}
+body{background:#0c0a09;color:#f5f5f4;font-family:Inter,-apple-system,sans-serif;min-height:100vh;padding:20px}
+h1{font-size:28px;margin-bottom:4px;color:#f97316}
+.sub{color:#a8a29e;margin-bottom:20px;font-size:14px}
+.setup{max-width:500px;margin:0 auto 20px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;color:#a8a29e;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field textarea,.field select{width:100%;padding:12px 14px;background:#1c1917;border:1px solid #292524;border-radius:8px;color:#e7e5e4;font-size:15px;outline:none;font-family:inherit}
+.field input:focus,.field textarea:focus{border-color:#f97316}
+.field textarea{resize:vertical;min-height:80px}
+.hint{font-size:12px;color:#78716c;margin-top:4px}
+.actions{display:flex;gap:12px;margin-bottom:20px}
+.btn{padding:14px 32px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
 .btn-green{background:#10b981;color:#fff}.btn-green:hover{background:#059669}
+.btn-orange{background:#f97316;color:#fff}.btn-orange:hover{background:#ea580c}
 .btn-red{background:#ef4444;color:#fff}.btn-red:hover{background:#dc2626}
+.btn-ghost{background:#1c1917;color:#a8a29e;border:1px solid #292524}.btn-ghost:hover{border-color:#f97316;color:#f97316}
 .btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+#status{background:#1c1917;border:1px solid #292524;border-radius:12px;padding:20px;width:100%;max-width:500px;margin:0 auto 20px;font-family:monospace;font-size:14px;line-height:1.6;white-space:pre-wrap;min-height:120px;display:block}
+.center{text-align:center}
 </style>
 </head>
 <body>
-<h1>PitchForge Voice Test</h1>
-<p>Click to start a browser voice call with the AI buyer</p>
-<div id="status">Ready. Click the button below.</div>
-<button id="callBtn" class="btn btn-green" onclick="startCall()">Start Voice Call</button>
+<div class="center">
+<h1>PitchForge</h1>
+<p class="sub">AI sales call simulator</p>
+</div>
+
+<div class="setup">
+  <div class="field">
+    <label>What are you selling?</label>
+    <input id="product" placeholder="e.g. Vet INC - AI revenue intelligence for vet clinics">
+  </div>
+  <div class="field">
+    <label>Who are you calling? (optional)</label>
+    <input id="buyer" placeholder="e.g. VP of Operations at a mid-size vet clinic chain">
+  </div>
+  <div class="field">
+    <label>Script / talking points (optional)</label>
+    <textarea id="script" placeholder="Paste your script or key talking points here..."></textarea>
+    <div class="hint">The AI buyer will see this and react to how well you follow it</div>
+  </div>
+  <div class="field">
+    <label>Difficulty</label>
+    <select id="difficulty">
+      <option value="easy">Easy - friendly, interested</option>
+      <option value="medium" selected>Medium - skeptical but fair</option>
+      <option value="hard">Hard - hostile, short temper</option>
+      <option value="expert">Expert - ruthless negotiator</option>
+    </select>
+  </div>
+</div>
+
+<div class="btn-row">
+  <button class="btn btn-ghost" onclick="randomize()">Random Product</button>
+  <button id="callBtn" class="btn btn-green" onclick="startCall()">Start Voice Call</button>
+</div>
+
+<div class="center">
+<div id="status">Ready.</div>
+</div>
+
 <script type="module">
 import { RetellWebClient } from 'https://esm.sh/retell-client-js-sdk@2.0.7';
 window.RetellWebClient = RetellWebClient;
@@ -32,6 +79,27 @@ const statusEl = document.getElementById('status');
 const callBtn = document.getElementById('callBtn');
 function log(msg) { statusEl.textContent += '\n' + msg; statusEl.scrollTop = statusEl.scrollHeight; }
 
+const RANDOM_PRODUCTS = [
+  { product: "SalesForce CRM implementation for small businesses", buyer: "CEO of a 50-person logistics company", script: "Key benefits: centralized data, automated follow-ups, 30% faster deal closing. Competitors: HubSpot, Pipedrive. Price: $150/user/month." },
+  { product: "Cybersecurity audit and monitoring service", buyer: "CTO of a regional hospital network", script: "We do penetration testing, 24/7 monitoring, and compliance (HIPAA). One breach costs $4M average. Our service is $5K/month." },
+  { product: "Commercial solar panel installation", buyer: "Facilities Director at a warehouse company", script: "40% energy cost reduction guaranteed. ROI in 3-5 years. We handle permits, installation, maintenance. $200K for a 50,000 sq ft facility." },
+  { product: "AI-powered chatbot for customer support", buyer: "Head of Customer Experience at an e-commerce brand", script: "Handles 80% of support tickets automatically. Reduces response time from hours to seconds. $2K setup + $500/month. Integrates with Shopify, Zendesk." },
+  { product: "Executive coaching and leadership training", buyer: "HR Director at a Fortune 500 company", script: "12-week program for C-suite executives. 1-on-1 coaching, 360 assessments, personalized development plans. $15K per executive." },
+  { product: "Cloud migration consulting", buyer: "VP of Engineering at a legacy software company", script: "Move from on-prem to AWS/Azure. We handle the whole migration. Zero downtime guarantee. Typical project: $100-500K over 6 months." },
+  { product: "AI revenue intelligence for veterinary clinics", buyer: "Practice owner at a multi-location vet clinic", script: "We analyze your fee schedule against regional data. Most clinics find $20-50K in missed revenue. Free audit, results in 48 hours. No contract." },
+  { product: "Marketing automation platform for real estate agents", buyer: "Broker-owner of a 200-agent real estate firm", script: "Automated lead nurturing, social media scheduling, CRM. Agents save 10 hours/week. $49/agent/month. Free 30-day trial." },
+  { product: "Employee wellness platform with mental health support", buyer: "CHRO at a tech company with 500 employees", script: "Therapy sessions, meditation, fitness tracking. Reduces burnout by 40%. $15/employee/month. ROI: lower turnover, fewer sick days." },
+  { product: "Managed IT services for dental offices", buyer: "Office manager at a busy dental practice", script: "We handle everything - network, backups, HIPAA compliance, support. Fixed monthly fee $2K. No more surprise IT bills. 99.9% uptime." },
+];
+
+window.randomize = function() {
+  const r = RANDOM_PRODUCTS[Math.floor(Math.random() * RANDOM_PRODUCTS.length)];
+  document.getElementById('product').value = r.product;
+  document.getElementById('buyer').value = r.buyer;
+  document.getElementById('script').value = r.script;
+  document.getElementById('difficulty').value = ['easy','medium','hard','expert'][Math.floor(Math.random()*4)];
+};
+
 window.startCall = async function() {
   if (isConnected && client) {
     log('Stopping call...');
@@ -42,13 +110,29 @@ window.startCall = async function() {
     return;
   }
   try {
-    log('Creating web call...');
+    const product = document.getElementById('product').value.trim();
+    const buyer = document.getElementById('buyer').value.trim();
+    const script = document.getElementById('script').value.trim();
+    const diff = document.getElementById('difficulty').value;
+
+    if (!product) { alert('Enter a product or hit Random Product'); return; }
+
+    log('Creating call...');
     callBtn.disabled = true;
     callBtn.textContent = 'Connecting...';
+
     const resp = await fetch('https://api.retellai.com/v2/create-web-call', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + RETELL_KEY },
-      body: JSON.stringify({ agent_id: RETELL_AGENT })
+      body: JSON.stringify({
+        agent_id: RETELL_AGENT,
+        dynamic_variables: {
+          product: product,
+          buyer_persona: buyer || 'a busy executive',
+          script: script || 'No script provided - improvise based on the product',
+          difficulty: diff
+        }
+      })
     });
     const data = await resp.json();
     log('Response: ' + resp.status);
@@ -56,35 +140,35 @@ window.startCall = async function() {
     log('Got token. Requesting mic...');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      log('Mic granted. Tracks: ' + stream.getAudioTracks().length);
+      log('Mic granted.');
       stream.getTracks().forEach(t => t.stop());
     } catch(micErr) {
       log('MIC DENIED: ' + micErr.message);
       callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green';
       return;
     }
-    log('Starting Retell client...');
+    log('Connecting voice...');
     const RC = window.RetellWebClient;
     if (!RC) { log('SDK not loaded'); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; return; }
     client = new RC();
     client.on('agentTalk', (e) => { if(e.transcript) log('BUYER: ' + e.transcript); });
     client.on('userTalk', (e) => { if(e.transcript) log('YOU: ' + e.transcript); });
-    client.on('audioStarted', () => { log('>>> Agent is speaking'); });
-    client.on('open', () => { log('>>> Connection OPEN'); });
-    client.on('close', () => { log('>>> Connection CLOSED'); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
+    client.on('audioStarted', () => { log('>>> Agent speaking...'); });
+    client.on('open', () => { log('>>> Connected'); });
+    client.on('close', () => { log('>>> Call ended'); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
     client.on('error', (err) => { log('>>> ERROR: ' + JSON.stringify(err)); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
     await client.startCall({ accessToken: data.access_token });
     isConnected = true;
     callBtn.disabled = false;
     callBtn.textContent = 'End Call';
     callBtn.className = 'btn btn-red';
-    log('Call started! Speak into your mic.');
+    log('Call live! Start pitching: ' + product);
   } catch(e) {
     log('ERROR: ' + e.message);
     callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green';
   }
 };
-log('Retell SDK loaded: ' + (typeof window.RetellWebClient !== 'undefined'));
+log('SDK loaded. Enter a product and hit Start.');
 </script>
 </body>
 </html>
