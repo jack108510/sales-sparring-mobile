@@ -130,6 +130,21 @@ window.startCall = async function() {
       log('>>> Update: ' + JSON.stringify(update).substring(0, 100));
     });
 
+    // Request mic permission explicitly first
+    log('Requesting mic permission...');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      log('Mic granted! Tracks: ' + stream.getAudioTracks().length);
+      stream.getTracks().forEach(t => t.stop()); // release, Retell will request its own
+    } catch(micErr) {
+      log('MIC DENIED: ' + micErr.message);
+      log('You MUST allow microphone access in browser settings.');
+      callBtn.disabled = false;
+      callBtn.textContent = 'Start Voice Call';
+      callBtn.className = 'btn btn-green';
+      return;
+    }
+
     await client.startCall({ accessToken: data.access_token });
 
     isConnected = true;
@@ -137,6 +152,7 @@ window.startCall = async function() {
     callBtn.textContent = 'End Call';
     callBtn.className = 'btn btn-red';
     log('Call started! Speak into your mic.');
+    log('If you hear nothing, check: Settings > Safari > Microphone > Allow');
 
   } catch(e) {
     log('CATCH ERROR: ' + e.message);
