@@ -79,45 +79,209 @@ const statusEl = document.getElementById('status');
 const callBtn = document.getElementById('callBtn');
 function log(msg) { statusEl.textContent += '\n' + msg; statusEl.scrollTop = statusEl.scrollHeight; }
 
-const RANDOM_PRODUCTS = [
-  { product: "SalesForce CRM implementation for small businesses", buyer: "CEO of a 50-person logistics company", script: "Key benefits: centralized data, automated follow-ups, 30% faster deal closing. Competitors: HubSpot, Pipedrive. Price: $150/user/month." },
-  { product: "Cybersecurity audit and monitoring service", buyer: "CTO of a regional hospital network", script: "We do penetration testing, 24/7 monitoring, and compliance (HIPAA). One breach costs $4M average. Our service is $5K/month." },
-  { product: "Commercial solar panel installation", buyer: "Facilities Director at a warehouse company", script: "40% energy cost reduction guaranteed. ROI in 3-5 years. We handle permits, installation, maintenance. $200K for a 50,000 sq ft facility." },
-  { product: "AI-powered chatbot for customer support", buyer: "Head of Customer Experience at an e-commerce brand", script: "Handles 80% of support tickets automatically. Reduces response time from hours to seconds. $2K setup + $500/month. Integrates with Shopify, Zendesk." },
-  { product: "Executive coaching and leadership training", buyer: "HR Director at a Fortune 500 company", script: "12-week program for C-suite executives. 1-on-1 coaching, 360 assessments, personalized development plans. $15K per executive." },
-  { product: "Cloud migration consulting", buyer: "VP of Engineering at a legacy software company", script: "Move from on-prem to AWS/Azure. We handle the whole migration. Zero downtime guarantee. Typical project: $100-500K over 6 months." },
-  { product: "AI revenue intelligence for veterinary clinics", buyer: "Practice owner at a multi-location vet clinic", script: "We analyze your fee schedule against regional data. Most clinics find $20-50K in missed revenue. Free audit, results in 48 hours. No contract." },
-  { product: "Marketing automation platform for real estate agents", buyer: "Broker-owner of a 200-agent real estate firm", script: "Automated lead nurturing, social media scheduling, CRM. Agents save 10 hours/week. $49/agent/month. Free 30-day trial." },
-  { product: "Employee wellness platform with mental health support", buyer: "CHRO at a tech company with 500 employees", script: "Therapy sessions, meditation, fitness tracking. Reduces burnout by 40%. $15/employee/month. ROI: lower turnover, fewer sick days." },
-  { product: "Managed IT services for dental offices", buyer: "Office manager at a busy dental practice", script: "We handle everything - network, backups, HIPAA compliance, support. Fixed monthly fee $2K. No more surprise IT bills. 99.9% uptime." },
+
+// ===== SCENARIO DATABASE =====
+const SCENARIOS = [
+  {
+    id: 'saas-crm',
+    product: 'Cloud CRM Platform',
+    company: 'Meridian Logistics',
+    companyDesc: 'A 50-person freight logistics company running everything on spreadsheets and email.',
+    buyer: 'Sarah Chen, CEO',
+    buyerPersona: 'Skeptical, cost-conscious, been burned by tech promises before. Her operations manager has been pushing for a CRM for months.',
+    painPoints: 'Lost 3 major clients last quarter due to follow-up failures. Sales team of 8 has no visibility into pipeline. Competitors are outpacing them with better tech.',
+    goal: 'Close a pilot with 3 seats within 30 days.',
+    rules: 'No discounts beyond 10%. Must speak to ROI within first 60 seconds. If she mentions HubSpot, acknowledge it but pivot to your dedicated support advantage.',
+    script: 'Centralized pipeline, automated follow-ups, 30% faster deal closing. Mobile app for field reps. $150/user/month. 14-day free trial, no credit card required.',
+    difficulty: 'medium'
+  },
+  {
+    id: 'cyber-hospital',
+    product: 'Cybersecurity Monitoring Service',
+    company: 'Valley Health Network',
+    companyDesc: 'A regional hospital network with 4 locations and 1,200 employees.',
+    buyer: 'Dr. Marcus Webb, CTO',
+    buyerPersona: 'Technical, detail-oriented, worried about HIPAA compliance. Had a near-breach scare 6 months ago that kept him up for a week.',
+    painPoints: 'Current IT team is overwhelmed. Audit found 47 unpatched vulnerabilities. Board is demanding a security plan. Recent competitor breach made front-page news.',
+    goal: 'Get a signed letter of intent for a full security assessment within 2 weeks.',
+    rules: 'Must reference HIPAA specifically. Do NOT fearmonger. Lead with prevention, not disaster stories. If he asks about SIEM, explain in plain English.',
+    script: '24/7 SOC monitoring, penetration testing, HIPAA compliance audits, incident response. Average breach costs $4.2M. Our service starts at $5K/month for your size.',
+    difficulty: 'hard'
+  },
+  {
+    id: 'solar-warehouse',
+    product: 'Commercial Solar Installation',
+    company: 'Apex Warehousing',
+    companyDesc: 'Owns 3 warehouse facilities totaling 150,000 sq ft. Electricity bill is $28K/month.',
+    buyer: 'Tom Bradley, Facilities Director',
+    buyerPersona: 'Practical, numbers-driven, been with the company 15 years. Skeptical of "green" pitches — only cares about the bottom line.',
+    painPoints: 'Electricity costs up 40% in 2 years. Board wants ESG initiatives but won't approve anything without clear ROI. Competitors are putting solar on their roofs.',
+    goal: 'Schedule a site assessment visit within the week.',
+    rules: 'Lead with savings, not sustainability. Have specific ROI numbers ready. If he asks about permits, reassure him you handle everything. Never say "it depends" — give ranges.',
+    script: '40% energy cost reduction guaranteed. ROI in 3-5 years. We handle permits, installation, maintenance. $200K for 50K sq ft. Federal tax credit covers 30%.',
+    difficulty: 'medium'
+  },
+  {
+    id: 'ai-chatbot',
+    product: 'AI Customer Support Chatbot',
+    company: 'Bloom & Wild E-Commerce',
+    companyDesc: 'A DTC fashion brand doing $12M/year in revenue. Gets 2,000 support tickets/week.',
+    buyer: 'Priya Patel, Head of Customer Experience',
+    buyerPersona: 'Young, ambitious, wants to innovate but her team is drowning. Her boss (the CEO) wants AI but Priya needs it to actually work.',
+    painPoints: 'Average response time is 6 hours. Team of 12 support agents is burnt out. 30% of tickets are the same 5 questions. Weekend coverage is a nightmare.',
+    goal: 'Agree to a 2-week pilot on a subset of tickets.',
+    rules: 'Must demo or describe a specific resolution flow. Address job replacement fears head-on — frame it as "freeing your team for complex issues." Mention Shopify/Zendesk integration by name.',
+    script: 'Handles 80% of routine tickets automatically. Response time goes from hours to seconds. $2K setup + $500/month. Integrates with Shopify, Zendesk, Gorgias.',
+    difficulty: 'easy'
+  },
+  {
+    id: 'vet-revenue',
+    product: 'Veterinary Revenue Intelligence',
+    company: 'Rosslyn Veterinary Clinic',
+    companyDesc: 'A busy single-location vet clinic in Alberta, Canada. 4 vets, 8 support staff. Revenue $1.4M/year.',
+    buyer: 'Dr. Scott Williams, Practice Owner',
+    buyerPersona: 'Cares deeply about animal care, not a business guy. Has been running the clinic for 12 years. His office manager handles finances.',
+    painPoints: 'Revenue flat for 3 years despite more patients. Fees haven't been updated since 2019. Competitor down the road just renovated and raised prices 20%.',
+    goal: 'Convince him to run a free fee schedule analysis.',
+    rules: 'Do NOT use tech jargon. Speak in terms of "your team" and "your patients." The free audit is your hook — use it. If he says "we're fine," challenge gently with a specific stat.',
+    script: 'We analyze your fee schedule against regional data. Most clinics find $20-50K in missed revenue. Free audit, results in 48 hours. No contract, no commitment.',
+    difficulty: 'easy'
+  },
+  {
+    id: 'exec-coaching',
+    product: 'Executive Leadership Program',
+    company: 'Atlas Manufacturing',
+    companyDesc: 'A $200M industrial manufacturing company. Recently promoted 3 new VPs who are struggling with the transition.',
+    buyer: 'Rebecca Torres, CHRO',
+    buyerPersona: 'Polite but guarded. Has been burned by coaching vendors who were all theory, no results. Needs something measurable for the board.',
+    painPoints: '2 of the 3 new VPs are underperforming. Board is asking for a development plan. One VP is actively resisting coaching. Budget approved: $50K.',
+    goal: 'Get sign-off on a pilot program for all 3 VPs.',
+    rules: 'Must address measurement — how do you prove ROI? If she asks about the resistant VP, have a specific approach. Never badmouth other coaching firms.',
+    script: '12-week program. 1-on-1 coaching, 360 assessments, personalized development plans. $15K per executive. We measure pre/post on 8 leadership competencies.',
+    difficulty: 'hard'
+  },
+  {
+    id: 'cloud-migration',
+    product: 'Cloud Migration Consulting',
+    company: 'Heritage Software Systems',
+    companyDesc: 'A 25-year-old software company still running on on-prem servers. 180 employees. Revenue $40M.',
+    buyer: 'James Kim, VP of Engineering',
+    buyerPersona: 'Brilliant engineer, terrible manager. Knows they need to migrate but terrified of downtime. Lost a year on a failed migration attempt in 2023.',
+    painPoints: 'Server room is at capacity. Can't scale. Recruitment is hard — devs want cloud-native stacks. The failed 2023 migration cost $300K and caused a 3-day outage.',
+    goal: 'Agree to a no-cost infrastructure assessment.',
+    rules: 'Must address the failed migration head-on — don't avoid it. Zero-downtime promise is your strongest card. If he gets technical, match his level but keep the business case clear.',
+    script: 'Move from on-prem to AWS/Azure with zero downtime. We handle everything — planning, migration, testing, training. Typical project: $100-500K over 4-6 months.',
+    difficulty: 'expert'
+  },
+  {
+    id: 'wellness-platform',
+    product: 'Employee Wellness Platform',
+    company: 'NovaTech Solutions',
+    companyDesc: 'A fast-growing SaaS startup with 500 employees. Average age 29. Known for their ping-pong tables but also their burnout culture.',
+    buyer: 'Alex Rivera, CHRO (first-ever CHRO, hired 3 months ago)',
+    buyerPersona: 'Eager to make an impact, has board support for wellness but needs to show results fast. Young team thinks wellness is "corporate BS."',
+    painPoints: '23% annual turnover. Sick days up 35% this year. CEO had a very public burnout episode last quarter. Glassdoor reviews mention "toxic hustle culture."',
+    goal: 'Get a 90-day pilot approved for 100 employees.',
+    rules: 'Must address the "corporate BS" perception head-on. Frame it as performance, not therapy. If asked about engagement rates, have a specific number. Mention the ROI data on reduced turnover.',
+    script: 'Therapy sessions, meditation, fitness tracking, coaching. Reduces burnout by 40%. $15/employee/month. Average client sees ROI in 4 months through reduced turnover and sick days.',
+    difficulty: 'medium'
+  },
+  {
+    id: 'managed-it-dental',
+    product: 'Managed IT Services',
+    company: 'Bright Smile Dental Group',
+    companyDesc: 'A busy 3-chair dental practice. 8 staff. Running on aging computers and a consumer-grade network.',
+    buyer: 'Linda Park, Office Manager',
+    buyerPersona: 'Overworked, not technical. The dentist (her boss) told her to "figure out the IT situation" but gave her no budget guidance. Terrified of HIPAA violations.',
+    painPoints: 'Computers crash during patient visits. Backup hasn't been tested in a year. Got a HIPAA warning letter last month. The "IT guy" they call charges $200/hour and takes days to respond.',
+    goal: 'Agree to a free network assessment visit.',
+    rules: 'Keep it SIMPLE — no tech jargon. Linda is the gatekeeper, not the decision-maker, but if you win her, she'll sell the dentist. Lead with peace of mind, not features.',
+    script: 'We handle everything — network, backups, HIPAA compliance, support. Fixed monthly fee $2K. No surprise bills. 99.9% uptime guarantee. Free network assessment.',
+    difficulty: 'easy'
+  },
+  {
+    id: 'real-estate-automation',
+    product: 'Marketing Automation for Real Estate',
+    company: 'Pacific Coast Realty',
+    companyDesc: 'A boutique brokerage with 200 agents across 4 offices in Southern California. $2.1B in sales last year.',
+    buyer: 'Mike Sullivan, Broker/Owner',
+    buyerPersona: 'Old-school, built the business on relationships. His daughter (also an agent) has been pushing him to modernize. Competitive with rival brokerages who have better tech.',
+    painPoints: 'Agents are spending $500+/month on separate tools that don't talk to each other. Lead response time averages 9 hours. Lost $8M in potential deals last year to better-equipped competitors.',
+    goal: 'Get a 10-agent pilot approved for one office.',
+    rules: 'Speak his language — deals, relationships, referrals. Don't lead with features, lead with agent productivity. If he says "my agents won't use it," address adoption directly.',
+    script: 'All-in-one: CRM, lead nurturing, social media, listings. Agents save 10 hours/week. $49/agent/month. Free 30-day trial. We handle onboarding and training.',
+    difficulty: 'medium'
+  },
 ];
 
-window.randomize = function() {
-  const r = RANDOM_PRODUCTS[Math.floor(Math.random() * RANDOM_PRODUCTS.length)];
-  document.getElementById('product').value = r.product;
-  document.getElementById('buyer').value = r.buyer;
-  document.getElementById('script').value = r.script;
-  document.getElementById('difficulty').value = ['easy','medium','hard','expert'][Math.floor(Math.random()*4)];
+// ===== SCENARIO ENGINE =====
+let currentScenario = null;
+
+window.randomCall = function() {
+  const s = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+  currentScenario = s;
+  
+  // Show scenario card
+  const card = document.getElementById('scenario-card');
+  card.style.display = 'block';
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem">
+      <div>
+        <span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-weight:600">Scenario</span>
+        <h3 style="font-size:1.3rem;color:#fff;margin-top:0.2rem">${s.product}</h3>
+      </div>
+      <span style="background:${s.difficulty==='easy'?'#10b981':s.difficulty==='medium'?'#f59e0b':s.difficulty==='hard'?'#ef4444':'#8b5cf6'};color:#000;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:600;text-transform:uppercase">${s.difficulty}</span>
+    </div>
+    <div style="margin-bottom:1.2rem">
+      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;line-height:1.6;margin-bottom:0.5rem">${s.companyDesc}</p>
+      <p style="color:#fff;font-size:0.9rem"><strong>Buyer:</strong> ${s.buyer}</p>
+      <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;font-style:italic;margin-top:0.2rem">${s.buyerPersona}</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:1rem;margin-bottom:1rem">
+      <p style="color:var(--accent);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;font-weight:600">Pain Points</p>
+      <p style="color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.6">${s.painPoints}</p>
+    </div>
+    <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:1rem;margin-bottom:1rem">
+      <p style="color:#10b981;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem;font-weight:600">Your Goal</p>
+      <p style="color:#fff;font-size:0.9rem">${s.goal}</p>
+    </div>
+    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:1rem;margin-bottom:1.2rem">
+      <p style="color:#ef4444;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem;font-weight:600">Rules</p>
+      <p style="color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.6">${s.rules}</p>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:1rem">
+      <p style="color:rgba(255,255,255,0.5);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem">Product Briefing</p>
+      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;line-height:1.6">${s.script}</p>
+    </div>
+  `;
+  
+  // Fill hidden fields for the call
+  document.getElementById('product').value = s.product;
+  document.getElementById('buyer').value = s.buyer;
+  document.getElementById('script').value = s.script;
+  document.getElementById('difficulty').value = s.difficulty;
+  
+  // Scroll to scenario
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
+// Override startCall to pass full scenario context to the agent
+const origStartCall = window.startCall;
 window.startCall = async function() {
   if (isConnected && client) {
-    log('Stopping call...');
     client.stopCall();
     isConnected = false;
     callBtn.textContent = 'Start Voice Call';
     callBtn.className = 'btn btn-green';
     return;
   }
+  if (!currentScenario) {
+    alert('Hit "Random Call" first to get your scenario!');
+    return;
+  }
   try {
-    const product = document.getElementById('product').value.trim();
-    const buyer = document.getElementById('buyer').value.trim();
-    const script = document.getElementById('script').value.trim();
-    const diff = document.getElementById('difficulty').value;
-
-    if (!product) { alert('Enter a product or hit Random Product'); return; }
-
-    log('Creating call...');
+    const s = currentScenario;
+    log('Connecting to buyer: ' + s.buyer);
     callBtn.disabled = true;
     callBtn.textContent = 'Connecting...';
 
@@ -127,34 +291,34 @@ window.startCall = async function() {
       body: JSON.stringify({
         agent_id: RETELL_AGENT,
         dynamic_variables: {
-          product: product,
-          buyer_persona: buyer || 'a busy executive',
-          script: script || 'No script provided - improvise based on the product',
-          difficulty: diff
+          product: s.product,
+          company_name: s.company,
+          company_description: s.companyDesc,
+          buyer_persona: s.buyer + '. Personality: ' + s.buyerPersona,
+          pain_points: s.painPoints,
+          goal: s.goal,
+          rules: s.rules,
+          script: s.script,
+          difficulty: s.difficulty
         }
       })
     });
     const data = await resp.json();
-    log('Response: ' + resp.status);
-    if (!data.access_token) { log('ERROR: ' + JSON.stringify(data).substring(0,200)); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; return; }
-    log('Got token. Requesting mic...');
+    if (!data.access_token) { log('ERROR: ' + JSON.stringify(data).substring(0,300)); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; return; }
+    log('Connected. Start pitching!');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      log('Mic granted.');
       stream.getTracks().forEach(t => t.stop());
     } catch(micErr) {
-      log('MIC DENIED: ' + micErr.message);
-      callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green';
-      return;
+      log('MIC DENIED: ' + micErr.message); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; return;
     }
-    log('Connecting voice...');
     const RC = window.RetellWebClient;
     if (!RC) { log('SDK not loaded'); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; return; }
     client = new RC();
-    client.on('agentTalk', (e) => { if(e.transcript) log('BUYER: ' + e.transcript); });
+    client.on('agentTalk', (e) => { if(e.transcript) log('BUYER (' + s.buyer.split(',')[0] + '): ' + e.transcript); });
     client.on('userTalk', (e) => { if(e.transcript) log('YOU: ' + e.transcript); });
-    client.on('audioStarted', () => { log('>>> Agent speaking...'); });
-    client.on('open', () => { log('>>> Connected'); });
+    client.on('audioStarted', () => { log('>>> Buyer is speaking...'); });
+    client.on('open', () => { log('>>> Call connected'); });
     client.on('close', () => { log('>>> Call ended'); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
     client.on('error', (err) => { log('>>> ERROR: ' + JSON.stringify(err)); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
     await client.startCall({ accessToken: data.access_token });
@@ -162,13 +326,13 @@ window.startCall = async function() {
     callBtn.disabled = false;
     callBtn.textContent = 'End Call';
     callBtn.className = 'btn btn-red';
-    log('Call live! Start pitching: ' + product);
   } catch(e) {
     log('ERROR: ' + e.message);
     callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green';
   }
 };
-log('SDK loaded. Enter a product and hit Start.');
+
+
 </script>
 </body>
 </html>
