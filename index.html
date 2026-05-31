@@ -3,69 +3,161 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PitchForge - Voice Test</title>
+<title>PitchForge — AI Sales Call Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0c0a09;color:#f5f5f4;font-family:Inter,-apple-system,sans-serif;min-height:100vh;padding:20px}
-h1{font-size:28px;margin-bottom:4px;color:#f97316}
-.sub{color:#a8a29e;margin-bottom:20px;font-size:14px}
-.setup{max-width:500px;margin:0 auto 20px}
-.field{margin-bottom:16px}
-.field label{display:block;font-size:13px;color:#a8a29e;margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.field input,.field textarea,.field select{width:100%;padding:12px 14px;background:#1c1917;border:1px solid #292524;border-radius:8px;color:#e7e5e4;font-size:15px;outline:none;font-family:inherit}
-.field input:focus,.field textarea:focus{border-color:#f97316}
-.field textarea{resize:vertical;min-height:80px}
-.hint{font-size:12px;color:#78716c;margin-top:4px}
-.actions{display:flex;gap:12px;margin-bottom:20px}
-.btn{padding:14px 32px;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-green{background:#10b981;color:#fff}.btn-green:hover{background:#059669}
-.btn-orange{background:#f97316;color:#fff}.btn-orange:hover{background:#ea580c}
-.btn-red{background:#ef4444;color:#fff}.btn-red:hover{background:#dc2626}
-.btn-ghost{background:#1c1917;color:#a8a29e;border:1px solid #292524}.btn-ghost:hover{border-color:#f97316;color:#f97316}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
-#status{background:#1c1917;border:1px solid #292524;border-radius:12px;padding:20px;width:100%;max-width:500px;margin:0 auto 20px;font-family:monospace;font-size:14px;line-height:1.6;white-space:pre-wrap;min-height:120px;display:block}
-.center{text-align:center}
+:root{
+  --bg:#09090B;--surface:#111113;--surface2:#18181b;--border:#1e1e1e;
+  --text:#fafafa;--text2:#71717a;--text3:#52525b;
+  --accent:#f97316;--accent-hover:#ea580c;
+  --success:#10b981;--success-bg:rgba(16,185,129,0.08);--success-border:rgba(16,185,129,0.2);
+  --danger:#ef4444;--danger-bg:rgba(239,68,68,0.08);--danger-border:rgba(239,68,68,0.2);
+  --info:#3b82f6;--warn-bg:rgba(250,204,21,0.06);--warn-border:rgba(250,204,21,0.15);
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;line-height:1.5}
+.container{max-width:680px;margin:0 auto;padding:24px 20px 60px}
+
+/* Hero */
+.hero{text-align:center;padding:48px 0 40px}
+.logo{font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;color:var(--text)}
+.logo span{color:var(--accent)}
+.tagline{color:var(--text2);font-size:0.875rem;margin-top:4px;font-weight:500;letter-spacing:0.02em}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 28px;border:none;border-radius:10px;font-size:0.9rem;font-weight:600;cursor:pointer;transition:all .15s ease;font-family:inherit;outline:none}
+.btn:active{transform:scale(0.98)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-danger:hover{background:#dc2626}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:#333;color:var(--text)}
+
+/* Hero actions */
+.hero-actions{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+.hero-actions .btn-primary{padding:14px 36px;font-size:1rem;border-radius:12px;font-weight:700}
+
+/* Scenario card */
+#scenario-card{display:none;margin-top:32px;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.scenario-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.sc-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.sc-product{font-size:1.15rem;font-weight:700;color:var(--text)}
+.sc-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-weight:600;display:block;margin-bottom:2px}
+.badge{padding:4px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap}
+.badge-easy{background:rgba(16,185,129,0.15);color:#34d399}
+.badge-medium{background:rgba(245,158,11,0.15);color:#fbbf24}
+.badge-hard{background:rgba(239,68,68,0.15);color:#f87171}
+.badge-expert{background:rgba(139,92,246,0.15);color:#a78bfa}
+
+.sc-body{padding:20px 24px 24px}
+.sc-section{margin-bottom:20px}
+.sc-section:last-child{margin-bottom:0}
+.sc-company{color:var(--text2);font-size:0.85rem;line-height:1.6;margin-bottom:16px}
+.sc-buyer-name{color:var(--text);font-size:0.9rem;font-weight:600}
+.sc-buyer-persona{color:var(--text2);font-size:0.82rem;font-style:italic;margin-top:2px;line-height:1.5}
+
+.sc-block{border-radius:10px;padding:14px 16px}
+.sc-pain{background:var(--surface2);border:1px solid var(--border)}
+.sc-pain-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);font-weight:600;margin-bottom:6px}
+.sc-pain p{color:var(--text);font-size:0.85rem;line-height:1.6;opacity:0.85}
+
+.sc-goal{background:var(--success-bg);border:1px solid var(--success-border)}
+.sc-goal-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--success);font-weight:600;margin-bottom:4px}
+.sc-goal p{color:var(--text);font-size:0.9rem}
+
+.sc-rules{background:var(--danger-bg);border:1px solid var(--danger-border)}
+.sc-rules-title{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--danger);font-weight:600;margin-bottom:4px}
+.sc-rules p{color:var(--text);font-size:0.85rem;line-height:1.6;opacity:0.85}
+
+.sc-brief{background:var(--surface2);border:1px solid var(--border)}
+.sc-brief-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding:0}
+.sc-brief-toggle span{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3);font-weight:600}
+.sc-brief-toggle .arrow{color:var(--text3);transition:transform .15s;font-size:0.7rem}
+.sc-brief-toggle.open .arrow{transform:rotate(180deg)}
+.sc-brief-content{display:none;margin-top:12px;color:var(--text2);font-size:0.85rem;line-height:1.6}
+.sc-brief-content.show{display:block}
+
+/* Start call */
+.start-call-wrap{margin-top:24px;display:flex;justify-content:center}
+
+/* Call interface */
+#call-ui{display:none;margin-top:24px}
+.call-active{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.call-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.call-status{display:flex;align-items:center;gap:10px}
+.call-dot{width:8px;height:8px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.call-label{font-size:0.8rem;font-weight:600;color:var(--text)}
+.call-timer{font-size:0.8rem;color:var(--text2);font-variant-numeric:tabular-nums;font-weight:500}
+.call-end-btn{padding:8px 16px;font-size:0.8rem;border-radius:8px}
+
+.transcript{padding:16px 20px;max-height:320px;overflow-y:auto;font-size:0.82rem;line-height:1.7;scrollbar-width:thin;scrollbar-color:#333 transparent}
+.transcript::-webkit-scrollbar{width:4px}
+.transcript::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.t-buyer{color:var(--info);display:block;margin-bottom:2px}
+.t-you{color:var(--success);display:block;margin-bottom:2px}
+.t-sys{color:var(--text3);display:block;margin-bottom:2px;font-style:italic}
+
+/* Hidden fields (used by JS) */
+.hidden-fields{display:none}
+
+/* Mobile */
+@media(max-width:480px){
+  .container{padding:16px 14px 40px}
+  .hero{padding:32px 0 28px}
+  .sc-header,.sc-body{padding-left:16px;padding-right:16px}
+  .hero-actions .btn-primary{padding:12px 28px;font-size:0.9rem}
+}
 </style>
 </head>
 <body>
-<div class="center">
-<h1>PitchForge</h1>
-<p class="sub">AI sales call simulator</p>
-</div>
+<div class="container">
 
-<div class="setup">
-  <div class="field">
-    <label>What are you selling?</label>
-    <input id="product" placeholder="e.g. Vet INC - AI revenue intelligence for vet clinics">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="logo">Pitch<span>Forge</span></div>
+    <div class="tagline">AI Sales Call Simulator</div>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="randomCall()">Random Call</button>
+    </div>
   </div>
-  <div class="field">
-    <label>Who are you calling? (optional)</label>
-    <input id="buyer" placeholder="e.g. VP of Operations at a mid-size vet clinic chain">
-  </div>
-  <div class="field">
-    <label>Script / talking points (optional)</label>
-    <textarea id="script" placeholder="Paste your script or key talking points here..."></textarea>
-    <div class="hint">The AI buyer will see this and react to how well you follow it</div>
-  </div>
-  <div class="field">
-    <label>Difficulty</label>
-    <select id="difficulty">
-      <option value="easy">Easy - friendly, interested</option>
-      <option value="medium" selected>Medium - skeptical but fair</option>
-      <option value="hard">Hard - hostile, short temper</option>
-      <option value="expert">Expert - ruthless negotiator</option>
-    </select>
-  </div>
-</div>
 
-<div class="btn-row">
-  <button class="btn btn-ghost" onclick="randomCall()">Random Call</button>
-  <button id="callBtn" class="btn btn-green" onclick="startCall()">Start Voice Call</button>
-</div>
+  <!-- Scenario Card -->
+  <div id="scenario-card"></div>
 
-<div class="center">
-<div id="status">Ready.</div>
+  <!-- Start Call Button -->
+  <div id="start-call-wrap" class="start-call-wrap" style="display:none">
+    <button id="callBtn" class="btn btn-primary" onclick="startCall()" style="padding:14px 40px;font-size:1rem;border-radius:12px">Start Voice Call</button>
+  </div>
+
+  <!-- Call Interface -->
+  <div id="call-ui">
+    <div class="call-active">
+      <div class="call-header">
+        <div class="call-status">
+          <div class="call-dot"></div>
+          <span class="call-label">Live Call</span>
+        </div>
+        <span class="call-timer" id="call-timer">00:00</span>
+      </div>
+      <div class="transcript" id="transcript"></div>
+      <div style="padding:12px 20px 16px;display:flex;justify-content:center">
+        <button class="btn btn-danger call-end-btn" onclick="startCall()">End Call</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden fields for JS compat -->
+  <div class="hidden-fields">
+    <input id="product"><input id="buyer"><textarea id="script"></textarea>
+    <select id="difficulty"><option value="easy">easy</option><option value="medium" selected>medium</option><option value="hard">hard</option><option value="expert">expert</option></select>
+  </div>
+
 </div>
 
 <script type="module">
@@ -75,10 +167,41 @@ const RETELL_KEY = 'key_c833df9a891bacfc002cf8714c0c';
 const RETELL_AGENT = 'agent_2d2969f4f54ab3192ceaf4ab5e';
 let client = null;
 let isConnected = false;
-const statusEl = document.getElementById('status');
+let callTimerInterval = null;
+let callSeconds = 0;
 const callBtn = document.getElementById('callBtn');
-function log(msg) { statusEl.textContent += '\n' + msg; statusEl.scrollTop = statusEl.scrollHeight; }
+const transcriptEl = document.getElementById('transcript');
+const callUi = document.getElementById('call-ui');
+const callTimerEl = document.getElementById('call-timer');
+const startCallWrap = document.getElementById('start-call-wrap');
 
+function log(msg, type) {
+  const span = document.createElement('span');
+  span.className = type === 'buyer' ? 't-buyer' : type === 'you' ? 't-you' : 't-sys';
+  span.textContent = msg;
+  transcriptEl.appendChild(span);
+  transcriptEl.scrollTop = transcriptEl.scrollHeight;
+}
+
+function startTimer() {
+  callSeconds = 0;
+  callTimerEl.textContent = '00:00';
+  callTimerInterval = setInterval(() => {
+    callSeconds++;
+    const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+    const s = String(callSeconds % 60).padStart(2, '0');
+    callTimerEl.textContent = m + ':' + s;
+  }, 1000);
+}
+
+function stopTimer() {
+  if (callTimerInterval) { clearInterval(callTimerInterval); callTimerInterval = null; }
+}
+
+function showCallUi(show) {
+  callUi.style.display = show ? 'block' : 'none';
+  startCallWrap.style.display = show ? 'none' : 'block';
+}
 
 // ===== SCENARIO DATABASE =====
 const SCENARIOS = [
@@ -115,7 +238,7 @@ const SCENARIOS = [
     companyDesc: 'Owns 3 warehouse facilities totaling 150,000 sq ft. Electricity bill is $28K/month.',
     buyer: 'Tom Bradley, Facilities Director',
     buyerPersona: 'Practical, numbers-driven, been with the company 15 years. Skeptical of "green" pitches — only cares about the bottom line.',
-    painPoints: 'Electricity costs up 40% in 2 years. Board wants ESG initiatives but won't approve anything without clear ROI. Competitors are putting solar on their roofs.',
+    painPoints: 'Electricity costs up 40% in 2 years. Board wants ESG initiatives but won\'t approve anything without clear ROI. Competitors are putting solar on their roofs.',
     goal: 'Schedule a site assessment visit within the week.',
     rules: 'Lead with savings, not sustainability. Have specific ROI numbers ready. If he asks about permits, reassure him you handle everything. Never say "it depends" — give ranges.',
     script: '40% energy cost reduction guaranteed. ROI in 3-5 years. We handle permits, installation, maintenance. $200K for 50K sq ft. Federal tax credit covers 30%.',
@@ -141,9 +264,9 @@ const SCENARIOS = [
     companyDesc: 'A busy single-location vet clinic in Alberta, Canada. 4 vets, 8 support staff. Revenue $1.4M/year.',
     buyer: 'Dr. Scott Williams, Practice Owner',
     buyerPersona: 'Cares deeply about animal care, not a business guy. Has been running the clinic for 12 years. His office manager handles finances.',
-    painPoints: 'Revenue flat for 3 years despite more patients. Fees haven't been updated since 2019. Competitor down the road just renovated and raised prices 20%.',
+    painPoints: 'Revenue flat for 3 years despite more patients. Fees haven\'t been updated since 2019. Competitor down the road just renovated and raised prices 20%.',
     goal: 'Convince him to run a free fee schedule analysis.',
-    rules: 'Do NOT use tech jargon. Speak in terms of "your team" and "your patients." The free audit is your hook — use it. If he says "we're fine," challenge gently with a specific stat.',
+    rules: 'Do NOT use tech jargon. Speak in terms of "your team" and "your patients." The free audit is your hook — use it. If he says "we\'re fine," challenge gently with a specific stat.',
     script: 'We analyze your fee schedule against regional data. Most clinics find $20-50K in missed revenue. Free audit, results in 48 hours. No contract, no commitment.',
     difficulty: 'easy'
   },
@@ -167,9 +290,9 @@ const SCENARIOS = [
     companyDesc: 'A 25-year-old software company still running on on-prem servers. 180 employees. Revenue $40M.',
     buyer: 'James Kim, VP of Engineering',
     buyerPersona: 'Brilliant engineer, terrible manager. Knows they need to migrate but terrified of downtime. Lost a year on a failed migration attempt in 2023.',
-    painPoints: 'Server room is at capacity. Can't scale. Recruitment is hard — devs want cloud-native stacks. The failed 2023 migration cost $300K and caused a 3-day outage.',
+    painPoints: 'Server room is at capacity. Can\'t scale. Recruitment is hard — devs want cloud-native stacks. The failed 2023 migration cost $300K and caused a 3-day outage.',
     goal: 'Agree to a no-cost infrastructure assessment.',
-    rules: 'Must address the failed migration head-on — don't avoid it. Zero-downtime promise is your strongest card. If he gets technical, match his level but keep the business case clear.',
+    rules: 'Must address the failed migration head-on — don\'t avoid it. Zero-downtime promise is your strongest card. If he gets technical, match his level but keep the business case clear.',
     script: 'Move from on-prem to AWS/Azure with zero downtime. We handle everything — planning, migration, testing, training. Typical project: $100-500K over 4-6 months.',
     difficulty: 'expert'
   },
@@ -193,9 +316,9 @@ const SCENARIOS = [
     companyDesc: 'A busy 3-chair dental practice. 8 staff. Running on aging computers and a consumer-grade network.',
     buyer: 'Linda Park, Office Manager',
     buyerPersona: 'Overworked, not technical. The dentist (her boss) told her to "figure out the IT situation" but gave her no budget guidance. Terrified of HIPAA violations.',
-    painPoints: 'Computers crash during patient visits. Backup hasn't been tested in a year. Got a HIPAA warning letter last month. The "IT guy" they call charges $200/hour and takes days to respond.',
+    painPoints: 'Computers crash during patient visits. Backup hasn\'t been tested in a year. Got a HIPAA warning letter last month. The "IT guy" they call charges $200/hour and takes days to respond.',
     goal: 'Agree to a free network assessment visit.',
-    rules: 'Keep it SIMPLE — no tech jargon. Linda is the gatekeeper, not the decision-maker, but if you win her, she'll sell the dentist. Lead with peace of mind, not features.',
+    rules: 'Keep it SIMPLE — no tech jargon. Linda is the gatekeeper, not the decision-maker, but if you win her, she\'ll sell the dentist. Lead with peace of mind, not features.',
     script: 'We handle everything — network, backups, HIPAA compliance, support. Fixed monthly fee $2K. No surprise bills. 99.9% uptime guarantee. Free network assessment.',
     difficulty: 'easy'
   },
@@ -206,9 +329,9 @@ const SCENARIOS = [
     companyDesc: 'A boutique brokerage with 200 agents across 4 offices in Southern California. $2.1B in sales last year.',
     buyer: 'Mike Sullivan, Broker/Owner',
     buyerPersona: 'Old-school, built the business on relationships. His daughter (also an agent) has been pushing him to modernize. Competitive with rival brokerages who have better tech.',
-    painPoints: 'Agents are spending $500+/month on separate tools that don't talk to each other. Lead response time averages 9 hours. Lost $8M in potential deals last year to better-equipped competitors.',
+    painPoints: 'Agents are spending $500+/month on separate tools that don\'t talk to each other. Lead response time averages 9 hours. Lost $8M in potential deals last year to better-equipped competitors.',
     goal: 'Get a 10-agent pilot approved for one office.',
-    rules: 'Speak his language — deals, relationships, referrals. Don't lead with features, lead with agent productivity. If he says "my agents won't use it," address adoption directly.',
+    rules: 'Speak his language — deals, relationships, referrals. Don\'t lead with features, lead with agent productivity. If he says "my agents won\'t use it," address adoption directly.',
     script: 'All-in-one: CRM, lead nurturing, social media, listings. Agents save 10 hours/week. $49/agent/month. Free 30-day trial. We handle onboarding and training.',
     difficulty: 'medium'
   },
@@ -218,72 +341,108 @@ const SCENARIOS = [
 let currentScenario = null;
 
 window.randomCall = function() {
+  // End any active call
+  if (isConnected && client) {
+    client.stopCall();
+    isConnected = false;
+    stopTimer();
+    showCallUi(false);
+  }
+
   const s = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
   currentScenario = s;
-  
-  // Show scenario card
-  const card = document.getElementById('scenario-card');
-  card.style.display = 'block';
-  card.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem">
-      <div>
-        <span style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-weight:600">Scenario</span>
-        <h3 style="font-size:1.3rem;color:#fff;margin-top:0.2rem">${s.product}</h3>
-      </div>
-      <span style="background:${s.difficulty==='easy'?'#10b981':s.difficulty==='medium'?'#f59e0b':s.difficulty==='hard'?'#ef4444':'#8b5cf6'};color:#000;padding:0.3rem 0.8rem;border-radius:20px;font-size:0.75rem;font-weight:600;text-transform:uppercase">${s.difficulty}</span>
-    </div>
-    <div style="margin-bottom:1.2rem">
-      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;line-height:1.6;margin-bottom:0.5rem">${s.companyDesc}</p>
-      <p style="color:#fff;font-size:0.9rem"><strong>Buyer:</strong> ${s.buyer}</p>
-      <p style="color:rgba(255,255,255,0.6);font-size:0.85rem;font-style:italic;margin-top:0.2rem">${s.buyerPersona}</p>
-    </div>
-    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:1rem;margin-bottom:1rem">
-      <p style="color:var(--accent);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;font-weight:600">Pain Points</p>
-      <p style="color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.6">${s.painPoints}</p>
-    </div>
-    <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:1rem;margin-bottom:1rem">
-      <p style="color:#10b981;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem;font-weight:600">Your Goal</p>
-      <p style="color:#fff;font-size:0.9rem">${s.goal}</p>
-    </div>
-    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:1rem;margin-bottom:1.2rem">
-      <p style="color:#ef4444;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem;font-weight:600">Rules</p>
-      <p style="color:rgba(255,255,255,0.8);font-size:0.85rem;line-height:1.6">${s.rules}</p>
-    </div>
-    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:1rem">
-      <p style="color:rgba(255,255,255,0.5);font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.3rem">Product Briefing</p>
-      <p style="color:rgba(255,255,255,0.7);font-size:0.85rem;line-height:1.6">${s.script}</p>
-    </div>
-  `;
-  
-  // Fill hidden fields for the call
+
+  // Fill hidden fields
   document.getElementById('product').value = s.product;
   document.getElementById('buyer').value = s.buyer;
   document.getElementById('script').value = s.script;
   document.getElementById('difficulty').value = s.difficulty;
-  
-  // Scroll to scenario
+
+  const diffClass = s.difficulty === 'easy' ? 'badge-easy' : s.difficulty === 'medium' ? 'badge-medium' : s.difficulty === 'hard' ? 'badge-hard' : 'badge-expert';
+
+  const card = document.getElementById('scenario-card');
+  card.style.display = 'block';
+  card.innerHTML = `
+    <div class="scenario-card">
+      <div class="sc-header">
+        <div>
+          <span class="sc-label">Scenario Briefing</span>
+          <div class="sc-product">${s.product}</div>
+        </div>
+        <span class="badge ${diffClass}">${s.difficulty}</span>
+      </div>
+      <div class="sc-body">
+        <div class="sc-section">
+          <p class="sc-company">${s.companyDesc}</p>
+          <p class="sc-buyer-name">${s.buyer} — ${s.company}</p>
+          <p class="sc-buyer-persona">${s.buyerPersona}</p>
+        </div>
+        <div class="sc-section">
+          <div class="sc-block sc-pain">
+            <div class="sc-pain-title">Pain Points</div>
+            <p>${s.painPoints}</p>
+          </div>
+        </div>
+        <div class="sc-section">
+          <div class="sc-block sc-goal">
+            <div class="sc-goal-title">Your Goal</div>
+            <p>${s.goal}</p>
+          </div>
+        </div>
+        <div class="sc-section">
+          <div class="sc-block sc-rules">
+            <div class="sc-rules-title">Rules of Engagement</div>
+            <p>${s.rules}</p>
+          </div>
+        </div>
+        <div class="sc-section">
+          <div class="sc-block sc-brief">
+            <div class="sc-brief-toggle" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('show')">
+              <span>Product Briefing</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="sc-brief-content">${s.script}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Show start call button
+  startCallWrap.style.display = 'flex';
+  callBtn.textContent = 'Start Voice Call';
+  callBtn.className = 'btn btn-primary';
+  callBtn.disabled = false;
+  showCallUi(false);
+
   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
-// Override startCall to pass full scenario context to the agent
-const origStartCall = window.startCall;
+// Override startCall
 window.startCall = async function() {
   if (isConnected && client) {
     client.stopCall();
     isConnected = false;
+    stopTimer();
+    showCallUi(false);
     callBtn.textContent = 'Start Voice Call';
-    callBtn.className = 'btn btn-green';
+    callBtn.className = 'btn btn-primary';
+    callBtn.disabled = false;
+    startCallWrap.style.display = 'flex';
     return;
   }
   if (!currentScenario) {
-    alert('Hit "Random Call" first to get your scenario!');
     return;
   }
   try {
     const s = currentScenario;
-    log('Connecting to buyer: ' + s.buyer);
     callBtn.disabled = true;
     callBtn.textContent = 'Connecting...';
+
+    // Show call UI with connecting state
+    showCallUi(true);
+    transcriptEl.innerHTML = '';
+    log('Connecting to ' + s.buyer + '...', 'sys');
 
     const resp = await fetch('https://api.retellai.com/v2/create-web-call', {
       method: 'POST',
@@ -304,35 +463,80 @@ window.startCall = async function() {
       })
     });
     const data = await resp.json();
-    if (!data.access_token) { log('ERROR: ' + JSON.stringify(data).substring(0,300)); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; return; }
-    log('Connected. Start pitching!');
+    if (!data.access_token) {
+      log('Error: ' + JSON.stringify(data).substring(0, 300), 'sys');
+      showCallUi(false);
+      callBtn.disabled = false;
+      callBtn.textContent = 'Start Voice Call';
+      startCallWrap.style.display = 'flex';
+      return;
+    }
+
+    log('Connected. Start pitching!', 'sys');
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(t => t.stop());
     } catch(micErr) {
-      log('MIC DENIED: ' + micErr.message); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; return;
+      log('Microphone access denied: ' + micErr.message, 'sys');
+      showCallUi(false);
+      callBtn.disabled = false;
+      callBtn.textContent = 'Start Voice Call';
+      startCallWrap.style.display = 'flex';
+      return;
     }
+
     const RC = window.RetellWebClient;
-    if (!RC) { log('SDK not loaded'); callBtn.disabled=false; callBtn.textContent='Start Voice Call'; return; }
+    if (!RC) {
+      log('SDK not loaded', 'sys');
+      showCallUi(false);
+      callBtn.disabled = false;
+      callBtn.textContent = 'Start Voice Call';
+      startCallWrap.style.display = 'flex';
+      return;
+    }
+
     client = new RC();
-    client.on('agentTalk', (e) => { if(e.transcript) log('BUYER (' + s.buyer.split(',')[0] + '): ' + e.transcript); });
-    client.on('userTalk', (e) => { if(e.transcript) log('YOU: ' + e.transcript); });
-    client.on('audioStarted', () => { log('>>> Buyer is speaking...'); });
-    client.on('open', () => { log('>>> Call connected'); });
-    client.on('close', () => { log('>>> Call ended'); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
-    client.on('error', (err) => { log('>>> ERROR: ' + JSON.stringify(err)); isConnected=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green'; callBtn.disabled=false; });
+    const buyerName = s.buyer.split(',')[0];
+    client.on('agentTalk', (e) => { if(e.transcript) log('BUYER (' + buyerName + '): ' + e.transcript, 'buyer'); });
+    client.on('userTalk', (e) => { if(e.transcript) log('YOU: ' + e.transcript, 'you'); });
+    client.on('audioStarted', () => { log('Buyer is speaking...', 'sys'); });
+    client.on('open', () => { log('Call connected', 'sys'); });
+    client.on('close', () => {
+      log('Call ended', 'sys');
+      isConnected = false;
+      stopTimer();
+      showCallUi(false);
+      callBtn.textContent = 'Start Voice Call';
+      callBtn.className = 'btn btn-primary';
+      callBtn.disabled = false;
+      startCallWrap.style.display = 'flex';
+    });
+    client.on('error', (err) => {
+      log('Error: ' + JSON.stringify(err), 'sys');
+      isConnected = false;
+      stopTimer();
+      showCallUi(false);
+      callBtn.textContent = 'Start Voice Call';
+      callBtn.className = 'btn btn-primary';
+      callBtn.disabled = false;
+      startCallWrap.style.display = 'flex';
+    });
+
     await client.startCall({ accessToken: data.access_token });
     isConnected = true;
-    callBtn.disabled = false;
-    callBtn.textContent = 'End Call';
-    callBtn.className = 'btn btn-red';
+    startTimer();
+    // Hide start call wrap, show call UI with end button
+    startCallWrap.style.display = 'none';
   } catch(e) {
-    log('ERROR: ' + e.message);
-    callBtn.disabled=false; callBtn.textContent='Start Voice Call'; callBtn.className='btn btn-green';
+    log('Error: ' + e.message, 'sys');
+    showCallUi(false);
+    callBtn.disabled = false;
+    callBtn.textContent = 'Start Voice Call';
+    callBtn.className = 'btn btn-primary';
+    startCallWrap.style.display = 'flex';
   }
 };
-
-
 </script>
 </body>
 </html>
