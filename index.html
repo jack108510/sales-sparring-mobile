@@ -1091,7 +1091,7 @@ window.startCall = async function() {
       body: JSON.stringify({
         agent_id: RETELL_AGENT,
         voice_id: s.voice || undefined,
-        dynamic_variables: {
+        retell_llm_dynamic_variables: {
           product: s.product,
           company_name: s.company,
           company_description: s.companyDesc,
