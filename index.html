@@ -1656,11 +1656,24 @@ window.startCall = async function(){
     const RC=window.RetellWebClient;
     if(!RC){ log('SDK not loaded','sys'); showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); startCallWrap.style.display='flex'; return; }
     client=new RC();
-    client.on('agentTalk',(e)=>{ if(e.transcript){ log(e.transcript,'buyer'); setWaveform('buyer'); } });
-    client.on('userTalk',(e)=>{ if(e.transcript){ log(e.transcript,'you'); setWaveform('you'); } });
-    client.on('audioStarted',()=>{ setWaveform('buyer'); });
-    client.on('open',()=>{ log('Call connected','sys'); setWaveform(null); });
-    client.on('close',()=>{ log('Call ended','sys'); setWaveform(null); handleCallEnd(); });
+    let lastTranscriptIdx=0;
+    client.on('update',(update)=>{
+      if(update.transcript && Array.isArray(update.transcript)){
+        for(let i=lastTranscriptIdx;i<update.transcript.length;i++){
+          const item=update.transcript[i];
+          if(item.role==='agent'){
+            log(item.content,'buyer'); setWaveform('buyer');
+          } else if(item.role==='user'){
+            log(item.content,'you'); setWaveform('you');
+          }
+        }
+        lastTranscriptIdx=update.transcript.length;
+      }
+    });
+    client.on('agent_start_talking',()=>{ setWaveform('buyer'); });
+    client.on('agent_stop_talking',()=>{ setWaveform(null); });
+    client.on('call_started',()=>{ log('Call connected','sys'); setWaveform(null); });
+    client.on('call_ended',()=>{ log('Call ended','sys'); setWaveform(null); handleCallEnd(); });
     client.on('error',(err)=>{ log('Error: '+JSON.stringify(err),'sys'); setWaveform(null); handleCallEnd(); });
     await client.startCall({accessToken:data.access_token});
     isConnected=true;
