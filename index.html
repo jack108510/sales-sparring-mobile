@@ -1619,7 +1619,7 @@ window.startCall = async function(){
     const s=currentScenario;
     callBtn.disabled=true;
     callBtn.textContent='Connecting...';
-    callTranscript=[]; liveLog=[];
+    callTranscript=[];
     callStartTime=Date.now();
     showCallUi(true);
     transcriptEl.innerHTML='';
@@ -1655,10 +1655,10 @@ window.startCall = async function(){
     }
     const RC=window.RetellWebClient;
     if(!RC){ log('SDK not loaded','sys'); showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); startCallWrap.style.display='flex'; return; }
+    let liveLog=[]; // tracks in-place transcript updates
     client=new RC();
     let liveLines=[];
     let renderedCount=0;
-    let liveLog=[]; // tracks {lineIdx, domEl} for in-place updates
     client.on('update',(update)=>{
       if(update.transcript && Array.isArray(update.transcript)){
         liveLines=update.transcript;
