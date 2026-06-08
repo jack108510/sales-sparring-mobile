@@ -157,6 +157,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .sc-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-weight:700;display:block;margin-bottom:3px}
 .sc-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .sc-body{padding:26px 30px 30px}
+.sc-identity-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.sc-identity-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;transition:border-color .2s}
+.sc-identity-card:hover{border-color:var(--border-hover)}
+.sc-identity-seller{border-left:3px solid var(--accent)}
+.sc-identity-buyer{border-left:3px solid var(--orange)}
+.sc-identity-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sc-identity-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;color:#fff;flex-shrink:0}
+.sc-identity-avatar-seller{background:var(--accent)}
+.sc-identity-avatar-buyer{background:var(--orange)}
+.sc-identity-role{font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3)}
+.sc-identity-seller .sc-identity-role{color:var(--accent)}
+.sc-identity-buyer .sc-identity-role{color:var(--orange)}
+.sc-identity-name{font-size:0.95rem;font-weight:700;color:var(--text);margin-top:1px}
+.sc-identity-details{display:flex;flex-direction:column;gap:8px}
+.sc-identity-row{display:flex;flex-direction:column;gap:1px}
+.sc-identity-label{font-size:0.6rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text3)}
+.sc-identity-value{font-size:0.82rem;color:var(--text);line-height:1.5}
+.sc-sections-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .sc-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px}
 .sc-company{color:var(--text2);font-size:0.83rem;line-height:1.65;margin-bottom:12px}
 .sc-buyer-name{font-size:0.875rem;font-weight:700}
@@ -909,39 +927,54 @@ function showScenarioCard(s){
       <div class="sc-top">
         <div>
           <span class="sc-label">Scenario</span>
-          <div class="sc-product">${esc(s.product)}</div>
+          <div class="sc-product">${esc(s.productName||s.product)}</div>
           <div class="sc-badges">
             <span class="badge badge-${s.difficulty}">${s.difficulty}</span>
-            <span style="font-size:0.72rem;color:var(--text3);padding:3px 0">${esc(s.company)}</span>
           </div>
         </div>
       </div>
       <div class="sc-body">
-        <div style="background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:var(--radius);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
-          <div style="width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.85rem;color:#fff;flex-shrink:0">J</div>
-          <div>
-            <div style="font-size:0.82rem;font-weight:700;color:var(--text)">Jack — ${esc(s.sellerTitle||'Account Executive')}</div>
-            <div style="font-size:0.75rem;color:var(--accent)">${esc(s.sellerCompany||s.product)}</div>
-          </div>
-        </div>
-        <div class="sc-cols">
-          <div>
-            <div class="sc-company">${esc(s.companyDesc)}</div>
-            <div class="sc-buyer-name">${esc(s.buyer)}</div>
-            <div class="sc-buyer-persona">${esc(s.buyerPersona)}</div>
-          </div>
-          <div>
-            <div class="sc-block sc-pain">
-              <div class="sc-pain-title">Pain Points</div>
-              <p>${esc(s.painPoints)}</p>
+        <div class="sc-identity-grid">
+          <div class="sc-identity-card sc-identity-seller">
+            <div class="sc-identity-header">
+              <div class="sc-identity-avatar sc-identity-avatar-seller">J</div>
+              <div>
+                <div class="sc-identity-role">YOU</div>
+                <div class="sc-identity-name">Jack</div>
+              </div>
             </div>
-            <div class="sc-block sc-goal">
-              <div class="sc-goal-title">Your Goal</div>
-              <p>${esc(s.goal)}</p>
+            <div class="sc-identity-details">
+              <div class="sc-identity-row"><span class="sc-identity-label">Title</span><span class="sc-identity-value">${esc(s.sellerTitle||'Account Executive')}</span></div>
+              <div class="sc-identity-row"><span class="sc-identity-label">Company</span><span class="sc-identity-value">${esc(s.sellerCompany||s.product)}</span></div>
+              <div class="sc-identity-row"><span class="sc-identity-label">Product</span><span class="sc-identity-value">${esc(s.productName||s.product)}</span></div>
             </div>
           </div>
+          <div class="sc-identity-card sc-identity-buyer">
+            <div class="sc-identity-header">
+              <div class="sc-identity-avatar sc-identity-avatar-buyer">?</div>
+              <div>
+                <div class="sc-identity-role">PROSPECT</div>
+                <div class="sc-identity-name">${esc(s.buyer.split(',')[0])}</div>
+              </div>
+            </div>
+            <div class="sc-identity-details">
+              <div class="sc-identity-row"><span class="sc-identity-label">Company</span><span class="sc-identity-value">${esc(s.company)}</span></div>
+              <div class="sc-identity-row"><span class="sc-identity-label">About</span><span class="sc-identity-value">${esc(s.companyDesc)}</span></div>
+              <div class="sc-identity-row"><span class="sc-identity-label">Personality</span><span class="sc-identity-value">${esc(s.buyerPersona)}</span></div>
+            </div>
+          </div>
         </div>
-        <div class="sc-block sc-rules" style="margin-top:14px">
+        <div class="sc-sections-grid">
+          <div class="sc-block sc-pain">
+            <div class="sc-pain-title">Pain Points</div>
+            <p>${esc(s.painPoints)}</p>
+          </div>
+          <div class="sc-block sc-goal">
+            <div class="sc-goal-title">Your Goal</div>
+            <p>${esc(s.goal)}</p>
+          </div>
+        </div>
+        <div class="sc-block sc-rules">
           <div class="sc-rules-title">Rules of Engagement</div>
           <p>${esc(s.rules)}</p>
         </div>
@@ -950,7 +983,10 @@ function showScenarioCard(s){
             <span>Product Briefing</span>
             <span class="arrow">&#9660;</span>
           </div>
-          <div class="sc-brief-content">${esc(s.script)}</div>
+          <div class="sc-brief-content">
+            <p style="margin-bottom:10px">${esc(s.script)}</p>
+            ${s.sellingPoints?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);font-weight:700;margin-bottom:6px">Your Edge</div><p>${esc(s.sellingPoints)}</p></div>`:''}
+          </div>
         </div>
         ${prevBest!==null?`<div class="pb-banner"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg><span>Your best: <strong>${prevBest}/100</strong></span></div>`:''}
       </div>
