@@ -442,25 +442,69 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .api-key-status.unsaved{color:var(--text3)}
 
 /* ===== MODALS ===== */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);animation:fadeIn .15s}
-.modal-content{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xl);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.7)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px);animation:fadeIn .15s}
+.modal-content{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-xl);width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 0 0 1px rgba(16,185,129,0.05),0 24px 80px rgba(0,0,0,0.8),0 0 60px rgba(16,185,129,0.03)}
 .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
 .modal-title{font-size:1rem;font-weight:800;letter-spacing:-0.02em}
-.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.2rem;line-height:1;padding:2px 6px;border-radius:4px;transition:color .15s}
+
+/* ===== HIGH-TECH ANALYSIS SCREEN ===== */
+.analysis-screen{padding:32px 28px;text-align:center}
+.analysis-phase{display:none;flex-direction:column;align-items:center;gap:16px}
+.analysis-phase.active{display:flex}
+.analysis-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.analysis-icon.scanning{background:var(--accent-dim);border:1px solid var(--accent-border);animation:glow 2s ease-in-out infinite}
+.analysis-icon.scoring{background:var(--purple-dim);border:1px solid rgba(168,85,247,0.25);animation:glow 2s ease-in-out infinite}
+.analysis-icon svg{width:24px;height:24px}
+.analysis-phase-title{font-size:1rem;font-weight:700;color:var(--text)}
+.analysis-phase-sub{font-size:0.78rem;color:var(--text3)}
+.analysis-progress{width:200px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px}
+.analysis-progress-fill{height:100%;background:var(--accent);border-radius:2px;animation:progressFill var(--fill-dur, 1.5s) ease-out forwards}
+@keyframes progressFill{from{width:0}to{width:100%}}
+.analysis-dots{display:flex;gap:6px;margin-top:8px}
+.analysis-dot{width:6px;height:6px;border-radius:50%;background:var(--border);animation:analysisPulse 1.2s ease-in-out infinite}
+.analysis-dot:nth-child(2){animation-delay:.2s}
+.analysis-dot:nth-child(3){animation-delay:.4s}
+@keyframes analysisPulse{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
+
+/* Scan lines effect */
+.scan-lines{position:relative;overflow:hidden}
+.scan-lines::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:scanLine 2s linear infinite;opacity:.4}
+@keyframes scanLine{from{top:-2px}to{top:100%}}
+
+/* Grade reveal */
+.grade-reveal{display:none;flex-direction:column;align-items:center;animation:gradeAppear .6s cubic-bezier(0.23,1,0.32,1)}
+.grade-reveal.active{display:flex}
+@keyframes gradeAppear{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+.grade-circle{width:88px;height:88px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:900;font-family:var(--mono);position:relative;margin-bottom:8px}
+.grade-circle::before{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;opacity:.2;animation:gradeRing 1.5s ease-out forwards}
+@keyframes gradeRing{from{transform:scale(1);opacity:.4}to{transform:scale(1.3);opacity:0}}
+.grade-score{font-size:1.6rem;font-weight:800;font-family:var(--mono);margin-bottom:4px}
+.grade-label{font-size:0.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px}
+
+/* Typing effect */
+.type-reveal{overflow:hidden;white-space:nowrap;border-right:2px solid var(--accent);animation:blink .7s step-end infinite;display:inline-block}
+@keyframes blink{50%{border-color:transparent}}
+
+/* Breakdown bars */
+.breakdown-section{padding:0 28px 24px;display:none}
+.breakdown-section.active{display:block;animation:fadeUp .4s ease}
+.breakdown-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.breakdown-row:last-child{border-bottom:none}
+.breakdown-label{font-size:0.78rem;font-weight:600;color:var(--text);width:120px;flex-shrink:0}
+.breakdown-bar-track{flex:1;height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.breakdown-bar-fill{height:100%;border-radius:3px;transition:width 1s cubic-bezier(0.23,1,0.32,1);width:0}
+.breakdown-pts{font-size:0.72rem;font-family:var(--mono);color:var(--text2);width:40px;text-align:right;flex-shrink:0}
+.breakdown-feedback{font-size:0.72rem;color:var(--text3);line-height:1.4;margin-top:2px;padding-left:132px}
+
+.feedback-section{padding:0 28px 12px;display:none;text-align:center}
+.feedback-section.active{display:block;animation:fadeUp .3s ease}
+.feedback-text{font-size:0.84rem;color:var(--text2);line-height:1.7;max-width:440px;margin:0 auto}
+
+.score-actions{padding:16px 28px 28px;display:none;gap:10px;justify-content:center;flex-wrap:wrap}
+.score-actions.active{display:flex;animation:fadeUp .3s ease}.modal-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1.2rem;line-height:1;padding:2px 6px;border-radius:4px;transition:color .15s}
 .modal-close:hover{color:var(--text)}
 .scoring-spinner{padding:48px 24px;text-align:center;color:var(--text2);font-size:0.875rem}
 .spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
-.score-grade-circle{width:72px;height:72px;border-radius:50%;border:3px solid;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;margin:20px auto 8px;font-family:var(--mono)}
-.score-total{text-align:center;font-size:1.5rem;font-weight:800;font-family:var(--mono);margin-bottom:4px}
-.score-feedback{text-align:center;font-size:0.82rem;color:var(--text2);padding:0 24px 16px;line-height:1.6}
-.pb-new{text-align:center;font-size:0.75rem;color:var(--orange);font-weight:600;margin-bottom:8px;padding:6px 16px;background:var(--orange-dim);border-radius:20px;display:inline-block;margin-left:auto;margin-right:auto;width:fit-content}
-.section-title{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--text3);padding:0 24px;margin-bottom:10px}
-.score-row{display:flex;align-items:center;gap:10px;padding:8px 24px}
-.score-cat{flex:1;font-size:0.78rem;font-weight:600;color:var(--text)}
-.score-cat-feedback{font-size:0.72rem;color:var(--text3);font-weight:400;margin-top:2px;line-height:1.4}
-.score-bar-wrap{width:100px;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;flex-shrink:0}
-.score-bar{height:100%;border-radius:3px;transition:width .6s cubic-bezier(0.23,1,0.32,1)}
-.score-pts{font-size:0.72rem;font-family:var(--mono);color:var(--text2);width:36px;text-align:right;flex-shrink:0}
 
 /* ===== WARM-UP MODAL ===== */
 .warmup-modal{max-width:440px}
@@ -1928,36 +1972,152 @@ function showScorecardModal(scores,scenario,duration,isNewBest,totalPts,prevBest
   const grade=(scores.grade||'C').charAt(0).toUpperCase();
   const gc=gradeColors[grade]||'#a1a1aa';
 
+  // Build the full modal HTML
   modal.innerHTML=`<div class="modal-overlay" onclick="closeScorecard()">
-    <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-content scan-lines" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <div class="modal-title">Call Complete</div>
+        <div class="modal-title" style="color:var(--accent)">Analysis</div>
         <button class="modal-close" onclick="closeScorecard()">&times;</button>
       </div>
-      <div class="score-grade-circle" style="color:${gc};border-color:${gc}33">${scores.grade||'C'}</div>
-      <div class="score-total" style="color:${gc}">${totalPts}/100</div>
-      ${isNewBest?`<div style="text-align:center;margin:4px 0"><span class="pb-new">New Personal Best${prevBest!==null?' (was '+prevBest+')':''}</span></div>`:''}
-      <div class="score-feedback">${esc(scores.overall_feedback||'')}</div>
-      <div class="section-title">Score Breakdown</div>
-      ${cats.map(cat=>{
-        const s=scores[cat.key];
-        if(!s) return '';
-        const pts=Math.round((s.score/5)*cat.max);
-        const pct=(pts/cat.max)*100;
-        const color=pct>=70?'var(--accent)':pct>=50?'var(--yellow)':'var(--red)';
-        return `<div class="score-row">
-          <div style="flex:1"><div class="score-cat">${cat.label}</div><div class="score-cat-feedback">${esc(s.feedback||'')}</div></div>
-          <div class="score-bar-wrap"><div class="score-bar" style="width:${pct}%;background:${color}"></div></div>
-          <div class="score-pts">${pts}/${cat.max}</div>
-        </div>`;
-      }).join('')}
-      <div style="padding:16px 24px 24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+
+      <!-- Phase 1: Scanning transcript -->
+      <div class="analysis-screen" id="as-phase1">
+        <div class="analysis-phase active">
+          <div class="analysis-icon scanning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          </div>
+          <div class="analysis-phase-title" id="scan-text">Scanning transcript...</div>
+          <div class="analysis-progress"><div class="analysis-progress-fill" style="--fill-dur:1.8s"></div></div>
+          <div class="analysis-dots"><div class="analysis-dot"></div><div class="analysis-dot"></div><div class="analysis-dot"></div></div>
+        </div>
+      </div>
+
+      <!-- Phase 2: Scoring (hidden initially) -->
+      <div class="analysis-screen" id="as-phase2" style="display:none">
+        <div class="analysis-phase active">
+          <div class="analysis-icon scoring">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="analysis-phase-title" id="score-text">Evaluating performance...</div>
+          <div class="analysis-progress"><div class="analysis-progress-fill" style="--fill-dur:1.4s"></div></div>
+          <div class="analysis-dots"><div class="analysis-dot"></div><div class="analysis-dot"></div><div class="analysis-dot"></div></div>
+        </div>
+      </div>
+
+      <!-- Grade reveal -->
+      <div id="as-grade" style="display:none;padding:28px 28px 16px;text-align:center">
+        <div class="grade-reveal active">
+          <div class="grade-circle" style="color:${gc};border:2px solid ${gc}">${grade}</div>
+          <div class="grade-score" style="color:${gc}">${totalPts}<span style="color:var(--text3);font-size:1rem">/100</span></div>
+          ${isNewBest?`<div style="font-size:0.75rem;color:var(--orange);font-weight:600;padding:6px 16px;background:var(--orange-dim);border-radius:20px;display:inline-block;margin-bottom:8px">New Personal Best${prevBest!==null?' (was '+prevBest+')':''}</div>`:''}
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown-section" id="as-breakdown">
+        <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:12px">Score Breakdown</div>
+        ${cats.map((cat,i)=>{
+          const s=scores[cat.key];
+          if(!s) return '';
+          const pts=Math.round((s.score/5)*cat.max);
+          const pct=(pts/cat.max)*100;
+          const color=pct>=70?'var(--accent)':pct>=50?'var(--yellow)':'var(--red)';
+          return `<div class="breakdown-row" id="br-${i}" style="opacity:0">
+            <div class="breakdown-label">${cat.label}</div>
+            <div class="breakdown-bar-track"><div class="breakdown-bar-fill" id="bf-${i}" style="background:${color}"></div></div>
+            <div class="breakdown-pts" id="bp-${i}">—/${cat.max}</div>
+          </div>
+          <div class="breakdown-feedback" id="bfk-${i}" style="opacity:0">${esc(s.feedback||'')}</div>`;
+        }).join('')}
+      </div>
+
+      <!-- Overall feedback -->
+      <div class="feedback-section" id="as-feedback">
+        <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:10px">AI Analysis</div>
+        <div class="feedback-text" id="feedback-type"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="score-actions" id="as-actions">
         <button class="btn btn-primary" onclick="closeScorecard();randomCall()">Try Another</button>
         <button class="btn btn-ghost" onclick="closeScorecard();switchTab('transcripts')">View Transcript</button>
         <button class="btn btn-ghost" onclick="closeScorecard()">Close</button>
       </div>
-    </div></div>`;
+    </div>
+  </div>`;
   modal.style.display='block';
+
+  // ===== ANIMATION SEQUENCE =====
+  const scanTexts = ['Scanning transcript...', 'Processing dialogue...', 'Analyzing conversation flow...'];
+  const scoreTexts = ['Evaluating performance...', 'Scoring against criteria...', 'Generating feedback...'];
+  let scanIdx=0;
+  const scanInterval=setInterval(()=>{
+    scanIdx=(scanIdx+1)%scanTexts.length;
+    const el=document.getElementById('scan-text');
+    if(el) el.textContent=scanTexts[scanIdx];
+  }, 600);
+
+  // Phase 2 after 2s
+  setTimeout(()=>{
+    clearInterval(scanInterval);
+    document.getElementById('as-phase1').style.display='none';
+    document.getElementById('as-phase2').style.display='block';
+    let scoreIdx=0;
+    const scoreInterval=setInterval(()=>{
+      scoreIdx=(scoreIdx+1)%scoreTexts.length;
+      const el=document.getElementById('score-text');
+      if(el) el.textContent=scoreTexts[scoreIdx];
+    }, 500);
+    // Phase 3: grade reveal after 1.6s
+    setTimeout(()=>{
+      clearInterval(scoreInterval);
+      document.getElementById('as-phase2').style.display='none';
+      document.getElementById('as-grade').style.display='block';
+      // Phase 4: breakdown bars stagger in
+      setTimeout(()=>{
+        document.getElementById('as-breakdown').classList.add('active');
+        cats.forEach((cat,i)=>{
+          const s=scores[cat.key];
+          if(!s) return;
+          const pts=Math.round((s.score/5)*cat.max);
+          const pct=(pts/cat.max)*100;
+          setTimeout(()=>{
+            const row=document.getElementById('br-'+i);
+            const fill=document.getElementById('bf-'+i);
+            const ptsEl=document.getElementById('bp-'+i);
+            const fbEl=document.getElementById('bfk-'+i);
+            if(row){row.style.transition='opacity .3s';row.style.opacity='1';}
+            if(fill) fill.style.width=pct+'%';
+            if(ptsEl) ptsEl.textContent=pts+'/'+cat.max;
+            if(fbEl){setTimeout(()=>{fbEl.style.transition='opacity .3s';fbEl.style.opacity='1';},400);}
+          }, i*300);
+        });
+        // Phase 5: type out feedback
+        const fbTotalTime=cats.length*300+800;
+        setTimeout(()=>{
+          const fbSec=document.getElementById('as-feedback');
+          const fbType=document.getElementById('feedback-type');
+          fbSec.classList.add('active');
+          const fullText=scores.overall_feedback||'';
+          let charIdx=0;
+          fbType.textContent='';
+          const typeSpeed=Math.max(12,Math.min(25,1500/Math.max(fullText.length,1)));
+          const typeInterval=setInterval(()=>{
+            if(charIdx<fullText.length){
+              fbType.textContent+=fullText[charIdx];
+              charIdx++;
+            } else {
+              clearInterval(typeInterval);
+              // Phase 6: show buttons
+              setTimeout(()=>{
+                document.getElementById('as-actions').classList.add('active');
+              },300);
+            }
+          },typeSpeed);
+        },fbTotalTime);
+      },400);
+    },1600);
+  },2000);
 }
 
 window.closeScorecard = function(){ document.getElementById('scorecard-modal').style.display='none'; };
