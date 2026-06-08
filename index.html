@@ -74,6 +74,21 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .streak-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
 .streak-dot.active{background:var(--orange)}
 
+/* ===== XP & LEVEL ===== */
+.xp-display{padding:8px 14px;border-top:1px solid var(--border)}
+.xp-level{font-size:0.68rem;font-weight:800;color:var(--accent);font-family:var(--mono);margin-bottom:4px}
+.xp-bar-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.xp-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-hover));border-radius:2px;transition:width .5s ease}
+.xp-title{font-size:0.6rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
+#header-xp{font-size:0.65rem;font-family:var(--mono);color:var(--text3)}
+
+/* ===== DAILY CHALLENGE ===== */
+.daily-challenge{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:18px}
+.daily-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--orange);margin-bottom:8px}
+.daily-task{font-size:0.84rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.daily-reward{font-size:0.68rem;color:var(--accent);font-family:var(--mono)}
+.daily-done{color:var(--accent);font-weight:700;font-size:0.78rem}
+
 /* ===== HAMBURGER ===== */
 .hamburger{display:none;position:fixed;top:14px;left:14px;z-index:200;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);width:38px;height:38px;align-items:center;justify-content:center;cursor:pointer;color:var(--text)}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99;backdrop-filter:blur(2px)}
@@ -615,6 +630,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
       </div>
       <div class="streak-dots" id="streak-dots"></div>
     </div>
+    <div class="xp-display" id="xp-display">
+      <div class="xp-level">Lv.1</div>
+      <div class="xp-bar-wrap"><div class="xp-bar" style="width:0%"></div></div>
+      <div class="xp-title">Trainee</div>
+    </div>
   </div>
 </div>
 
@@ -639,6 +659,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
         </button>
       </div>
     </div>
+
+    <div id="daily-challenge" class="daily-challenge"></div>
 
     <div id="practice-empty" class="practice-empty">
       <div class="practice-empty-icon">
@@ -909,12 +931,78 @@ const WARMUP_OBJECTIONS = [
 
 // ===== STORAGE =====
 function getCallHistory(){ try{return JSON.parse(localStorage.getItem('pf_history')||'[]')}catch{return[]} }
-function saveCallResult(r){ const h=getCallHistory(); h.unshift(r); localStorage.setItem('pf_history',JSON.stringify(h.slice(0,200))); updateTranscriptBadge(); }
+function saveCallResult(r){ const h=getCallHistory(); h.unshift(r); localStorage.setItem('pf_history',JSON.stringify(h.slice(0,200))); updateTranscriptBadge(); addXP(r); }
 function getProfiles(){ try{return JSON.parse(localStorage.getItem('pf_profiles')||'[]')}catch{return[]} }
 function saveProfiles(p){ localStorage.setItem('pf_profiles',JSON.stringify(p)); }
 function getPersonalBests(){ try{return JSON.parse(localStorage.getItem('pf_bests')||'{}')}catch{return{}} }
 function getScenarioBestScore(id){ const b=getPersonalBests(); return b[id]!==undefined?b[id]:null; }
 function savePersonalBest(id,score){ const b=getPersonalBests(); b[id]=score; localStorage.setItem('pf_bests',JSON.stringify(b)); }
+
+// ===== XP & LEVEL SYSTEM =====
+function getXP(){ try{return JSON.parse(localStorage.getItem('pf_xp')||'{"total":0,"level":1,"todayXP":0,"todayDate":"","dailyCalls":0}') }catch{return{total:0,level:1,todayXP:0,todayDate:'',dailyCalls:0}} }
+function saveXP(xp){ localStorage.setItem('pf_xp',JSON.stringify(xp)); updateXPDisplay(); }
+function calcLevel(xp){ return Math.floor(xp/500)+1 }
+function getLevelTitle(lvl){ if(lvl>=20) return 'Closer'; if(lvl>=15) return 'Veteran'; if(lvl>=10) return 'Specialist'; if(lvl>=7) return 'Rep'; if(lvl>=4) return 'Rookie'; return 'Trainee'; }
+function addXP(result){
+  const xp=getXP();
+  const grade=(result.grade||'C').charAt(0).toUpperCase();
+  const pts=grade==='A'?150:grade==='B'?100:grade==='C'?50:grade==='D'?20:10;
+  const today=new Date().toDateString();
+  if(xp.todayDate!==today){xp.todayDate=today;xp.todayXP=0;xp.dailyCalls=0;}
+  xp.total+=pts; xp.todayXP+=pts; xp.dailyCalls++;
+  xp.level=calcLevel(xp.total);
+  saveXP(xp);
+}
+function updateXPDisplay(){
+  const xp=getXP();
+  const lvl=xp.level;
+  const title=getLevelTitle(lvl);
+  const nextXP=lvl*500;
+  const prevXP=(lvl-1)*500;
+  const progress=Math.round(((xp.total-prevXP)/(nextXP-prevXP))*100);
+  const el=document.getElementById('xp-display');
+  if(el) el.innerHTML=`<div class="xp-level">Lv.${lvl}</div><div class="xp-bar-wrap"><div class="xp-bar" style="width:${Math.min(progress,100)}%"></div></div><div class="xp-title">${title}</div>`;
+  const headerXP=document.getElementById('header-xp');
+  if(headerXP) headerXP.textContent=`${xp.total} XP`;
+}
+
+// ===== DAILY CHALLENGE =====
+function getDailyChallenge(){
+  const today=new Date().toDateString();
+  const stored=JSON.parse(localStorage.getItem('pf_daily')||'{}');
+  if(stored.date!==today){
+    const challenges=[
+      {type:'calls',target:3,label:'Make 3 calls today',icon:'📞',xpReward:200},
+      {type:'grade',target:'B',label:'Score B or higher',icon:'⭐',xpReward:150},
+      {type:'grade',target:'A',label:'Score an A grade',icon:'🏆',xpReward:300},
+      {type:'streak',target:2,label:'Get 2 B+ grades in a row',icon:'🔥',xpReward:250},
+      {type:'difficulty',target:'hard',label:'Complete a Hard scenario',icon:'💀',xpReward:200},
+      {type:'calls',target:5,label:'Make 5 calls today',icon:'💪',xpReward:350},
+    ];
+    const pick=challenges[Math.floor(new Date(today).getTime()/86400000)%challenges.length];
+    const daily={date:today,...pick,completed:false,progress:0};
+    localStorage.setItem('pf_daily',JSON.stringify(daily));
+    return daily;
+  }
+  return stored;
+}
+function updateDailyChallenge(){
+  const daily=getDailyChallenge();
+  const xp=getXP();
+  const history=getCallHistory();
+  if(daily.completed) return daily;
+  let done=false;
+  if(daily.type==='calls') done=xp.dailyCalls>=daily.target;
+  if(daily.type==='grade') done=history.some(h=>(h.grade||'').charAt(0).toUpperCase()<=daily.target&&new Date(h.date).toDateString()===daily.date);
+  if(daily.type==='streak'){let s=0;for(const h of history){if(['A','B'].includes((h.grade||'').charAt(0).toUpperCase()))s++;else break;}done=s>=daily.target;}
+  if(daily.type==='difficulty') done=history.some(h=>h.difficulty===daily.target&&new Date(h.date).toDateString()===daily.date);
+  if(done&&!daily.completed){
+    daily.completed=true;
+    const xpData=getXP();xpData.total+=daily.xpReward;xpData.level=calcLevel(xpData.total);saveXP(xpData);
+    localStorage.setItem('pf_daily',JSON.stringify(daily));
+  }
+  return daily;
+}
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -938,6 +1026,7 @@ window.switchTab = function(tab){
   const navItem = document.querySelector(`[data-tab="${tab}"]`);
   if(navItem) navItem.classList.add('active');
   if(tab==='analytics') renderAnalytics();
+  if(tab==='practice') renderDailyChallenge();
   if(tab==='ladder') renderLadder();
   if(tab==='company') renderProfileList();
   if(tab==='settings') renderSettings();
@@ -956,6 +1045,17 @@ function updateStreak(){
   if(dotsEl){
     dotsEl.innerHTML = Array.from({length:7},(_,i)=>`<div class="streak-dot ${i<streak?'active':''}"></div>`).join('');
   }
+}
+
+function renderDailyChallenge(){
+  const daily=updateDailyChallenge();
+  const el=document.getElementById('daily-challenge');
+  if(!el) return;
+  el.innerHTML=`
+    <div class="daily-label">📅 Daily Challenge</div>
+    <div class="daily-task">${daily.icon||'🎯'} ${esc(daily.label)}</div>
+    ${daily.completed?`<div class="daily-done">✅ Completed! +${daily.xpReward} XP</div>`:`<div class="daily-reward">+${daily.xpReward} XP</div>`}
+  `;
 }
 
 // ===== SCENARIO DISPLAY =====
@@ -1694,23 +1794,30 @@ async function runLiveCoaching(){
   showCoachingThinking();
 
   const recentLines = callTranscript.slice(-8).map(t=>(t.role==='buyer'?'BUYER: ':'SELLER: ')+t.text).join('\n');
-  const scenarioCtx = currentScenario ? `Product: ${currentScenario.product}\nBuyer: ${currentScenario.buyer}\nGoal: ${currentScenario.goal}\nRules: ${currentScenario.rules}` : '';
+  const scenarioCtx = currentScenario ? `Product: ${currentScenario.productName||currentScenario.product}\nBuyer: ${currentScenario.buyer}\nGoal: ${currentScenario.goal}\nRules: ${currentScenario.rules}` : '';
 
-  const prompt = `You are a real-time sales coach listening to a live sales call. Analyze the last few exchanges and provide:
-1. One specific, actionable coaching tip for the seller
-2. A live score estimate across 6 categories
+  const prompt = `You are a world-class sales coach listening LIVE to a cold call. Be specific and actionable.
 
-Scenario context:
-${scenarioCtx}
+Scenario: ${scenarioCtx}
 
 Recent transcript:
 ${recentLines}
 
-Respond ONLY with valid JSON:
+Analyze and respond ONLY with valid JSON:
 {
-  "tip": {"type":"good|warn|info","category":"Opening|Discovery|Objection Handling|Value|Closing|Rules","text":"one specific actionable coaching tip"},
+  "tip": {
+    "type": "good|warn|action",
+    "category": "Opening|Discovery|Objection Handling|Value|Closing|Rules",
+    "text": "One specific actionable tip. If they missed something, tell them EXACTLY what to say next. If they did well, tell them what to double down on. Be concise — 1-2 sentences max."
+  },
   "scores": {"opening":{"score":3},"discovery":{"score":3},"objection_handling":{"score":3},"value_comm":{"score":3},"closing":{"score":2},"rules":{"score":4}}
-}`;
+}
+
+Coach tips examples:
+- GOOD: "Strong discovery question — now connect their answer to your product's specific feature"
+- WARN: "You've been talking for 2+ minutes without asking a question. Stop pitching, start listening."
+- ACTION: "They mentioned budget concerns — ask 'What would it take to make this work within your budget?' instead of defending the price"
+`;
 
   try{
     const resp = await fetch('https://api.openai.com/v1/chat/completions',{
@@ -1888,28 +1995,36 @@ function callBtnHTML(){
 // ===== POST-CALL SCORING =====
 async function gradeCall(scenario,transcript,duration){
   const transcriptText=transcript.map(t=>(t.role==='buyer'?'BUYER: ':'SELLER: ')+t.text).join('\n');
-  const scenarioCtx=`Product: ${scenario.product}\nCompany: ${scenario.company}\nBuyer: ${scenario.buyer}\nPain Points: ${scenario.painPoints}\nGoal: ${scenario.goal}\nRules: ${scenario.rules}`;
-  const prompt=`You are a sales call evaluator. Grade this call on 6 criteria (1-5 each):
+  const scenarioCtx=`Product: ${scenario.productName||scenario.product} from ${scenario.sellerCompany||scenario.product}\nProspect Company: ${scenario.company} — ${scenario.companyDesc}\nBuyer: ${scenario.buyer} — ${scenario.buyerPersona}\nPain Points: ${scenario.painPoints}\nGoal: ${scenario.goal}\nRules: ${scenario.rules}\nSelling Points: ${scenario.sellingPoints||'N/A'}`;
+  const prompt=`You are an expert sales coach evaluating a cold call. Be BRUTALLY honest. Specific feedback only.
 
-OPENING (15pts): Did they hook the buyer? State value early? Sound confident?
-DISCOVERY (25pts): Did they ask good questions? Listen more than talk? Uncover real pain points?
-OBJECTION HANDLING (20pts): Did they handle pushback calmly and effectively?
-VALUE COMMUNICATION (15pts): Did they connect features to the buyer's specific problems?
-CLOSING (15pts): Did they establish clear next steps? Create urgency?
+Grade on 6 criteria (1-5 each). For each criterion:
+- Give a score
+- Give 1-2 sentences of specific feedback citing what they actually said
+- Give a "better approach" — exactly what they SHOULD have said (a specific sentence or phrase)
+
+OPENING (15pts): Did they hook the buyer in the first 15 seconds? State a compelling reason to stay on the phone? Sound confident and natural? Did they say their name, company, and a reason for calling that creates curiosity?
+DISCOVERY (25pts): Did they ask thoughtful questions? Did they LISTEN and build on the buyer's answers? Did they uncover real pain points? Or did they just pitch features? Did they talk more than 60% of the time (bad)?
+OBJECTION HANDLING (20pts): Did they handle pushback without getting defensive? Did they acknowledge the concern before pivoting? Did they give up too easily? Did they use empathy + reframing?
+VALUE COMMUNICATION (15pts): Did they connect features to the buyer's SPECIFIC problems? Did they use proof points or examples? Or did they just list features generically?
+CLOSING (15pts): Did they ask for a specific next step? Create any urgency? Or did they just say "I'll send some info"? Did they close at all?
 RULES COMPLIANCE (10pts): Did they follow the scenario rules? Stay within constraints?
 
-Scenario: ${scenarioCtx}
-Transcript: ${transcriptText}
+Scenario:
+${scenarioCtx}
+
+Transcript:
+${transcriptText}
 
 Respond ONLY with valid JSON, no markdown fences:
-{"opening":{"score":4,"feedback":"..."},"discovery":{"score":3,"feedback":"..."},"objection_handling":{"score":4,"feedback":"..."},"value_comm":{"score":3,"feedback":"..."},"closing":{"score":2,"feedback":"..."},"rules":{"score":5,"feedback":"..."},"overall_feedback":"...","grade":"B"}`;
+{"opening":{"score":4,"feedback":"specific feedback here","better":"specific better sentence here"},"discovery":{"score":3,"feedback":"...","better":"..."},"objection_handling":{"score":4,"feedback":"...","better":"..."},"value_comm":{"score":3,"feedback":"...","better":"..."},"closing":{"score":2,"feedback":"...","better":"..."},"rules":{"score":5,"feedback":"...","better":"..."},"overall_feedback":"2-3 sentence honest assessment with the #1 thing to work on","best_moment":"describe the single best thing they did on this call","worst_moment":"describe the single biggest missed opportunity","grade":"B"}`;
 
   try{
     const key=localStorage.getItem('custom_openai_key')||OPENAI_KEY;
     const resp=await fetch('https://api.openai.com/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'user',content:prompt}],temperature:0.3,max_tokens:800})
+      body:JSON.stringify({model:'gpt-4o-mini',messages:[{role:'user',content:prompt}],temperature:0.3,max_tokens:1200})
     });
     const data=await resp.json();
     const content=data.choices?.[0]?.message?.content||'';
