@@ -1711,7 +1711,14 @@ window.startCall = async function(){
     client.on('agent_start_talking',()=>{ setWaveform('buyer'); });
     client.on('agent_stop_talking',()=>{ setWaveform(null); });
     client.on('call_started',()=>{ log('Call connected','sys'); setWaveform(null); });
-    client.on('call_ended',()=>{ log('Call ended','sys'); setWaveform(null); setTimeout(()=>handleCallEnd(), 1500); });
+    client.on('call_ended',()=>{
+      log('Call ended','sys'); setWaveform(null);
+      // Capture transcript immediately before it gets cleared
+      const finalTranscript=[...callTranscript];
+      const finalDuration=callSeconds;
+      const finalScenario=currentScenario;
+      setTimeout(()=>handleCallEnd(finalTranscript,finalDuration,finalScenario), 2000);
+    });
     client.on('error',(err)=>{ log('Error: '+JSON.stringify(err),'sys'); setWaveform(null); handleCallEnd(); });
     await client.startCall({accessToken:data.access_token});
     isConnected=true;
@@ -1762,10 +1769,10 @@ Respond ONLY with valid JSON, no markdown fences:
   }catch(e){ console.error('Grading error:',e); return null; }
 }
 
-async function handleCallEnd(){
-  const duration=callSeconds;
-  const scenario=currentScenario;
-  const transcript=[...callTranscript];
+async function handleCallEnd(savedTranscript,savedDuration,savedScenario){
+  const duration=savedDuration||callSeconds;
+  const scenario=savedScenario||currentScenario;
+  const transcript=savedTranscript||[...callTranscript];
   isConnected=false;
   stopTimer();
   stopCoachingEngine();
