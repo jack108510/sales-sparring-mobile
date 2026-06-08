@@ -75,18 +75,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 .streak-dot.active{background:var(--orange)}
 
 /* ===== XP & LEVEL ===== */
-.xp-display{padding:8px 14px;border-top:1px solid var(--border)}
-.xp-level{font-size:0.68rem;font-weight:800;color:var(--accent);font-family:var(--mono);margin-bottom:4px}
-.xp-bar-wrap{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:4px}
-.xp-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-hover));border-radius:2px;transition:width .5s ease}
-.xp-title{font-size:0.6rem;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
-#header-xp{font-size:0.65rem;font-family:var(--mono);color:var(--text3)}
+.xp-display{padding:10px 14px;border-top:1px solid var(--border)}
+.xp-level{font-size:0.62rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;display:flex;justify-content:space-between}
+.xp-level-name{color:var(--text);font-weight:700}
+.xp-bar-wrap{height:2px;background:var(--border);border-radius:1px;overflow:hidden}
+.xp-bar{height:100%;background:var(--accent);border-radius:1px;transition:width .5s ease}
 
 /* ===== DAILY CHALLENGE ===== */
 .daily-challenge{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;margin-bottom:18px}
-.daily-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--orange);margin-bottom:8px}
-.daily-task{font-size:0.84rem;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.daily-reward{font-size:0.68rem;color:var(--accent);font-family:var(--mono)}
+.daily-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);margin-bottom:8px}
+.daily-task{font-size:0.84rem;font-weight:600;color:var(--text);margin-bottom:6px}
+.daily-reward{font-size:0.68rem;color:var(--text3);font-family:var(--mono)}
 .daily-done{color:var(--accent);font-weight:700;font-size:0.78rem}
 
 /* ===== HAMBURGER ===== */
@@ -942,7 +941,7 @@ function savePersonalBest(id,score){ const b=getPersonalBests(); b[id]=score; lo
 function getXP(){ try{return JSON.parse(localStorage.getItem('pf_xp')||'{"total":0,"level":1,"todayXP":0,"todayDate":"","dailyCalls":0}') }catch{return{total:0,level:1,todayXP:0,todayDate:'',dailyCalls:0}} }
 function saveXP(xp){ localStorage.setItem('pf_xp',JSON.stringify(xp)); updateXPDisplay(); }
 function calcLevel(xp){ return Math.floor(xp/500)+1 }
-function getLevelTitle(lvl){ if(lvl>=20) return 'Closer'; if(lvl>=15) return 'Veteran'; if(lvl>=10) return 'Specialist'; if(lvl>=7) return 'Rep'; if(lvl>=4) return 'Rookie'; return 'Trainee'; }
+function getLevelTitle(lvl){ if(lvl>=20) return 'Elite'; if(lvl>=15) return 'Advanced'; if(lvl>=10) return 'Senior'; if(lvl>=7) return 'Mid-Level'; if(lvl>=4) return 'Developing'; return 'Foundation'; }
 function addXP(result){
   const xp=getXP();
   const grade=(result.grade||'C').charAt(0).toUpperCase();
@@ -961,9 +960,7 @@ function updateXPDisplay(){
   const prevXP=(lvl-1)*500;
   const progress=Math.round(((xp.total-prevXP)/(nextXP-prevXP))*100);
   const el=document.getElementById('xp-display');
-  if(el) el.innerHTML=`<div class="xp-level">Lv.${lvl}</div><div class="xp-bar-wrap"><div class="xp-bar" style="width:${Math.min(progress,100)}%"></div></div><div class="xp-title">${title}</div>`;
-  const headerXP=document.getElementById('header-xp');
-  if(headerXP) headerXP.textContent=`${xp.total} XP`;
+  if(el) el.innerHTML=`<div class="xp-level"><span>Level ${lvl}</span><span class="xp-level-name">${title}</span></div><div class="xp-bar-wrap"><div class="xp-bar" style="width:${Math.min(progress,100)}%"></div></div>`;
 }
 
 // ===== DAILY CHALLENGE =====
@@ -972,12 +969,12 @@ function getDailyChallenge(){
   const stored=JSON.parse(localStorage.getItem('pf_daily')||'{}');
   if(stored.date!==today){
     const challenges=[
-      {type:'calls',target:3,label:'Make 3 calls today',icon:'📞',xpReward:200},
-      {type:'grade',target:'B',label:'Score B or higher',icon:'⭐',xpReward:150},
-      {type:'grade',target:'A',label:'Score an A grade',icon:'🏆',xpReward:300},
-      {type:'streak',target:2,label:'Get 2 B+ grades in a row',icon:'🔥',xpReward:250},
-      {type:'difficulty',target:'hard',label:'Complete a Hard scenario',icon:'💀',xpReward:200},
-      {type:'calls',target:5,label:'Make 5 calls today',icon:'💪',xpReward:350},
+      {type:'calls',target:3,label:'Complete 3 practice calls today',xpReward:200},
+      {type:'grade',target:'B',label:'Score B or higher on a call',xpReward:150},
+      {type:'grade',target:'A',label:'Score an A grade',xpReward:300},
+      {type:'streak',target:2,label:'Get 2 consecutive B+ grades',xpReward:250},
+      {type:'difficulty',target:'hard',label:'Complete a Hard scenario',xpReward:200},
+      {type:'calls',target:5,label:'Complete 5 practice calls today',xpReward:350},
     ];
     const pick=challenges[Math.floor(new Date(today).getTime()/86400000)%challenges.length];
     const daily={date:today,...pick,completed:false,progress:0};
@@ -1052,9 +1049,9 @@ function renderDailyChallenge(){
   const el=document.getElementById('daily-challenge');
   if(!el) return;
   el.innerHTML=`
-    <div class="daily-label">📅 Daily Challenge</div>
-    <div class="daily-task">${daily.icon||'🎯'} ${esc(daily.label)}</div>
-    ${daily.completed?`<div class="daily-done">✅ Completed! +${daily.xpReward} XP</div>`:`<div class="daily-reward">+${daily.xpReward} XP</div>`}
+    <div class="daily-label">Today's Focus</div>
+    <div class="daily-task">${esc(daily.label)}</div>
+    ${daily.completed?`<div class="daily-done">Completed</div>`:`<div class="daily-reward">+${daily.xpReward} XP on completion</div>`}
   `;
 }
 
@@ -1132,8 +1129,8 @@ function showScenarioCard(s){
         <div class="sc-body">
           <div class="onboard-step ${step===0?'active':''}" id="ob-0">
             <div class="onboard-header">
-              <div class="onboard-step-num">Step 1 of 5</div>
-              <div class="onboard-step-title">Who You Are</div>
+              <div class="onboard-step-num">1 / 5</div>
+              <div class="onboard-step-title">Your Role</div>
             </div>
             <div class="onboard-center">
               <div class="onboard-avatar onboard-avatar-seller">J</div>
@@ -1147,8 +1144,8 @@ function showScenarioCard(s){
           </div>
           <div class="onboard-step ${step===1?'active':''}" id="ob-1">
             <div class="onboard-header">
-              <div class="onboard-step-num">Step 2 of 5</div>
-              <div class="onboard-step-title">Who You're Calling</div>
+              <div class="onboard-step-num">2 / 5</div>
+              <div class="onboard-step-title">The Prospect</div>
             </div>
             <div class="onboard-center">
               <div class="onboard-avatar onboard-avatar-buyer">?</div>
@@ -1162,23 +1159,23 @@ function showScenarioCard(s){
           </div>
           <div class="onboard-step ${step===2?'active':''}" id="ob-2">
             <div class="onboard-header">
-              <div class="onboard-step-num">Step 3 of 5</div>
-              <div class="onboard-step-title">The Situation</div>
+              <div class="onboard-step-num">3 / 5</div>
+              <div class="onboard-step-title">Their Situation</div>
             </div>
             <div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Their Pain Points</div><div class="onboard-detail-value">${esc(s.painPoints)}</div></div>
           </div>
           <div class="onboard-step ${step===3?'active':''}" id="ob-3">
             <div class="onboard-header">
-              <div class="onboard-step-num">Step 4 of 5</div>
-              <div class="onboard-step-title">Your Mission</div>
+              <div class="onboard-step-num">4 / 5</div>
+              <div class="onboard-step-title">Your Objective</div>
             </div>
             <div class="onboard-detail" style="border-left-color:var(--blue)"><div class="onboard-detail-label">Goal</div><div class="onboard-detail-value">${esc(s.goal)}</div></div>
             <div class="onboard-detail" style="border-left-color:#fbbf24"><div class="onboard-detail-label">Rules of Engagement</div><div class="onboard-detail-value">${esc(s.rules)}</div></div>
           </div>
           <div class="onboard-step ${step===4?'active':''}" id="ob-4">
             <div class="onboard-header">
-              <div class="onboard-step-num">Step 5 of 5</div>
-              <div class="onboard-step-title">Product Brief</div>
+              <div class="onboard-step-num">5 / 5</div>
+              <div class="onboard-step-title">Product Details</div>
             </div>
             <div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Key Details</div><div class="onboard-detail-value">${esc(s.script)}</div></div>
             ${s.sellingPoints?`<div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Your Edge</div><div class="onboard-detail-value">${esc(s.sellingPoints)}</div></div>`:''}
