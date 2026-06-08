@@ -1619,7 +1619,7 @@ window.startCall = async function(){
     const s=currentScenario;
     callBtn.disabled=true;
     callBtn.textContent='Connecting...';
-    callTranscript=[];
+    callTranscript=[]; liveLog=[];
     callStartTime=Date.now();
     showCallUi(true);
     transcriptEl.innerHTML='';
@@ -1656,18 +1656,45 @@ window.startCall = async function(){
     const RC=window.RetellWebClient;
     if(!RC){ log('SDK not loaded','sys'); showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); startCallWrap.style.display='flex'; return; }
     client=new RC();
-    let lastTranscriptIdx=0;
+    let liveLines=[];
+    let renderedCount=0;
+    let liveLog=[]; // tracks {lineIdx, domEl} for in-place updates
     client.on('update',(update)=>{
       if(update.transcript && Array.isArray(update.transcript)){
-        for(let i=lastTranscriptIdx;i<update.transcript.length;i++){
-          const item=update.transcript[i];
-          if(item.role==='agent'){
-            log(item.content,'buyer'); setWaveform('buyer');
-          } else if(item.role==='user'){
-            log(item.content,'you'); setWaveform('you');
+        liveLines=update.transcript;
+        const newCount=liveLines.length;
+        // Update existing lines that may have grown
+        for(let i=0;i<newCount;i++){
+          const item=liveLines[i];
+          const type=item.role==='agent'?'buyer':'you';
+          if(i<liveLog.length && liveLog[i]){
+            // Update existing DOM element text
+            liveLog[i].textEl.textContent=item.content;
+            liveLog[i].lastText=item.content;
+          } else {
+            // New line — create it
+            const line=document.createElement('div');
+            line.className='t-line';
+            const roleEl=document.createElement('span');
+            roleEl.className='t-role '+type;
+            roleEl.textContent=type==='buyer'?'BUYER':'YOU';
+            const textEl=document.createElement('span');
+            textEl.className='t-text '+type;
+            textEl.textContent=item.content;
+            line.appendChild(roleEl);
+            line.appendChild(textEl);
+            transcriptEl.appendChild(line);
+            transcriptEl.scrollTop=transcriptEl.scrollHeight;
+            liveLog.push({textEl,lastText:item.content,role:item.role});
+            callTranscript.push({role:type==='buyer'?'buyer':'user',text:item.content});
           }
+          if(item.role==='agent') setWaveform('buyer');
+          else setWaveform('you');
         }
-        lastTranscriptIdx=update.transcript.length;
+        // Keep callTranscript in sync with latest text
+        for(let i=0;i<newCount;i++){
+          if(callTranscript[i]) callTranscript[i].text=liveLines[i].content;
+        }
       }
     });
     client.on('agent_start_talking',()=>{ setWaveform('buyer'); });
