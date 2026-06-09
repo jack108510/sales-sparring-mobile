@@ -791,7 +791,7 @@ function showScenarioCard(s){
   const prevBest = getScenarioBestScore(s.id);
   const priceMatch = (s.script||'').match(/\$[\d,.]+\/?\w*/);
   const price = priceMatch ? priceMatch[0] : '';
-  detail.innerHTML = \`
+  detail.innerHTML = `
     <div class="scenario-card">
       <div style="padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
         <div><span class="sc-label">Cold Call</span><div class="sc-product">\${esc(s.productName||s.product)}</div></div>
@@ -808,7 +808,7 @@ function showScenarioCard(s){
           </div>
           <div style="text-align:right">
             <div style="font-size:0.78rem;font-weight:600;color:var(--text)">\${esc(s.sellerCompany||s.product)}</div>
-            \${price?\`<div style="font-size:0.72rem;color:var(--accent);font-family:var(--mono)">\${price}</div>\`:''}
+            \${price?`<div style="font-size:0.72rem;color:var(--accent);font-family:var(--mono)">\${price}</div>`:''}
           </div>
         </div>
         <div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px">
@@ -835,14 +835,14 @@ function showScenarioCard(s){
             <div style="font-size:0.78rem;color:var(--text);line-height:1.45">\${esc(s.rules)}</div>
           </div>
         </div>
-        \${prevBest!==null?\`<div style="text-align:center;font-size:0.78rem;color:var(--accent);font-weight:600;margin-bottom:12px">Your best: \${prevBest}/100</div>\`:''}
+        \${prevBest!==null?`<div style="text-align:center;font-size:0.78rem;color:var(--accent);font-weight:600;margin-bottom:12px">Your best: \${prevBest}/100</div>`:''}
         <div style="display:flex;gap:10px;justify-content:center">
           <button class="btn btn-primary btn-lg" onclick="startCall()">Start Call</button>
           <button class="btn btn-ghost" onclick="resetPracticeView();renderScenarioGrid()">Pick Different</button>
         </div>
       </div>
     </div>
-  \`;
+  `;
   detail.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 
