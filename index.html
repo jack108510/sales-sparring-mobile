@@ -421,7 +421,8 @@ input,textarea{font-family:var(--font)}
   </div>
   <div class="sidebar-nav">
     <div class="nav-item active" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
-    <div class="nav-item" data-tab="ladder" onclick="switchTab('ladder')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>All Scenarios</div>
+
+
     <div class="nav-item" data-tab="company" onclick="switchTab('company')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v3"/></svg>My Pitches</div>
     <div class="nav-item" data-tab="transcripts" onclick="switchTab('transcripts')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Transcripts <span id="transcript-count-badge" style="margin-left:auto;font-size:0.65rem;background:var(--surface3);padding:2px 7px;border-radius:8px;color:var(--text3)">0</span></div>
     <div class="nav-item" data-tab="analytics" onclick="switchTab('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>Analytics</div>
@@ -505,7 +506,8 @@ input,textarea{font-family:var(--font)}
   </div>
 
   <!-- OTHER PAGES -->
-  <div id="tab-ladder" class="page"><div class="page-header"><div><div class="page-title">All Scenarios</div><div class="page-subtitle">Choose any scenario to practice your cold call skills</div></div></div><div id="ladder-content" style="padding:0 48px 60px;max-width:900px;margin:0 auto"></div></div>
+
+
   <div id="tab-company" class="page"><div class="page-header"><div><div class="page-title">My Pitches</div><div class="page-subtitle">Practice with your real product or service</div></div><button class="btn btn-primary btn-sm" onclick="newProfile()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Pitch</button></div><div id="profile-list" style="padding:0 48px 60px;max-width:900px;margin:0 auto"></div></div>
   <div id="tab-transcripts" class="page"><div class="page-header"><div><div class="page-title">Transcripts</div><div class="page-subtitle">Full call history with scores and feedback</div></div></div><div id="transcript-list" style="padding:0 48px 60px;max-width:900px;margin:0 auto"></div></div>
   <div id="tab-analytics" class="page"><div class="page-header"><div><div class="page-title">Analytics</div><div class="page-subtitle">Track your improvement over time</div></div></div><div id="analytics-content" style="padding:0 48px 60px;max-width:900px;margin:0 auto"></div></div>
@@ -855,7 +857,7 @@ window.switchTab = function(tab){
   if(navItem) navItem.classList.add('active');
   if(tab==='analytics') renderAnalytics();
   if(tab==='practice'){renderDailyChallenge();renderScenarioGrid();resetPracticeView();}
-  if(tab==='ladder') renderLadder();
+  if(tab==='practice') renderScenarioGrid();
   if(tab==='company') renderProfileList();
   if(tab==='settings') renderSettings();
   if(tab==='transcripts') renderTranscripts();
@@ -1113,23 +1115,6 @@ window.saveProfile = function(editIdx){
   document.getElementById('profile-form-wrap').style.display='none';
 };
 window.cancelProfileForm = function(){ document.getElementById('profile-form-wrap').style.display='none'; };
-
-// ===== DIFFICULTY LADDER =====
-function renderLadder(){
-  const content = document.getElementById('ladder-content');
-  let html=`<div class="ladder-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">`;
-  SCENARIOS.forEach(s=>{
-    const best=getScenarioBestScore(s.id);
-    const completed=best!==null;
-    html+=`<div class="ladder-card ${completed?'completed':''}" onclick="pickScenario('${s.id}')">
-      <div class="ladder-card-name">${esc(s.product)}</div>
-      <div class="ladder-card-company">${esc(s.company)}</div>
-      ${best!==null?`<div class="ladder-card-score">Best: ${best}/100</div>`:''}
-    </div>`;
-  });
-  html+=`</div>`;
-  content.innerHTML=html;
-}
 
 // ===== TRANSCRIPTS PAGE =====
 function renderTranscripts(filterText=''){
