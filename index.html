@@ -720,13 +720,7 @@ function renderScenarioGrid(){
   if(!grid) return;
   grid.innerHTML=SCENARIOS.map(s=>{
     const best=getScenarioBestScore(s.id);
-    return `<div class="scenario-card-mini" onclick="selectScenario('${s.id}')">
-      <span class="scm-difficulty ${s.difficulty}">${s.difficulty}</span>
-      <div class="scm-product">${esc(s.productName||s.product)}</div>
-      <div class="scm-company">${esc(s.company)}</div>
-      <div class="scm-buyer">${esc(s.buyer.split(',')[0])}</div>
-      ${best!==null?`<div style="margin-top:8px;font-size:0.7rem;color:var(--accent);font-weight:600">Best: ${best}/100</div>`:''}
-    </div>`;
+    return '<div class="scenario-card-mini" onclick="selectScenario(\''+s.id+'\')"><span class="scm-difficulty '+s.difficulty+'">'+s.difficulty+'</span><div class="scm-product">'+esc(s.productName||s.product)+'</div><div class="scm-company">'+esc(s.company)+'</div><div class="scm-buyer">'+esc(s.buyer.split(',')[0])+'</div>'+(best!==null?'<div style="margin-top:8px;font-size:0.7rem;color:var(--accent);font-weight:600">Best: '+best+'/100</div>':'')+'</div>';
   }).join('');
 }
 
@@ -781,6 +775,8 @@ function isScenarioUnlocked(scenario, minScore){
 window.randomCall = function(){
   const unlocked = SCENARIOS.filter(s=>isScenarioUnlocked(s,0));
   const s = unlocked[Math.floor(Math.random()*unlocked.length)];
+  if(!s){alert('No scenarios available');return;}
+  switchTab('practice');
   showScenarioCard(s);
 };
 
@@ -798,73 +794,94 @@ function showScenarioCard(s){
   const grid=document.getElementById('scenario-grid'); if(grid) grid.style.display='none';
   const wrapper = document.getElementById('call-wrapper');
   wrapper.style.display='block';
-  const detail = document.getElementById('scenario-detail');
-  detail.style.display='block';
-  detail.style.maxWidth='640px';detail.style.minWidth='';detail.style.padding='40px 48px 60px';detail.style.margin='0 auto';
-  document.getElementById('start-call-wrap').style.display='flex';
-  const card = document.getElementById('scenario-card');
+  const card = document.getElementById('scenario-detail');
   card.style.display='block';
   const prevBest = getScenarioBestScore(s.id);
-  const s2 = s; // avoid conflict
-  const opener = 'Hi ' + (s2.buyer.split(',')[0].split(' ').pop()) + ', this is Jack from ' + (s2.sellerCompany||s2.product) + '. I know you weren\'t expecting my call — I\'ll keep it brief. ' + s2.company + ' came across my desk and I had a quick question about how you\'re handling ' + (s2.painPoints ? s2.painPoints.split('.')[0].toLowerCase().replace('losing','').replace('getting','').replace('working','').trim() : 'operations') + '. Do you have 30 seconds?';
-  const priceMatch = (s2.script||'').match(/\$[\d,.]+\/?\w*/);
-  const price = priceMatch ? priceMatch[0] : '';
-  detail.innerHTML = `
-    <div class="scenario-card">
-      <div style="padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
-        <div><span class="sc-label">Cold Call</span><div class="sc-product">${esc(s2.productName||s2.product)}</div></div>
-        <span class="badge badge-${s2.difficulty}" style="font-size:0.65rem">${s2.difficulty}</span>
+  window._onboardStep = 0;
+  window._onboardScenario = s;
+  window._onboardPrevBest = prevBest;
+  window.renderOnboardStep = function(step) {
+    const s = window._onboardScenario;
+    const prevBest = window._onboardPrevBest;
+    const totalSteps = 5;
+    const steps = [];
+    for(let i=0;i<totalSteps;i++) steps.push(i===step);
+    card.innerHTML = `
+      <div class="scenario-card">
+        <div class="sc-top">
+          <div>
+            <span class="sc-label">Scenario</span>
+            <div class="sc-product">${esc(s.productName||s.product)}</div>
+            <div class="sc-badges"><span class="badge badge-${s.difficulty}">${s.difficulty}</span></div>
+          </div>
+        </div>
+        <div class="sc-body">
+          <div class="onboard-step ${step===0?'active':''}" id="ob-0">
+            <div class="onboard-header">
+              <div class="onboard-step-num">1 / 5</div>
+              <div class="onboard-step-title">Your Role</div>
+            </div>
+            <div class="onboard-center">
+              <div class="onboard-avatar onboard-avatar-seller"><img src="https://api.dicebear.com/9.x/initials/svg?seed=Jack+W&backgroundColor=10b981&textColor=ffffff&fontSize=42" alt="Jack"></div>
+              <div class="onboard-center-text">
+                <div class="onboard-center-name">Jack</div>
+                <div class="onboard-center-sub">${esc(s.sellerTitle||'Account Executive')}</div>
+              </div>
+            </div>
+            <div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Company</div><div class="onboard-detail-value">${esc(s.sellerCompany||s.product)}</div></div>
+            <div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Product</div><div class="onboard-detail-value">${esc(s.productName||s.product)}</div></div>
+          </div>
+          <div class="onboard-step ${step===1?'active':''}" id="ob-1">
+            <div class="onboard-header">
+              <div class="onboard-step-num">2 / 5</div>
+              <div class="onboard-step-title">The Prospect</div>
+            </div>
+            <div class="onboard-center">
+              <div class="onboard-avatar onboard-avatar-buyer"><img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s.buyer)}&backgroundColor=c084fc" alt="${esc(s.buyer.split(',')[0])}"></div>
+              <div class="onboard-center-text">
+                <div class="onboard-center-name">${esc(s.buyer)}</div>
+                <div class="onboard-center-sub">${esc(s.company)}</div>
+              </div>
+            </div>
+            <div class="onboard-detail" style="border-left-color:var(--orange)"><div class="onboard-detail-label">About the Company</div><div class="onboard-detail-value">${esc(s.companyDesc)}</div></div>
+            <div class="onboard-detail" style="border-left-color:var(--orange)"><div class="onboard-detail-label">Personality</div><div class="onboard-detail-value">${esc(s.buyerPersona)}</div></div>
+          </div>
+          <div class="onboard-step ${step===2?'active':''}" id="ob-2">
+            <div class="onboard-header">
+              <div class="onboard-step-num">3 / 5</div>
+              <div class="onboard-step-title">Their Situation</div>
+            </div>
+            <div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Their Pain Points</div><div class="onboard-detail-value">${esc(s.painPoints)}</div></div>
+          </div>
+          <div class="onboard-step ${step===3?'active':''}" id="ob-3">
+            <div class="onboard-header">
+              <div class="onboard-step-num">4 / 5</div>
+              <div class="onboard-step-title">Your Objective</div>
+            </div>
+            <div class="onboard-detail" style="border-left-color:var(--blue)"><div class="onboard-detail-label">Goal</div><div class="onboard-detail-value">${esc(s.goal)}</div></div>
+            <div class="onboard-detail" style="border-left-color:#fbbf24"><div class="onboard-detail-label">Rules of Engagement</div><div class="onboard-detail-value">${esc(s.rules)}</div></div>
+          </div>
+          <div class="onboard-step ${step===4?'active':''}" id="ob-4">
+            <div class="onboard-header">
+              <div class="onboard-step-num">5 / 5</div>
+              <div class="onboard-step-title">Product Details</div>
+            </div>
+            <div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Key Details</div><div class="onboard-detail-value">${esc(s.script)}</div></div>
+            ${s.sellingPoints?`<div class="onboard-detail" style="border-left-color:var(--accent)"><div class="onboard-detail-label">Your Edge</div><div class="onboard-detail-value">${esc(s.sellingPoints)}</div></div>`:''}
+            ${prevBest!==null?`<div style="margin-top:12px;padding:10px 14px;background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:var(--radius);font-size:0.82rem;color:var(--text)">⭐ Your best score: <strong>${prevBest}/100</strong></div>`:''}
+          </div>
+          <div class="onboard-nav">
+            <button class="onboard-btn onboard-btn-back" onclick="renderOnboardStep(${step-1})" ${step===0?'style="visibility:hidden"':''}>Back</button>
+            <div class="onboard-dots">${steps.map((_,i)=>`<div class="onboard-dot ${i===step?'active':''}"></div>`).join('')}</div>
+            ${step<4?`<button class="onboard-btn onboard-btn-next" onclick="renderOnboardStep(${step+1})">Next</button>`:`<button class="onboard-btn onboard-btn-start" onclick="startCall()">Start Call</button>`}
+          </div>
+        </div>
       </div>
-      <div class="sc-body" style="padding:28px">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding:16px 18px;background:var(--surface2);border-radius:var(--radius-lg);border:1px solid var(--border)">
-          <div style="width:48px;height:48px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--orange)">
-            <img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s2.buyer)}&backgroundColor=fed7aa" style="width:100%;height:100%;object-fit:cover">
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:0.95rem;font-weight:700;color:var(--text)">${esc(s2.buyer.split(',')[0])}</div>
-            <div style="font-size:0.8rem;color:var(--text2)">${esc(s2.company)}</div>
-          </div>
-          <div style="text-align:right">
-            <div style="font-size:0.78rem;font-weight:600;color:var(--text)">${esc(s2.sellerCompany||s2.product)}</div>
-            ${price?'<div style="font-size:0.72rem;color:var(--accent);font-family:var(--mono)">'+price+'</div>':''}
-          </div>
-        </div>
-        <div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px">
-          <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:4px">The Angle</div>
-          <div style="font-size:0.84rem;color:var(--text);line-height:1.55">${esc(s2.buyerPersona||'')}</div>
-        </div>
-        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px">
-          <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">Suggested Opener</div>
-          <div style="font-size:0.82rem;color:var(--text);line-height:1.55;font-style:italic">"${esc(opener)}"</div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-          <div style="padding:12px 14px;background:var(--red-light);border:1px solid rgba(229,62,62,0.15);border-radius:var(--radius)">
-            <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);margin-bottom:4px">Their Problem</div>
-            <div style="font-size:0.78rem;color:var(--text);line-height:1.5">${esc(s2.painPoints)}</div>
-          </div>
-          <div style="padding:12px 14px;background:var(--green-light);border:1px solid rgba(56,161,105,0.15);border-radius:var(--radius)">
-            <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);margin-bottom:4px">Your Edge</div>
-            <div style="font-size:0.78rem;color:var(--text);line-height:1.5">${esc(s2.sellingPoints||s2.script)}</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-          <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">
-            <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">Your Goal</div>
-            <div style="font-size:0.82rem;font-weight:600;color:var(--text)">${esc(s2.goal)}</div>
-          </div>
-          <div style="padding:12px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius)">
-            <div style="font-size:0.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:4px">Remember</div>
-            <div style="font-size:0.78rem;color:var(--text);line-height:1.45">${esc(s2.rules)}</div>
-          </div>
-        </div>
-        ${prevBest!==null?'<div style="text-align:center;font-size:0.78rem;color:var(--accent);font-weight:600;margin-bottom:12px">Your best: '+prevBest+'/100</div>':''}
-        <div style="display:flex;gap:10px;justify-content:center">
-          <button class="btn btn-primary btn-lg" onclick="startCall()">Start Call</button>
-          <button class="btn btn-ghost" onclick="resetPracticeView();renderScenarioGrid()">Pick Different</button>
-        </div>
-      </div>
-    </div>`;
-  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+    `;
+  };
+
+  card.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
 
 window.toggleBrief = function(el){
   el.classList.toggle('open');
@@ -875,7 +892,7 @@ window.toggleBrief = function(el){
 window.showProfilePicker = function(){
   const profiles = getProfiles();
   if(!profiles.length){ alert('No pitches yet. Go to My Pitches to create one.'); return; }
-  const card = document.getElementById('scenario-card');
+  const card = document.getElementById('scenario-detail');
   document.getElementById('practice-empty').style.display='none';
   card.style.display='block';
   card.innerHTML = `
@@ -1394,7 +1411,7 @@ function showCallUi(show){
       const s = currentScenario;
       const priceMatch = (s.script||'').match(/\$[\d,.]+\/?\w*/);
       const price = priceMatch ? priceMatch[0] : '';
-      detail.innerHTML = `<div class="scenario-card" style="border-radius:var(--radius-lg)"><div style="padding:14px 18px;border-bottom:1px solid var(--border)"><div style="font-size:0.9rem;font-weight:700;color:var(--text)">${esc(s.productName||s.product)}</div><div style="font-size:0.72rem;color:var(--text2);margin-top:2px">${esc(s.buyer.split(',')[0])} at ${esc(s.company)}${price?' · '+price:''}</div></div><div style="padding:12px 18px"><div style="background:var(--red-light);border:1px solid rgba(229,62,62,0.1);border-radius:6px;padding:9px 11px;margin-bottom:8px"><div style="font-size:0.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:2px">Problem</div><div style="font-size:0.7rem;color:var(--text);line-height:1.4">${esc(s.painPoints)}</div></div><div style="background:var(--green-light);border:1px solid rgba(56,161,105,0.1);border-radius:6px;padding:9px 11px;margin-bottom:8px"><div style="font-size:0.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:2px">Edge</div><div style="font-size:0.7rem;color:var(--text);line-height:1.4">${esc(s.sellingPoints||s.script)}</div></div><div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:6px;padding:9px 11px"><div style="font-size:0.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:2px">Goal</div><div style="font-size:0.72rem;font-weight:600;color:var(--text)">${esc(s.goal)}</div></div></div></div>`;
+      detail.innerHTML = '<div class="scenario-card" style="border-radius:var(--radius-lg)"><div style="padding:14px 18px;border-bottom:1px solid var(--border)"><div style="font-size:0.9rem;font-weight:700;color:var(--text)">'+esc(s.productName||s.product)+'</div><div style="font-size:0.72rem;color:var(--text2);margin-top:2px">'+esc(s.buyer.split(',')[0])+' at '+esc(s.company)+(price?' · '+price:'')+'</div></div><div style="padding:12px 18px"><div style="background:var(--red-light);border:1px solid rgba(229,62,62,0.1);border-radius:6px;padding:9px 11px;margin-bottom:8px"><div style="font-size:0.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red);margin-bottom:2px">Problem</div><div style="font-size:0.7rem;color:var(--text);line-height:1.4">'+esc(s.painPoints)+'</div></div><div style="background:var(--green-light);border:1px solid rgba(56,161,105,0.1);border-radius:6px;padding:9px 11px;margin-bottom:8px"><div style="font-size:0.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:2px">Edge</div><div style="font-size:0.7rem;color:var(--text);line-height:1.4">'+esc(s.sellingPoints||s.script)+'</div></div><div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:6px;padding:9px 11px"><div style="font-size:0.54rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:2px">Goal</div><div style="font-size:0.72rem;font-weight:600;color:var(--text)">'+esc(s.goal)+'</div></div></div></div>';
     }
     detail.style.maxWidth='260px';detail.style.minWidth='260px';
     detail.style.padding='20px 12px 20px 0';detail.style.margin='0';
@@ -1930,9 +1947,7 @@ function showScorecardModal(scores,scenario,duration,isNewBest,totalPts,prevBest
 // ===== INIT =====
 updateStreak();
 updateTranscriptBadge();
-updateXPDisplay();
-renderScenarioGrid();
-</script>
+
 </script>
 </body>
 </html>
