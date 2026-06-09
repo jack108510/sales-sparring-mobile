@@ -1945,10 +1945,11 @@ function showScorecardModal(scores,scenario,duration,isNewBest,totalPts,prevBest
 
 
 // ===== INIT =====
-updateStreak();
-updateTranscriptBadge();
-updateXPDisplay();
-renderScenarioGrid();
+try { updateStreak(); } catch(e) { console.error('updateStreak error:', e); }
+try { updateTranscriptBadge(); } catch(e) { console.error('updateTranscriptBadge error:', e); }
+try { updateXPDisplay(); } catch(e) { console.error('updateXPDisplay error:', e); }
+try { renderScenarioGrid(); console.log('Grid rendered:', document.querySelectorAll('.scenario-card-mini').length+' cards'); } catch(e) { console.error('renderScenarioGrid error:', e); }
+try { renderDailyChallenge(); } catch(e) { console.error('renderDailyChallenge error:', e); }
 </script>
 </body>
 </html>
