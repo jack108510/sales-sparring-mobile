@@ -7,6 +7,7 @@
 <meta name="description" content="Practice cold calls against realistic AI buyers. Get scored. Get better.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* ===== SALES SPARRING — CLEAN REBUILD ===== */
 :root{
@@ -374,6 +375,36 @@ input,textarea{font-family:var(--font)}
 </head>
 <body>
 
+<!-- Login screen -->
+<div id="login-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)">
+  <div style="width:100%;max-width:380px;padding:32px">
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z"/></svg></div>
+        <span style="font-size:1.1rem;font-weight:800;letter-spacing:-0.02em">Sales Sparring</span>
+      </div>
+      <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px">Sign in to practice</h1>
+      <p style="font-size:0.84rem;color:var(--text2)">Your calls, scores, and progress — saved everywhere.</p>
+    </div>
+    <div id="auth-form">
+      <div style="margin-bottom:14px">
+        <label style="display:block;font-size:0.72rem;font-weight:600;color:var(--text2);margin-bottom:5px">Email</label>
+        <input id="auth-email" type="email" placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:0.88rem;background:var(--surface);color:var(--text);outline:none" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="display:block;font-size:0.72rem;font-weight:600;color:var(--text2);margin-bottom:5px">Password</label>
+        <input id="auth-password" type="password" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius);font-size:0.88rem;background:var(--surface);color:var(--text);outline:none" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+      <button id="auth-submit" class="btn btn-primary" style="width:100%;padding:12px;font-size:0.9rem" onclick="handleAuth()">Sign In</button>
+      <div style="text-align:center;margin-top:14px">
+        <span style="font-size:0.78rem;color:var(--text3)">Don't have an account? <a href="#" onclick="toggleAuthMode()" style="color:var(--accent);font-weight:600;text-decoration:none" id="auth-toggle">Sign up</a></span>
+      </div>
+      <div id="auth-error" style="display:none;margin-top:12px;padding:10px 14px;background:var(--red-light);border:1px solid rgba(229,62,62,0.2);border-radius:var(--radius);font-size:0.78rem;color:var(--red)"></div>
+      <div id="auth-success" style="display:none;margin-top:12px;padding:10px 14px;background:var(--green-light);border:1px solid rgba(56,161,105,0.2);border-radius:var(--radius);font-size:0.78rem;color:var(--green)"></div>
+    </div>
+  </div>
+</div>
+
 <!-- Mobile header -->
 <div class="mobile-header">
   <button class="hamburger" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
@@ -493,6 +524,113 @@ input,textarea{font-family:var(--font)}
 <script type="module">
 
 import { RetellWebClient } from 'https://esm.sh/retell-client-js-sdk@2.0.7';
+
+// ===== SUPABASE AUTH =====
+const SB_URL = 'https://xacehhtgvubcqdoltazg.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhY2VoaHRndnViY3Fkb2x0YXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NDI4NjcsImV4cCI6MjA4OTUxODg2N30.YHZYwGGhMHVz7CIJnC3hJTT4nH8y0TYv81CHjEbs0-k';
+const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+let currentUser = null;
+let isSignUp = false;
+
+window.toggleAuthMode = function(){
+  isSignUp = !isSignUp;
+  document.getElementById('auth-submit').textContent = isSignUp ? 'Create Account' : 'Sign In';
+  document.getElementById('auth-toggle').textContent = isSignUp ? 'Sign in' : 'Sign up';
+  document.getElementById('auth-error').style.display = 'none';
+  document.getElementById('auth-success').style.display = 'none';
+};
+
+window.handleAuth = async function(){
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  const succEl = document.getElementById('auth-success');
+  errEl.style.display = 'none';
+  succEl.style.display = 'none';
+
+  if(!email || !password){
+    errEl.textContent = 'Email and password required.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  try{
+    let result;
+    if(isSignUp){
+      result = await sb.auth.signUp({ email, password });
+      if(result.error) throw result.error;
+      // Check if confirmation required
+      if(result.data.user && !result.data.session){
+        succEl.textContent = 'Check your email for a confirmation link.';
+        succEl.style.display = 'block';
+        return;
+      }
+    } else {
+      result = await sb.auth.signInWithPassword({ email, password });
+      if(result.error) throw result.error;
+    }
+    currentUser = result.data.user;
+    showApp();
+  } catch(e) {
+    errEl.textContent = e.message || 'Authentication failed.';
+    errEl.style.display = 'block';
+  }
+};
+
+function showApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'flex';
+  // Ensure user exists in ss_users
+  ensureUser();
+  // Init the app
+  try { updateStreak(); } catch(e) {}
+  try { updateTranscriptBadge(); } catch(e) {}
+  try { updateXPDisplay(); } catch(e) {}
+  try { renderScenarioGrid(); } catch(e) {}
+  try { renderDailyChallenge(); } catch(e) {}
+}
+
+async function ensureUser(){
+  if(!currentUser) return;
+  try {
+    const { data } = await sb.from('ss_users').select('id').eq('id', currentUser.id).single();
+    if(!data){
+      await sb.from('ss_users').insert({ id: currentUser.id, email: currentUser.email, display_name: currentUser.email.split('@')[0] });
+    }
+  } catch(e) { console.error('ensureUser error:', e); }
+}
+
+function showLogin(){
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-shell').style.display = 'none';
+}
+
+// Check existing session on load
+async function initAuth(){
+  const { data: { session } } = await sb.auth.getSession();
+  if(session){
+    currentUser = session.user;
+    showApp();
+  } else {
+    showLogin();
+  }
+}
+
+// Listen for auth changes (e.g. email confirmation)
+sb.auth.onAuthStateChange((event, session) => {
+  if(event === 'SIGNED_IN' && session){
+    currentUser = session.user;
+    showApp();
+  }
+});
+
+// Wrap the app in a div
+const appEl = document.querySelector('.app');
+if(appEl){
+  appEl.id = 'app-shell';
+  appEl.style.display = 'none';
+}
 window.RetellWebClient = RetellWebClient;
 
 // ===== CONFIG =====
@@ -589,7 +727,44 @@ const WARMUP_OBJECTIONS = [
 
 // ===== STORAGE =====
 function getCallHistory(){ try{return JSON.parse(localStorage.getItem('pf_history')||'[]')}catch{return[]} }
-function saveCallResult(r){ const h=getCallHistory(); h.unshift(r); localStorage.setItem('pf_history',JSON.stringify(h.slice(0,200))); updateTranscriptBadge(); addXP(r); }
+function saveCallResult(r){ 
+  const h=getCallHistory(); h.unshift(r); localStorage.setItem('pf_history',JSON.stringify(h.slice(0,200))); updateTranscriptBadge(); addXP(r);
+  // Save to Supabase if logged in
+  if(currentUser && r.scores){
+    sb.from('ss_calls').insert({
+      user_id: currentUser.id,
+      scenario_id: r.scenario,
+      scenario_name: r.scenarioName || r.scenario,
+      difficulty: r.difficulty,
+      duration_seconds: r.duration,
+      grade: r.grade,
+      total_score: r.totalPts,
+      opening_score: r.scores.opening?.score,
+      discovery_score: r.scores.discovery?.score,
+      objection_handling_score: r.scores.objection_handling?.score,
+      value_comm_score: r.scores.value_comm?.score,
+      closing_score: r.scores.closing?.score,
+      rules_score: r.scores.rules?.score,
+      opening_feedback: r.scores.opening?.feedback,
+      discovery_feedback: r.scores.discovery?.feedback,
+      objection_handling_feedback: r.scores.objection_handling?.feedback,
+      value_comm_feedback: r.scores.value_comm?.feedback,
+      closing_feedback: r.scores.closing?.feedback,
+      rules_feedback: r.scores.rules?.feedback,
+      opening_better: r.scores.opening?.better,
+      discovery_better: r.scores.discovery?.better,
+      objection_handling_better: r.scores.objection_handling?.better,
+      value_comm_better: r.scores.value_comm?.better,
+      closing_better: r.scores.closing?.better,
+      rules_better: r.scores.rules?.better,
+      best_moment: r.scores.best_moment,
+      worst_moment: r.scores.worst_moment,
+      overall_feedback: r.scores.overall_feedback,
+      transcript: r.transcript || null,
+      is_personal_best: r.isNewBest || false
+    }).then(({error})=>{ if(error) console.error('Supabase save error:', error); else console.log('Call saved to Supabase'); });
+  }
+}
 function getProfiles(){ try{return JSON.parse(localStorage.getItem('pf_profiles')||'[]')}catch{return[]} }
 function saveProfiles(p){ localStorage.setItem('pf_profiles',JSON.stringify(p)); }
 function getPersonalBests(){ try{return JSON.parse(localStorage.getItem('pf_bests')||'{}')}catch{return{}} }
@@ -1895,11 +2070,7 @@ function showScorecardModal(scores,scenario,duration,isNewBest,totalPts,prevBest
 
 
 // ===== INIT =====
-try { updateStreak(); } catch(e) { console.error('updateStreak error:', e); }
-try { updateTranscriptBadge(); } catch(e) { console.error('updateTranscriptBadge error:', e); }
-try { updateXPDisplay(); } catch(e) { console.error('updateXPDisplay error:', e); }
-try { renderScenarioGrid(); console.log('Grid rendered:', document.querySelectorAll('.scenario-card-mini').length+' cards'); } catch(e) { console.error('renderScenarioGrid error:', e); }
-try { renderDailyChallenge(); } catch(e) { console.error('renderDailyChallenge error:', e); }
+initAuth();
 </script>
 </body>
 </html>
