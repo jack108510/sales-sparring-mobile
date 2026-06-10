@@ -744,9 +744,6 @@ input,textarea{font-family:var(--font)}
       <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px">Practice</h1>
       <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Pick a prospect and start calling</p>
     </div>
-    <div style="max-width:1100px;margin:0 auto;padding:8px 48px 24px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="randomCall()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Random</button>
-    </div>
     <div class="scenario-grid" id="scenario-grid"></div>
     <div id="scenario-detail" class="scenario-detail" style="display:none"></div>
     <div id="start-call-wrap" style="display:none!important" class="sc-actions">
@@ -1277,7 +1274,7 @@ function showScenarioCard(s){
         ${prevBest!==null?`<div style="text-align:center;font-size:0.78rem;color:var(--accent);font-weight:600;margin-bottom:12px">Your best: ${prevBest}/100</div>`:''}
         <div style="display:flex;gap:10px;justify-content:center">
           <button class="btn btn-primary btn-lg" onclick="startCall()">Start Call</button>
-          <button class="btn btn-ghost" onclick="resetPracticeView();renderScenarioGrid()">Pick Different</button>
+          <button class="btn btn-ghost" onclick="resetPracticeView();randomCall()">Random Call</button>
         </div>
       </div>
     </div>
