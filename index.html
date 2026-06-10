@@ -510,7 +510,6 @@ input,textarea{font-family:var(--font)}
   .hero{max-width:1100px;padding:60px 64px 40px}
   .hero h1{font-size:2.6rem}
   #learning-path{max-width:640px;padding:20px 64px 80px}
-  #tab-learn>div:first-child{max-width:1100px;padding:48px 64px 12px}
   #tab-practice>div:first-child{max-width:1100px;padding:48px 64px 12px}
   .page-header{max-width:1100px;padding:40px 64px 20px}
   #tab-practice .scenario-grid~.scenario-grid{padding:0 64px 60px}
@@ -603,8 +602,7 @@ input,textarea{font-family:var(--font)}
     <img src="logo.jpg" alt="Sales Sparring" style="height:52px">
   </div>
   <div class="sidebar-nav">
-    <div class="nav-item active" data-tab="learn" onclick="switchTab('learn')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Learn</div>
-    <div class="nav-item" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
+    <div class="nav-item active" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
 
 
     <div class="nav-item" data-tab="company" onclick="switchTab('company')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v3"/></svg>My Pitches</div>
@@ -624,135 +622,88 @@ input,textarea{font-family:var(--font)}
 <!-- Main content -->
 <div class="main">
 
-  <!-- LEARN PAGE -->
-  <div id="tab-learn" class="page active">
-    <div style="padding:48px 48px 12px;max-width:900px;margin:0 auto">
+  <!-- PRACTICE PAGE — learning path is the whole page -->
+  <div id="tab-practice" class="page active">
+    <div style="padding:48px 48px 12px;max-width:1100px;margin:0 auto">
       <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px">Your Learning Path</h1>
       <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Master cold calling step by step</p>
     </div>
-    <div style="max-width:900px;margin:0 auto;padding:8px 48px 0">
+    <div style="max-width:1100px;margin:0 auto;padding:8px 48px 0">
       <div id="daily-challenge" class="daily-challenge"></div>
     </div>
     <div style="max-width:640px;margin:0 auto;padding:20px 48px 80px" id="learning-path">
       <!-- Module 1: First 15 Seconds — UNLOCKED -->
-      <div class="lp-module lp-unlocked" onclick="randomCall()">
-        <div class="lp-module-border lp-border-green"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--green)">Module 1</div>
-            <div class="lp-module-status lp-status-unlocked">Start</div>
-          </div>
-          <div class="lp-module-title">First 15 Seconds</div>
-          <div class="lp-module-desc">Master the cold open and pattern interrupt</div>
-          <div class="lp-progress-wrap">
-            <div class="lp-progress-bar"><div class="lp-progress-fill lp-fill-green" style="width:0%"></div></div>
-            <div class="lp-progress-label">0 / 3 complete</div>
-          </div>
-          <div class="lp-dots">
-            <div class="lp-dot lp-dot-empty"></div>
-            <div class="lp-dot lp-dot-empty"></div>
-            <div class="lp-dot lp-dot-empty"></div>
-          </div>
+      <div class="lp-module lp-unlocked" onclick="randomCall()" style="margin-bottom:20px;padding:24px 28px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green)">Module 1</div>
+          <div style="font-size:0.72rem;font-weight:600;color:var(--accent);background:var(--accent-light);padding:4px 12px;border-radius:20px">Start</div>
+        </div>
+        <div style="font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:6px">First 15 Seconds</div>
+        <div style="font-size:0.84rem;color:var(--text2);line-height:1.5;margin-bottom:16px">Master the cold open and pattern interrupt. Learn to earn the right to keep talking.</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="width:0%;height:100%;background:var(--green);border-radius:2px"></div></div>
+          <div style="font-size:0.72rem;color:var(--text3);white-space:nowrap">0 / 3</div>
         </div>
       </div>
 
       <!-- Module 2: Discovery Questions — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 2</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
-            </div>
-          </div>
-          <div class="lp-module-title lp-title-locked">Discovery Questions</div>
-          <div class="lp-module-desc lp-desc-locked">Ask the right questions, uncover real pain</div>
+      <div class="lp-module lp-locked" style="margin-bottom:20px;padding:24px 28px;opacity:0.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Module 2</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         </div>
+        <div style="font-size:1.15rem;font-weight:800;color:var(--text3);margin-bottom:6px">Discovery Questions</div>
+        <div style="font-size:0.84rem;color:var(--text3);line-height:1.5">Ask the right questions, uncover real pain.</div>
       </div>
 
       <!-- Module 3: Handling Objections — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 3</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
-            </div>
-          </div>
-          <div class="lp-module-title lp-title-locked">Handling Objections</div>
-          <div class="lp-module-desc lp-desc-locked">Turn resistance into opportunity</div>
+      <div class="lp-module lp-locked" style="margin-bottom:20px;padding:24px 28px;opacity:0.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Module 3</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         </div>
+        <div style="font-size:1.15rem;font-weight:800;color:var(--text3);margin-bottom:6px">Handling Objections</div>
+        <div style="font-size:0.84rem;color:var(--text3);line-height:1.5">Turn resistance into opportunity.</div>
       </div>
 
       <!-- Module 4: Communicating Value — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 4</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
-            </div>
-          </div>
-          <div class="lp-module-title lp-title-locked">Communicating Value</div>
-          <div class="lp-module-desc lp-desc-locked">Connect features to buyer problems</div>
+      <div class="lp-module lp-locked" style="margin-bottom:20px;padding:24px 28px;opacity:0.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Module 4</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         </div>
+        <div style="font-size:1.15rem;font-weight:800;color:var(--text3);margin-bottom:6px">Communicating Value</div>
+        <div style="font-size:0.84rem;color:var(--text3);line-height:1.5">Connect features to buyer problems.</div>
       </div>
 
       <!-- Module 5: Closing the Deal — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 5</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
-            </div>
-          </div>
-          <div class="lp-module-title lp-title-locked">Closing the Deal</div>
-          <div class="lp-module-desc lp-desc-locked">Ask for the next step every time</div>
+      <div class="lp-module lp-locked" style="margin-bottom:20px;padding:24px 28px;opacity:0.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Module 5</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         </div>
+        <div style="font-size:1.15rem;font-weight:800;color:var(--text3);margin-bottom:6px">Closing the Deal</div>
+        <div style="font-size:0.84rem;color:var(--text3);line-height:1.5">Ask for the next step every time.</div>
       </div>
 
       <!-- Module 6: Full Cold Calls — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 6</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
-            </div>
-          </div>
-          <div class="lp-module-title lp-title-locked">Full Cold Calls</div>
-          <div class="lp-module-desc lp-desc-locked">Put it all together in realistic scenarios</div>
+      <div class="lp-module lp-locked" style="margin-bottom:20px;padding:24px 28px;opacity:0.5">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)">Module 6</div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
         </div>
+        <div style="font-size:1.15rem;font-weight:800;color:var(--text3);margin-bottom:6px">Full Cold Calls</div>
+        <div style="font-size:0.84rem;color:var(--text3);line-height:1.5">Put it all together in realistic scenarios.</div>
       </div>
     </div>
-  </div>
-
-  <!-- PRACTICE PAGE -->
-  <div id="tab-practice" class="page">
-    <div style="padding:48px 48px 12px;max-width:1100px;margin:0 auto">
-      <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px">Practice</h1>
-      <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Choose a scenario and start calling</p>
-    </div>
-    <div style="max-width:1100px;margin:0 auto;padding:16px 48px 24px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="randomCall()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Random Call</button>
-    </div>
-    <div class="scenario-grid" id="scenario-grid"></div>
     <div id="scenario-detail" class="scenario-detail" style="display:none"></div>
     <div id="start-call-wrap" style="display:none" class="sc-actions">
       <button id="callBtn" class="btn btn-primary btn-lg" onclick="startCall()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Start Voice Call</button>
       <button class="btn btn-ghost" onclick="randomCall()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>New Scenario</button>
     </div>
+  </div>
+
+  <!-- Company etc -->
     <div id="call-ui" style="display:none;padding:20px 32px">
       <div class="call-layout">
         <div class="call-active">
@@ -878,7 +829,6 @@ function showApp(){
   try { updateXPDisplay(); } catch(e) {}
   try { renderDailyChallenge(); } catch(e) {}
   try { renderScenarioGrid(); } catch(e) {}
-  switchTab('learn');
 }
 
 async function ensureUser(){
@@ -1146,8 +1096,7 @@ window.switchTab = function(tab){
   const navItem = document.querySelector(`[data-tab="${tab}"]`);
   if(navItem) navItem.classList.add('active');
   if(tab==='analytics') renderAnalytics();
-  if(tab==='learn'){renderDailyChallenge();}
-  if(tab==='practice'){renderScenarioGrid();resetPracticeView();}
+  if(tab==='practice'){renderDailyChallenge();renderScenarioGrid();}
   if(tab==='company') renderProfileList();
   if(tab==='settings') renderSettings();
   if(tab==='transcripts') renderTranscripts();
