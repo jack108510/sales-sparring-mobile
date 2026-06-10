@@ -564,7 +564,7 @@ input,textarea{font-family:var(--font)}
   <div style="width:100%;max-width:380px;padding:32px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px">
-        <img src="logo.jpg" alt="Sales Sparring" style="height:80px">
+        <img src="logo.jpg" alt="Sales Sparring" style="height:100px">
       </div>
       <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px">Sign in to practice</h1>
       <p style="font-size:0.84rem;color:var(--text2)">Your calls, scores, and progress — saved everywhere.</p>
@@ -591,7 +591,7 @@ input,textarea{font-family:var(--font)}
 <!-- Mobile header -->
 <div class="mobile-header">
   <button class="hamburger" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  <span style="font-weight:800;font-size:0.9rem"><img src="logo.jpg" alt="Sales Sparring" style="height:44px"></span>
+  <span style="font-weight:800;font-size:0.9rem"><img src="logo.jpg" alt="Sales Sparring" style="height:56px"></span>
   <div style="width:22px"></div>
 </div>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -600,11 +600,11 @@ input,textarea{font-family:var(--font)}
 <!-- Sidebar -->
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <img src="logo.jpg" alt="Sales Sparring" style="height:52px">
+    <img src="logo.jpg" alt="Sales Sparring" style="height:64px">
   </div>
   <div class="sidebar-nav">
-    <div class="nav-item active" data-tab="learn" onclick="switchTab('learn')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Learn</div>
-    <div class="nav-item" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
+    <div class="nav-item active" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
+    <div class="nav-item" data-tab="learn" onclick="switchTab('learn')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Learn</div>
 
 
     <div class="nav-item" data-tab="company" onclick="switchTab('company')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v3"/></svg>My Pitches</div>
@@ -878,7 +878,7 @@ function showApp(){
   try { updateXPDisplay(); } catch(e) {}
   try { renderDailyChallenge(); } catch(e) {}
   try { renderScenarioGrid(); } catch(e) {}
-  switchTab('learn');
+  switchTab('practice');
 }
 
 async function ensureUser(){
