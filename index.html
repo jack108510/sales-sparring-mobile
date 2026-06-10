@@ -1147,7 +1147,7 @@ window.switchTab = function(tab){
   if(navItem) navItem.classList.add('active');
   if(tab==='analytics') renderAnalytics();
   if(tab==='learn'){renderDailyChallenge();}
-  if(tab==='practice'){renderScenarioGrid();resetPracticeView();}
+  if(tab==='practice'){randomCall();}
   if(tab==='company') renderProfileList();
   if(tab==='settings') renderSettings();
   if(tab==='transcripts') renderTranscripts();
