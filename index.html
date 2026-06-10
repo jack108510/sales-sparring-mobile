@@ -2083,6 +2083,11 @@ window.startCall = async function(){
       setTimeout(()=>handleCallEnd(finalTranscript,finalDuration,finalScenario), 2000);
     });
     client.on('error',(err)=>{ log('Error: '+JSON.stringify(err),'sys'); setWaveform(null); handleCallEnd(); });
+
+    // Ring twice before connecting (fake ring delay)
+    log('Calling...','sys');
+    await new Promise(r=>setTimeout(r, 4000));
+
     await client.startCall({accessToken:data.access_token});
     isConnected=true;
     startTimer();
