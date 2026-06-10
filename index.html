@@ -1955,9 +1955,8 @@ function startCoachingEngine(){
   const totalEl=document.getElementById('live-total');
   if(totalEl){ totalEl.textContent='—'; totalEl.style.color=''; }
   const feed=document.getElementById('coaching-feed');
-  if(feed) feed.innerHTML='<div class="coaching-empty">Coaching tips will appear here as the call progresses.</div>';
-  // Run every 15 seconds
-  coachingInterval = setInterval(runLiveCoaching, 15000);
+  if(feed) feed.innerHTML='<div class="coaching-empty">Focus on the conversation. Feedback will appear after the call.</div>';
+  // Live coaching disabled — focus on post-call grading
 }
 
 function stopCoachingEngine(){
