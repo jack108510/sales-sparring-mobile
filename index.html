@@ -742,10 +742,10 @@ input,textarea{font-family:var(--font)}
   <div id="tab-practice" class="page">
     <div style="padding:48px 48px 12px;max-width:1100px;margin:0 auto">
       <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px">Practice</h1>
-      <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Choose a scenario and start calling</p>
+      <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Pick a prospect and start calling</p>
     </div>
-    <div style="max-width:1100px;margin:0 auto;padding:16px 48px 24px;display:flex;gap:10px">
-      <button class="btn btn-primary" onclick="randomCall()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Random Call</button>
+    <div style="max-width:1100px;margin:0 auto;padding:8px 48px 24px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="randomCall()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Random</button>
     </div>
     <div class="scenario-grid" id="scenario-grid"></div>
     <div id="scenario-detail" class="scenario-detail" style="display:none"></div>
@@ -1182,9 +1182,29 @@ function renderDailyChallenge(){
 function renderScenarioGrid(){
   const grid=document.getElementById('scenario-grid');
   if(!grid) return;
+  grid.style.display='grid';
+  grid.style.gridTemplateColumns='repeat(auto-fill,minmax(320px,1fr))';
+  grid.style.gap='16px';
+  grid.style.maxWidth='1100px';
+  grid.style.margin='0 auto';
+  grid.style.padding='0 48px 60px';
   grid.innerHTML=SCENARIOS.map(s=>{
     const best=getScenarioBestScore(s.id);
-    return '<div class="scenario-card-mini" onclick="selectScenario(\''+s.id+'\')"><div class="scm-product">'+esc(s.productName||s.product)+'</div><div class="scm-company">'+esc(s.company)+'</div><div class="scm-buyer">'+esc(s.buyer.split(',')[0])+'</div>'+(best!==null?'<div style="margin-top:8px;font-size:0.7rem;color:var(--accent);font-weight:600">Best: '+best+'/100</div>':'')+'</div>';
+    return `<div onclick="selectScenario('${s.id}')" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px;cursor:pointer;transition:box-shadow .2s,transform .15s" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,0.08)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='none';this.style.transform='none'">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div style="width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--orange)">
+          <img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s.buyer)}&backgroundColor=fed7aa" style="width:100%;height:100%;object-fit:cover">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:0.9rem;font-weight:700;color:var(--text)">${esc(s.buyer.split(',')[0])}</div>
+          <div style="font-size:0.78rem;color:var(--text2)">${esc(s.company)}</div>
+        </div>
+        ${best!==null?`<div style="font-size:0.72rem;font-weight:600;color:var(--accent);background:var(--accent-light);padding:3px 10px;border-radius:12px">${best}</div>`:''}
+      </div>
+      <div style="font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:4px">${esc(s.productName||s.product)}</div>
+      <div style="font-size:0.78rem;color:var(--text2);margin-bottom:14px;line-height:1.4">${esc(s.goal)}</div>
+      <div style="font-size:0.72rem;color:var(--accent);font-weight:600">${esc(s.sellerCompany||s.product)}</div>
+    </div>`;
   }).join('');
 }
 
