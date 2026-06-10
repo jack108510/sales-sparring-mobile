@@ -1786,6 +1786,9 @@ function stopCoachingEngine(){
 }
 
 // ===== MAIN CALL FLOW =====
+window.endCall = function(){
+  if(isConnected && client){ client.stopCall(); }
+};
 window.startCall = async function(){
   if(isConnected&&client){ client.stopCall(); return; }
   if(!currentScenario) return;
