@@ -2008,7 +2008,9 @@ window.startCall = async function(){
           seller_title:s.sellerTitle||'Account Executive',
           seller_company:s.sellerCompany||s.product,
           product_name:s.productName||s.product,
-          selling_points:s.sellingPoints||''
+          selling_points:s.sellingPoints||'',
+          start_greeting:'Hello?',
+          no_interrupt:'NEVER interrupt the caller. Always wait for them to finish their full sentence before responding. If they pause briefly, wait 2-3 seconds before speaking.'
         }
       })
     });
@@ -2195,9 +2197,24 @@ async function handleCallEnd(savedTranscript,savedDuration,savedScenario){
   showCallUi(false);
   if(callBtn){callBtn.innerHTML=callBtnHTML();callBtn.className='btn btn-primary btn-lg';callBtn.disabled=false;}
   startCallWrap.style.display=currentScenario?'flex':'none';
-  if(transcript.length<4) return;
-
+  // Always save the transcript, even if too short to grade
   const modal=document.getElementById('scorecard-modal');
+  if(transcript.length<2){
+    // Save transcript without grading
+    const result={
+      date:new Date().toISOString(),scenarioId:scenario?.id,scenario:scenario?.product,
+      scenarioName:scenario?.productName||scenario?.product,
+      company:scenario?.company,duration:formatDuration(duration),durationSec:duration,
+      scores:null,grade:'N/A',transcript:transcript,
+      totalPts:0,isNewBest:false
+    };
+    saveCallResult(result);
+    updateStreak();
+    modal.innerHTML=`<div class="modal-overlay" onclick="closeScorecard()"><div class="modal-content" onclick="event.stopPropagation()" style="min-height:auto"><div style="padding:48px 24px;text-align:center"><p style="color:var(--text);font-size:0.88rem">Call saved.</p><p style="color:var(--text3);font-size:0.78rem;margin-top:6px">Too short to grade — stay on longer next time for feedback.</p><button class="btn btn-primary btn-sm" onclick="closeScorecard()" style="margin-top:20px">Close</button></div></div></div>`;
+    modal.style.display='block';
+    return;
+  }
+
   modal.innerHTML=`<div class="modal-overlay"><div class="modal-content"><div class="scoring-spinner"><div class="spinner"></div><p>Analyzing your call...</p></div></div></div>`;
   modal.style.display='block';
 
