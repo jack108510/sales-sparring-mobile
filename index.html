@@ -510,6 +510,7 @@ input,textarea{font-family:var(--font)}
   .hero{max-width:1100px;padding:60px 64px 40px}
   .hero h1{font-size:2.6rem}
   #learning-path{max-width:640px;padding:20px 64px 80px}
+  #tab-learn>div:first-child{max-width:1100px;padding:48px 64px 12px}
   #tab-practice>div:first-child{max-width:1100px;padding:48px 64px 12px}
   .page-header{max-width:1100px;padding:40px 64px 20px}
   #tab-practice .scenario-grid~.scenario-grid{padding:0 64px 60px}
@@ -602,7 +603,8 @@ input,textarea{font-family:var(--font)}
     <img src="logo.jpg" alt="Sales Sparring" style="height:52px">
   </div>
   <div class="sidebar-nav">
-    <div class="nav-item active" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
+    <div class="nav-item active" data-tab="learn" onclick="switchTab('learn')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Learn</div>
+    <div class="nav-item" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
 
 
     <div class="nav-item" data-tab="company" onclick="switchTab('company')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v3"/></svg>My Pitches</div>
@@ -622,20 +624,15 @@ input,textarea{font-family:var(--font)}
 <!-- Main content -->
 <div class="main">
 
-  <!-- PRACTICE PAGE -->
-  <div id="tab-practice" class="page active">
-    <!-- Learning Path Header -->
+  <!-- LEARN PAGE -->
+  <div id="tab-learn" class="page active">
     <div style="padding:48px 48px 12px;max-width:900px;margin:0 auto">
       <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px">Your Learning Path</h1>
       <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Master cold calling step by step</p>
     </div>
-
-    <!-- Daily Challenge -->
     <div style="max-width:900px;margin:0 auto;padding:8px 48px 0">
       <div id="daily-challenge" class="daily-challenge"></div>
     </div>
-
-    <!-- Learning Path Modules -->
     <div style="max-width:640px;margin:0 auto;padding:20px 48px 80px" id="learning-path">
       <!-- Module 1: First 15 Seconds — UNLOCKED -->
       <div class="lp-module lp-unlocked" onclick="randomCall()">
@@ -739,9 +736,18 @@ input,textarea{font-family:var(--font)}
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Hidden scenario grid (keep renderScenarioGrid functional) -->
-    <div class="scenario-grid" id="scenario-grid" style="display:none"></div>
+  <!-- PRACTICE PAGE -->
+  <div id="tab-practice" class="page">
+    <div style="padding:48px 48px 12px;max-width:1100px;margin:0 auto">
+      <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:6px">Practice</h1>
+      <p style="font-size:0.95rem;color:var(--text2);margin-bottom:0">Choose a scenario and start calling</p>
+    </div>
+    <div style="max-width:1100px;margin:0 auto;padding:16px 48px 24px;display:flex;gap:10px">
+      <button class="btn btn-primary" onclick="randomCall()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg> Random Call</button>
+    </div>
+    <div class="scenario-grid" id="scenario-grid"></div>
     <div id="scenario-detail" class="scenario-detail" style="display:none"></div>
     <div id="start-call-wrap" style="display:none" class="sc-actions">
       <button id="callBtn" class="btn btn-primary btn-lg" onclick="startCall()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Start Voice Call</button>
@@ -866,14 +872,13 @@ window.handleAuth = async function(){
 function showApp(){
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-shell').style.display = 'flex';
-  // Ensure user exists in ss_users
   ensureUser();
-  // Init the app
   try { updateStreak(); } catch(e) {}
   try { updateTranscriptBadge(); } catch(e) {}
   try { updateXPDisplay(); } catch(e) {}
-  try { renderScenarioGrid(); } catch(e) {}
   try { renderDailyChallenge(); } catch(e) {}
+  try { renderScenarioGrid(); } catch(e) {}
+  switchTab('learn');
 }
 
 async function ensureUser(){
@@ -1141,8 +1146,8 @@ window.switchTab = function(tab){
   const navItem = document.querySelector(`[data-tab="${tab}"]`);
   if(navItem) navItem.classList.add('active');
   if(tab==='analytics') renderAnalytics();
-  if(tab==='practice'){renderDailyChallenge();renderScenarioGrid();resetPracticeView();}
-  if(tab==='practice') renderScenarioGrid();
+  if(tab==='learn'){renderDailyChallenge();}
+  if(tab==='practice'){renderScenarioGrid();resetPracticeView();}
   if(tab==='company') renderProfileList();
   if(tab==='settings') renderSettings();
   if(tab==='transcripts') renderTranscripts();
@@ -1190,12 +1195,10 @@ window.selectScenario=function(id){
 };
 
 function resetPracticeView(){
-  const grid=document.getElementById('scenario-grid'); if(grid) grid.style.display='none';
+  const grid=document.getElementById('scenario-grid'); if(grid) grid.style.display='';
   const detail=document.getElementById('scenario-detail'); if(detail) detail.style.display='none';
   const wrap=document.getElementById('start-call-wrap'); if(wrap) wrap.style.display='none';
   const wrapper=document.getElementById('call-wrapper'); if(wrapper) wrapper.style.display='none';
-  const lp=document.getElementById('learning-path'); if(lp) lp.style.display='';
-  const daily=document.querySelector('.daily-challenge'); if(daily) daily.style.display='';
 }
 
 function isScenarioUnlocked(scenario, minScore){
@@ -1210,9 +1213,6 @@ window.randomCall = function(){
 
 function showScenarioCard(s){
   currentScenario = s;
-  const hero=document.querySelector('.hero'); if(hero) hero.style.display='none';
-  const daily=document.querySelector('.daily-challenge'); if(daily) daily.style.display='none';
-  const lp=document.getElementById('learning-path'); if(lp) lp.style.display='none';
   const grid=document.getElementById('scenario-grid'); if(grid) grid.style.display='none';
   const detail = document.getElementById('scenario-detail');
   detail.style.display='block';
