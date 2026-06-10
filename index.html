@@ -564,7 +564,7 @@ input,textarea{font-family:var(--font)}
   <div style="width:100%;max-width:380px;padding:32px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px">
-        <img src="logo.jpg" alt="Sales Sparring" style="height:170px">
+        <img src="logo.jpg" alt="Sales Sparring" style="height:200px">
       </div>
       <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px">Sign in to practice</h1>
       <p style="font-size:0.84rem;color:var(--text2)">Your calls, scores, and progress — saved everywhere.</p>
@@ -591,7 +591,7 @@ input,textarea{font-family:var(--font)}
 <!-- Mobile header -->
 <div class="mobile-header">
   <button class="hamburger" onclick="toggleSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  <span style="font-weight:800;font-size:0.9rem"><img src="logo.jpg" alt="Sales Sparring" style="height:72px"></span>
+  <span style="font-weight:800;font-size:0.9rem"><img src="logo.jpg" alt="Sales Sparring" style="height:88px"></span>
   <div style="width:22px"></div>
 </div>
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -600,7 +600,7 @@ input,textarea{font-family:var(--font)}
 <!-- Sidebar -->
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
-    <img src="logo.jpg" alt="Sales Sparring" style="height:80px">
+    <img src="logo.jpg" alt="Sales Sparring" style="height:96px">
   </div>
   <div class="sidebar-nav">
     <div class="nav-item active" data-tab="practice" onclick="switchTab('practice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Practice</div>
@@ -1972,8 +1972,7 @@ window.startCall = async function(){
   if(!currentScenario) return;
   try{
     const s=currentScenario;
-    callBtn.disabled=true;
-    callBtn.textContent='Connecting...';
+    if(callBtn){callBtn.disabled=true;callBtn.textContent='Connecting...';}
     callTranscript=[];
     callStartTime=Date.now();
     showCallUi(true);
@@ -2016,7 +2015,7 @@ window.startCall = async function(){
     const data=await resp.json();
     if(!data.access_token){
       log('Connection error: '+JSON.stringify(data).substring(0,200),'sys');
-      showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); startCallWrap.style.display='flex'; return;
+      showCallUi(false); if(callBtn){callBtn.disabled=false;callBtn.innerHTML=callBtnHTML();} return;
     }
     log('Connected. Start pitching!','sys');
     try{
@@ -2024,10 +2023,10 @@ window.startCall = async function(){
       stream.getTracks().forEach(t=>t.stop());
     }catch(micErr){
       log('Microphone access denied: '+micErr.message,'sys');
-      showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); startCallWrap.style.display='flex'; return;
+      showCallUi(false); if(callBtn){callBtn.disabled=false;callBtn.innerHTML=callBtnHTML();} return;
     }
     const RC=window.RetellWebClient;
-    if(!RC){ log('SDK not loaded','sys'); showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); startCallWrap.style.display='flex'; return; }
+    if(!RC){ log('SDK not loaded','sys'); showCallUi(false); if(callBtn){callBtn.disabled=false;callBtn.innerHTML=callBtnHTML();} return; }
     let liveLog=[]; // tracks in-place transcript updates
     client=new RC();
     let liveLines=[];
@@ -2089,7 +2088,7 @@ window.startCall = async function(){
     startCallWrap.style.display='none';
   }catch(e){
     log('Error: '+e.message,'sys');
-    showCallUi(false); callBtn.disabled=false; callBtn.innerHTML=callBtnHTML(); callBtn.className='btn btn-primary btn-lg'; startCallWrap.style.display='flex';
+    showCallUi(false); if(callBtn){callBtn.disabled=false;callBtn.innerHTML=callBtnHTML();callBtn.className='btn btn-primary btn-lg';}
   }
 };
 
@@ -2194,7 +2193,7 @@ async function handleCallEnd(savedTranscript,savedDuration,savedScenario){
   stopTimer();
   stopCoachingEngine();
   showCallUi(false);
-  callBtn.innerHTML=callBtnHTML(); callBtn.className='btn btn-primary btn-lg'; callBtn.disabled=false;
+  if(callBtn){callBtn.innerHTML=callBtnHTML();callBtn.className='btn btn-primary btn-lg';callBtn.disabled=false;}
   startCallWrap.style.display=currentScenario?'flex':'none';
   if(transcript.length<4) return;
 
