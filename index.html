@@ -879,36 +879,37 @@ function getCallHistory(){ try{return JSON.parse(localStorage.getItem('pf_histor
 function saveCallResult(r){ 
   const h=getCallHistory(); h.unshift(r); localStorage.setItem('pf_history',JSON.stringify(h.slice(0,200))); updateTranscriptBadge(); addXP(r);
   // Save to Supabase if logged in
-  if(currentUser && r.scores){
+  if(currentUser){
+    const scores = r.scores || {};
     sb.from('ss_calls').insert({
       user_id: currentUser.id,
-      scenario_id: r.scenario,
+      scenario_id: r.scenarioId || r.scenario,
       scenario_name: r.scenarioName || r.scenario,
       difficulty: r.difficulty,
-      duration_seconds: r.duration,
+      duration_seconds: r.durationSec || null,
       grade: r.grade,
-      total_score: r.totalPts,
-      opening_score: r.scores.opening?.score,
-      discovery_score: r.scores.discovery?.score,
-      objection_handling_score: r.scores.objection_handling?.score,
-      value_comm_score: r.scores.value_comm?.score,
-      closing_score: r.scores.closing?.score,
-      rules_score: r.scores.rules?.score,
-      opening_feedback: r.scores.opening?.feedback,
-      discovery_feedback: r.scores.discovery?.feedback,
-      objection_handling_feedback: r.scores.objection_handling?.feedback,
-      value_comm_feedback: r.scores.value_comm?.feedback,
-      closing_feedback: r.scores.closing?.feedback,
-      rules_feedback: r.scores.rules?.feedback,
-      opening_better: r.scores.opening?.better,
-      discovery_better: r.scores.discovery?.better,
-      objection_handling_better: r.scores.objection_handling?.better,
-      value_comm_better: r.scores.value_comm?.better,
-      closing_better: r.scores.closing?.better,
-      rules_better: r.scores.rules?.better,
-      best_moment: r.scores.best_moment,
-      worst_moment: r.scores.worst_moment,
-      overall_feedback: r.scores.overall_feedback,
+      total_score: r.totalPts || null,
+      opening_score: scores.opening?.score,
+      discovery_score: scores.discovery?.score,
+      objection_handling_score: scores.objection_handling?.score,
+      value_comm_score: scores.value_comm?.score,
+      closing_score: scores.closing?.score,
+      rules_score: scores.rules?.score,
+      opening_feedback: scores.opening?.feedback,
+      discovery_feedback: scores.discovery?.feedback,
+      objection_handling_feedback: scores.objection_handling?.feedback,
+      value_comm_feedback: scores.value_comm?.feedback,
+      closing_feedback: scores.closing?.feedback,
+      rules_feedback: scores.rules?.feedback,
+      opening_better: scores.opening?.better,
+      discovery_better: scores.discovery?.better,
+      objection_handling_better: scores.objection_handling?.better,
+      value_comm_better: scores.value_comm?.better,
+      closing_better: scores.closing?.better,
+      rules_better: scores.rules?.better,
+      best_moment: scores.best_moment,
+      worst_moment: scores.worst_moment,
+      overall_feedback: scores.overall_feedback,
       transcript: r.transcript || null,
       is_personal_best: r.isNewBest || false
     }).then(({error})=>{ if(error) console.error('Supabase save error:', error); else console.log('Call saved to Supabase'); });
@@ -2034,8 +2035,10 @@ async function handleCallEnd(savedTranscript,savedDuration,savedScenario){
     if(isNewBest&&scenario.id) savePersonalBest(scenario.id,totalPts);
     const result={
       date:new Date().toISOString(),scenarioId:scenario.id,scenario:scenario.product,
+      scenarioName:scenario.productName||scenario.product,
       company:scenario.company,duration:durStr,durationSec:duration,
-      scores:scores,grade:scores.grade||'C',transcript:transcript
+      scores:scores,grade:scores.grade||'C',transcript:transcript,
+      totalPts:totalPts,isNewBest:isNewBest
     };
     saveCallResult(result);
     updateStreak();
@@ -2212,6 +2215,5 @@ function showScorecardModal(scores,scenario,duration,isNewBest,totalPts,prevBest
 // ===== INIT =====
 initAuth();
 </script>
-<!-- build refresh -->
 </body>
 </html>
