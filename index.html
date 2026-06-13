@@ -498,6 +498,91 @@ input,textarea{font-family:var(--font)}
 .lp-dot-filled{background:var(--green)}
 .lp-dot-current{background:linear-gradient(90deg,var(--green) 50%,var(--surface3) 50%)}
 
+/* ===== LEARNING MODULE DETAIL ===== */
+.lm-module{border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--border);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-sm);transition:border-color .2s}
+.lm-module.lm-unlocked{cursor:pointer}
+.lm-module.lm-unlocked:hover{border-color:var(--border-hover)}
+.lm-module.lm-expanded{border-color:var(--accent-border);box-shadow:var(--shadow-md)}
+.lm-module.lm-locked{opacity:.55;cursor:default}
+.lm-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;user-select:none}
+.lm-header-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.lm-module-num{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text3);white-space:nowrap}
+.lm-unlocked .lm-module-num{color:var(--green)}
+.lm-header-text{flex:1;min-width:0}
+.lm-module-title{font-size:1rem;font-weight:700;color:var(--text);letter-spacing:-0.01em;line-height:1.3;margin-bottom:2px}
+.lm-locked .lm-module-title{color:var(--text3)}
+.lm-module-desc{font-size:.8rem;color:var(--text2);line-height:1.4}
+.lm-locked .lm-module-desc{color:var(--text3)}
+.lm-header-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.lm-status{font-size:.68rem;font-weight:600;padding:4px 12px;border-radius:6px;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.lm-status-unlocked{background:rgba(56,161,105,0.1);color:var(--green);border:1px solid rgba(56,161,105,0.2)}
+.lm-status-locked{background:var(--surface2);color:var(--text3);border:1px solid var(--border)}
+.lm-chevron{width:18px;height:18px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.lm-unlocked .lm-chevron{color:var(--text2)}
+.lm-module.lm-expanded .lm-chevron{transform:rotate(180deg)}
+.lm-lock-icon{width:14px;height:14px;color:var(--text3);flex-shrink:0}
+
+.lm-body{display:none;padding:0 24px 28px;border-top:1px solid var(--border)}
+.lm-module.lm-expanded .lm-body{display:block;animation:lmFadeIn .25s ease}
+@keyframes lmFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+.lm-lesson{padding:20px 0 8px}
+.lm-lesson-intro{font-size:.88rem;color:var(--text2);line-height:1.6;margin-bottom:24px;padding:14px 16px;background:var(--surface2);border-radius:var(--radius);border-left:3px solid var(--accent)}
+.lm-principles{list-style:none;padding:0;margin:0}
+.lm-principle{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
+.lm-principle:last-child{border-bottom:none}
+.lm-principle-num{width:28px;height:28px;border-radius:8px;background:var(--accent-light);color:var(--accent);font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.lm-principle-body{flex:1;min-width:0}
+.lm-principle-title{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:4px;letter-spacing:-0.01em}
+.lm-principle-text{font-size:.83rem;color:var(--text2);line-height:1.6}
+.lm-principle-text em{font-style:normal;background:rgba(0,102,255,0.07);padding:1px 5px;border-radius:4px;color:var(--accent);font-weight:500}
+
+.lm-examples-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin:28px 0 12px}
+.lm-examples{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lm-example{border-radius:var(--radius);padding:16px;font-size:.83rem;line-height:1.55;position:relative}
+.lm-example-bad{background:var(--red-light);border:1px solid rgba(229,62,62,0.2)}
+.lm-example-good{background:var(--green-light);border:1px solid rgba(56,161,105,0.2)}
+.lm-example-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.lm-example-bad .lm-example-label{color:var(--red)}
+.lm-example-good .lm-example-label{color:var(--green)}
+.lm-example-text{color:var(--text);font-style:italic}
+.lm-example-text strong{font-style:normal;font-weight:600}
+
+.lm-objections{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.lm-objection{display:flex;gap:0;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border)}
+.lm-obj-prompt{flex:0 0 auto;max-width:45%;padding:12px 14px;background:var(--surface3);font-size:.8rem;color:var(--text);font-weight:500;border-right:2px solid var(--border);display:flex;align-items:center}
+.lm-obj-response{flex:1;padding:12px 14px;background:var(--accent-light);font-size:.8rem;color:var(--text);line-height:1.5;display:flex;align-items:center}
+.lm-obj-response strong{color:var(--accent)}
+
+.lm-framework{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.lm-framework-step{background:var(--surface2);border-radius:var(--radius);padding:14px 12px;text-align:center;border:1px solid var(--border)}
+.lm-framework-letter{font-size:1.1rem;font-weight:900;color:var(--accent);margin-bottom:4px}
+.lm-framework-word{font-size:.72rem;font-weight:700;color:var(--text);margin-bottom:4px}
+.lm-framework-desc{font-size:.68rem;color:var(--text3);line-height:1.4}
+
+.lm-fab-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px}
+.lm-fab-item{background:var(--surface2);border-radius:var(--radius);padding:14px 12px;border:1px solid var(--border)}
+.lm-fab-feature{font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:4px}
+.lm-fab-arrow{font-size:.7rem;color:var(--text3);margin-bottom:4px}
+.lm-fab-benefit{font-size:.78rem;font-weight:600;color:var(--accent)}
+
+.lm-callout{padding:14px 16px;background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--radius);margin-top:20px;font-size:.82rem;color:var(--text);line-height:1.55}
+.lm-callout strong{color:var(--accent)}
+
+.lm-practice-cta{margin-top:24px;padding-top:20px;border-top:1px solid var(--border)}
+.lm-practice-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--accent);color:#fff;border-radius:var(--radius);font-size:.85rem;font-weight:600;border:none;cursor:pointer;transition:all .15s;box-shadow:var(--shadow-sm)}
+.lm-practice-btn:hover{background:var(--accent-hover);box-shadow:var(--shadow)}
+.lm-practice-btn svg{width:15px;height:15px}
+.lm-practice-hint{font-size:.76rem;color:var(--text3);margin-top:8px}
+
+@media(max-width:768px){
+  .lm-examples{grid-template-columns:1fr}
+  .lm-framework{grid-template-columns:repeat(2,1fr)}
+  .lm-fab-grid{grid-template-columns:1fr}
+  .lm-objection{flex-direction:column}
+  .lm-obj-prompt{max-width:none;border-right:none;border-bottom:2px solid var(--border)}
+}
+
 /* ===== RESPONSIVE ===== */
 .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:99}
 .sidebar-overlay.open{display:block}
@@ -509,7 +594,7 @@ input,textarea{font-family:var(--font)}
   .scenario-grid{grid-template-columns:repeat(3,1fr);max-width:1100px}
   .hero{max-width:1100px;padding:60px 64px 40px}
   .hero h1{font-size:2.6rem}
-  #learning-path{max-width:640px;padding:20px 64px 80px}
+  #learning-path{max-width:800px;padding:20px 64px 80px}
   #tab-learn>div:first-child{max-width:1100px;padding:48px 64px 12px}
   #tab-practice>div:first-child{max-width:1100px;padding:48px 64px 12px}
   .page-header{max-width:1100px;padding:40px 64px 20px}
@@ -633,108 +718,535 @@ input,textarea{font-family:var(--font)}
     <div style="max-width:900px;margin:0 auto;padding:8px 48px 0">
       <div id="daily-challenge" class="daily-challenge"></div>
     </div>
-    <div style="max-width:640px;margin:0 auto;padding:20px 48px 80px" id="learning-path">
-      <!-- Module 1: First 15 Seconds — UNLOCKED -->
-      <div class="lp-module lp-unlocked" onclick="randomCall()">
-        <div class="lp-module-border lp-border-green"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--green)">Module 1</div>
-            <div class="lp-module-status lp-status-unlocked">Start</div>
+    <div style="max-width:800px;margin:0 auto;padding:20px 48px 80px" id="learning-path">
+
+      <!-- MODULE 1: THE FIRST 15 SECONDS — UNLOCKED -->
+      <div class="lm-module lm-unlocked" onclick="toggleModule(this)">
+        <div class="lm-header">
+          <div class="lm-header-left">
+            <div class="lm-module-num">Module 1</div>
+            <div class="lm-header-text">
+              <div class="lm-module-title">The First 15 Seconds</div>
+              <div class="lm-module-desc">Master the cold open and pattern interrupt</div>
+            </div>
           </div>
-          <div class="lp-module-title">First 15 Seconds</div>
-          <div class="lp-module-desc">Master the cold open and pattern interrupt</div>
-          <div class="lp-progress-wrap">
-            <div class="lp-progress-bar"><div class="lp-progress-fill lp-fill-green" style="width:0%"></div></div>
-            <div class="lp-progress-label">0 / 3 complete</div>
+          <div class="lm-header-right">
+            <div class="lm-status lm-status-unlocked">Unlocked</div>
+            <svg class="lm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
-          <div class="lp-dots">
-            <div class="lp-dot lp-dot-empty"></div>
-            <div class="lp-dot lp-dot-empty"></div>
-            <div class="lp-dot lp-dot-empty"></div>
+        </div>
+        <div class="lm-body">
+          <div class="lm-lesson">
+            <div class="lm-lesson-intro">The opening makes or breaks the call. Most reps lose the call in the first 7 seconds. What you say in those first few seconds determines whether the prospect stays on the line or reaches for the hang-up button.</div>
+            <ol class="lm-principles">
+              <li class="lm-principle">
+                <div class="lm-principle-num">1</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Pattern Interrupt</div>
+                  <div class="lm-principle-text">Don't sound like every other sales call. <em>"Hi, how are you today?"</em> signals "salesperson." Instead: <em>"Hi [name], this is Jack. I know I'm calling out of the blue — do you have 30 seconds?"</em> This acknowledges the interruption and asks permission. It's honest and disarming.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">2</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">The 3-Part Opening</div>
+                  <div class="lm-principle-text">Name + Company + Reason. <em>"This is Jack with Wildrose Digital. I work with local businesses on their online presence."</em> That's it. No pitch. No feature dump. Just context.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">3</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Earn the Right to Continue</div>
+                  <div class="lm-principle-text">After your opener, the prospect is deciding whether to hang up. Give them a reason to stay: a specific observation about their business, a relevant trigger event, or a curiosity gap. <em>"I noticed you're expanding to a second location — congratulations. That's actually why I'm calling."</em></div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">4</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Never Lie About the Call</div>
+                  <div class="lm-principle-text">Don't pretend you're not selling. Don't say <em>"I'm not trying to sell you anything."</em> Be direct about who you are and why you're calling. Buyers respect honesty.</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="lm-examples-label">Example: Opening a Cold Call</div>
+          <div class="lm-examples">
+            <div class="lm-example lm-example-bad">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Weak Opener
+              </div>
+              <div class="lm-example-text">"Hi Dave, how are you today? I'm calling from Pipeline CRM, we're the leading provider of customer relationship management software for small businesses, and I'd love to tell you about our amazing features..."</div>
+            </div>
+            <div class="lm-example lm-example-good">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Strong Opener
+              </div>
+              <div class="lm-example-text">"Hi Dave, this is Jack with Pipeline. I'll be honest — this is a cold call. You can hang up now, or give me 30 seconds to tell you why I called. Your call."</div>
+            </div>
+          </div>
+          <div class="lm-practice-cta">
+            <button class="lm-practice-btn" onclick="event.stopPropagation();randomCall()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Practice Your Opener
+            </button>
+            <div class="lm-practice-hint">Start a random call and try your opening line</div>
           </div>
         </div>
       </div>
 
-      <!-- Module 2: Discovery Questions — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 2</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
+      <!-- MODULE 2: DISCOVERY — ASK, DON'T TELL — LOCKED -->
+      <div class="lm-module lm-locked" onclick="toggleModule(this)">
+        <div class="lm-header">
+          <div class="lm-header-left">
+            <div class="lm-module-num">Module 2</div>
+            <div class="lm-header-text">
+              <div class="lm-module-title">Discovery — Ask, Don't Tell</div>
+              <div class="lm-module-desc">Uncover real pain through strategic questions</div>
             </div>
           </div>
-          <div class="lp-module-title lp-title-locked">Discovery Questions</div>
-          <div class="lp-module-desc lp-desc-locked">Ask the right questions, uncover real pain</div>
+          <div class="lm-header-right">
+            <div class="lm-status lm-status-locked">
+              <svg class="lm-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Locked
+            </div>
+            <svg class="lm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="lm-body">
+          <div class="lm-lesson">
+            <div class="lm-lesson-intro">Top reps talk 43% of the time. Average reps talk 70%. Discovery is where deals are won — not in the pitch, but in the quality of questions you ask and how deeply you listen.</div>
+            <ol class="lm-principles">
+              <li class="lm-principle">
+                <div class="lm-principle-num">1</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">The 60/40 Rule</div>
+                  <div class="lm-principle-text">Your prospect should be talking 60% of the time or more. If you're monologuing, you're losing. Track your talk ratio and adjust.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">2</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Open-Ended Questions Only</div>
+                  <div class="lm-principle-text">Never ask a yes/no question when you could ask an open one. Instead of <em>"Are you happy with your current provider?"</em> ask <em>"What do you like about your current provider? What would you change?"</em></div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">3</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">SPIN Selling Framework</div>
+                  <div class="lm-principle-text">Use the SPIN framework to guide discovery: <strong>Situation</strong> (How are you currently handling...?), <strong>Problem</strong> (What happens when that system goes down?), <strong>Implication</strong> (How much does that cost you per month?), <strong>Need-Payoff</strong> (If you could solve that, what would it mean for the business?).</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">4</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">The Follow-Up</div>
+                  <div class="lm-principle-text">The best question is <em>"Tell me more about that."</em> When you hear something interesting, dig in. Don't move to your next scripted question. Be present and follow the thread.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">5</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Silence is a Tool</div>
+                  <div class="lm-principle-text">After asking a question, shut up. Count to 5 in your head. People fill silence, and that's when the real information comes out.</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="lm-examples-label">Example: Discovery Questions</div>
+          <div class="lm-examples">
+            <div class="lm-example lm-example-bad">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Closed & Leading
+              </div>
+              <div class="lm-example-text">"Are you happy with your current system? Do you think it could be better? Would you be interested in seeing a demo of something that could save you time?"</div>
+            </div>
+            <div class="lm-example lm-example-good">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Open & Probing
+              </div>
+              <div class="lm-example-text">"How are you currently handling failed payments? What does that process look like on a busy day? How much time does your team spend on that?"</div>
+            </div>
+          </div>
+          <div class="lm-callout"><strong>Pro tip:</strong> The SPIN framework isn't a script — it's a mental model. Move through the stages naturally based on what the prospect tells you. Don't checklist your way through a conversation.</div>
+          <div class="lm-practice-cta">
+            <button class="lm-practice-btn" onclick="event.stopPropagation();randomCall()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Practice Discovery
+            </button>
+            <div class="lm-practice-hint">Start a call and focus on asking open-ended questions</div>
+          </div>
         </div>
       </div>
 
-      <!-- Module 3: Handling Objections — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 3</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
+      <!-- MODULE 3: HANDLING BRUSH-OFFS AND OBJECTIONS — LOCKED -->
+      <div class="lm-module lm-locked" onclick="toggleModule(this)">
+        <div class="lm-header">
+          <div class="lm-header-left">
+            <div class="lm-module-num">Module 3</div>
+            <div class="lm-header-text">
+              <div class="lm-module-title">Handling Brush-Offs and Objections</div>
+              <div class="lm-module-desc">Turn reflexive resistance into real conversation</div>
             </div>
           </div>
-          <div class="lp-module-title lp-title-locked">Handling Objections</div>
-          <div class="lp-module-desc lp-desc-locked">Turn resistance into opportunity</div>
+          <div class="lm-header-right">
+            <div class="lm-status lm-status-locked">
+              <svg class="lm-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Locked
+            </div>
+            <svg class="lm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="lm-body">
+          <div class="lm-lesson">
+            <div class="lm-lesson-intro">"I'm not interested" is not a no. It's a reflex. The prospect doesn't know what they're not interested in yet — they're just trying to get off the phone. Here's how to handle the five most common brush-offs and turn them into real conversations.</div>
+            <ol class="lm-principles">
+              <li class="lm-principle">
+                <div class="lm-principle-num">1</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Acknowledge Before Responding</div>
+                  <div class="lm-principle-text">Never argue. Say <em>"I completely understand"</em> or <em>"That makes sense"</em> before you pivot. People don't listen until they feel heard.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">2</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">The 5 Brush-Offs and Responses</div>
+                  <div class="lm-principle-text">Memorize these five patterns. They cover 90% of what you'll hear on cold calls:</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="lm-objections">
+            <div class="lm-objection">
+              <div class="lm-obj-prompt">"I'm not interested"</div>
+              <div class="lm-obj-response"><strong>"I wouldn't be either — you don't know me from Adam. Out of curiosity, what are you currently using for [topic]?"</strong></div>
+            </div>
+            <div class="lm-objection">
+              <div class="lm-obj-prompt">"Send me an email"</div>
+              <div class="lm-obj-response"><strong>"Happy to. So I don't send you generic junk, what specifically would be most relevant — the pricing, or how it works?"</strong></div>
+            </div>
+            <div class="lm-objection">
+              <div class="lm-obj-prompt">"We're all set"</div>
+              <div class="lm-obj-response"><strong>"Great. Who are you using? Just so I know for my notes."</strong> (Then ask what they'd improve)</div>
+            </div>
+            <div class="lm-objection">
+              <div class="lm-obj-prompt">"I don't have time"</div>
+              <div class="lm-obj-response"><strong>"Totally respect that. Can I have 30 seconds? If it's not relevant, hang up on me."</strong></div>
+            </div>
+            <div class="lm-objection">
+              <div class="lm-obj-prompt">"We have a contract"</div>
+              <div class="lm-obj-response"><strong>"No problem. When does it come up for renewal? I'll put a note to reach out then."</strong></div>
+            </div>
+          </div>
+          <div class="lm-examples-label" style="margin-top:28px">The LAER Framework</div>
+          <div class="lm-framework">
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">L</div>
+              <div class="lm-framework-word">Listen</div>
+              <div class="lm-framework-desc">Hear the full objection without interrupting</div>
+            </div>
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">A</div>
+              <div class="lm-framework-word">Acknowledge</div>
+              <div class="lm-framework-desc">Validate their concern — don't dismiss it</div>
+            </div>
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">E</div>
+              <div class="lm-framework-word">Explore</div>
+              <div class="lm-framework-desc">Ask a question to understand the real issue</div>
+            </div>
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">R</div>
+              <div class="lm-framework-word">Respond</div>
+              <div class="lm-framework-desc">Address what they actually said, not what you assumed</div>
+            </div>
+          </div>
+          <div class="lm-callout"><strong>Key principle:</strong> Most reps skip to "Respond" and wonder why objections keep coming. Follow the framework in order — Listen, Acknowledge, Explore, then Respond.</div>
+          <div class="lm-practice-cta">
+            <button class="lm-practice-btn" onclick="event.stopPropagation();randomCall()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Practice Handling Objections
+            </button>
+            <div class="lm-practice-hint">Start a call and practice your brush-off responses</div>
+          </div>
         </div>
       </div>
 
-      <!-- Module 4: Communicating Value — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 4</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
+      <!-- MODULE 4: SELLING WITHOUT PITCHING — LOCKED -->
+      <div class="lm-module lm-locked" onclick="toggleModule(this)">
+        <div class="lm-header">
+          <div class="lm-header-left">
+            <div class="lm-module-num">Module 4</div>
+            <div class="lm-header-text">
+              <div class="lm-module-title">Selling Without Pitching</div>
+              <div class="lm-module-desc">Connect features to the buyer's actual problems</div>
             </div>
           </div>
-          <div class="lp-module-title lp-title-locked">Communicating Value</div>
-          <div class="lp-module-desc lp-desc-locked">Connect features to buyer problems</div>
+          <div class="lm-header-right">
+            <div class="lm-status lm-status-locked">
+              <svg class="lm-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Locked
+            </div>
+            <svg class="lm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="lm-body">
+          <div class="lm-lesson">
+            <div class="lm-lesson-intro">Nobody cares about your features. They care about their problems. Your job is to connect the two — clearly, specifically, and in language the buyer already uses.</div>
+            <ol class="lm-principles">
+              <li class="lm-principle">
+                <div class="lm-principle-num">1</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Feature → Advantage → Benefit</div>
+                  <div class="lm-principle-text">Always structure your value in three steps: the feature, what it does, and what it means for them. <em>"We have automated billing (feature), which means you don't have to chase failed payments (advantage), so you stop losing $2,000 a month in missed revenue (benefit)."</em> Always end on the benefit — the dollar amount or outcome.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">2</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Tie to What They Told You</div>
+                  <div class="lm-principle-text">If they said they're losing clients, don't talk about your dashboard. Talk about client retention. Reference their words: <em>"You mentioned you're losing about $2K a month in failed payments. This catches those automatically."</em></div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">3</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Social Proof</div>
+                  <div class="lm-principle-text">Use specific names, not vague claims. <em>"We work with three other gyms in the area — Iron Works, Peak Fitness, and Cornerstone."</em> Specificity builds trust. "Many satisfied customers" builds nothing.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">4</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">The "What If" Technique</div>
+                  <div class="lm-principle-text">Instead of pitching, paint a picture. <em>"What if every failed payment got retried automatically and you got a text when it went through? What would that look like for your month-end?"</em> Let them imagine the outcome themselves.</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="lm-examples-label">Example: Presenting Your Solution</div>
+          <div class="lm-examples">
+            <div class="lm-example lm-example-bad">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Feature Dump
+              </div>
+              <div class="lm-example-text">"Our platform has automated billing, a real-time dashboard, custom reporting, API integrations, SMS notifications, and a mobile app. It's really comprehensive and we have over 500 features..."</div>
+            </div>
+            <div class="lm-example lm-example-good">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Value Tied to Pain
+              </div>
+              <div class="lm-example-text">"You mentioned you're losing about $2K a month in failed payments. Our system catches those automatically and retries them. For a gym your size, most clients see that recovered within the first week."</div>
+            </div>
+          </div>
+          <div class="lm-examples-label" style="margin-top:20px">The FAB Framework in Practice</div>
+          <div class="lm-fab-grid">
+            <div class="lm-fab-item">
+              <div class="lm-fab-feature">Automated billing retry</div>
+              <div class="lm-fab-arrow">→</div>
+              <div class="lm-fab-benefit">Recover $2K/month in failed payments</div>
+            </div>
+            <div class="lm-fab-item">
+              <div class="lm-fab-feature">SMS notifications</div>
+              <div class="lm-fab-arrow">→</div>
+              <div class="lm-fab-benefit">Cut response time from days to minutes</div>
+            </div>
+            <div class="lm-fab-item">
+              <div class="lm-fab-feature">Real-time dashboard</div>
+              <div class="lm-fab-arrow">→</div>
+              <div class="lm-fab-benefit">Stop spending 3 hours on month-end reporting</div>
+            </div>
+          </div>
+          <div class="lm-practice-cta">
+            <button class="lm-practice-btn" onclick="event.stopPropagation();randomCall()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Practice Selling Value
+            </button>
+            <div class="lm-practice-hint">Start a call and connect features to the buyer's pain</div>
+          </div>
         </div>
       </div>
 
-      <!-- Module 5: Closing the Deal — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 5</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
+      <!-- MODULE 5: CLOSING — ASK FOR SOMETHING SPECIFIC — LOCKED -->
+      <div class="lm-module lm-locked" onclick="toggleModule(this)">
+        <div class="lm-header">
+          <div class="lm-header-left">
+            <div class="lm-module-num">Module 5</div>
+            <div class="lm-header-text">
+              <div class="lm-module-title">Closing — Ask for Something Specific</div>
+              <div class="lm-module-desc">Turn a good conversation into a booked meeting</div>
             </div>
           </div>
-          <div class="lp-module-title lp-title-locked">Closing the Deal</div>
-          <div class="lp-module-desc lp-desc-locked">Ask for the next step every time</div>
+          <div class="lm-header-right">
+            <div class="lm-status lm-status-locked">
+              <svg class="lm-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Locked
+            </div>
+            <svg class="lm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="lm-body">
+          <div class="lm-lesson">
+            <div class="lm-lesson-intro">"I'll send you some info" is not a close. It's a slow no. The close is where most reps lose their nerve — but if you've done the discovery and built the value, asking for the next step should feel natural, not pushy.</div>
+            <ol class="lm-principles">
+              <li class="lm-principle">
+                <div class="lm-principle-num">1</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Always Ask for Something Specific</div>
+                  <div class="lm-principle-text"><em>"How does Tuesday at 2pm look for a 15-minute demo?"</em> Not <em>"Would you be interested in a demo?"</em> Specific date, specific time, specific duration. Vague asks get vague answers.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">2</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">The Assumptive Close</div>
+                  <div class="lm-principle-text">Don't ask permission. Assume the next step. <em>"I'll send a calendar invite for Tuesday. What email should I use?"</em> vs <em>"Would you like me to set up a demo?"</em></div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">3</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Summarize Before Closing</div>
+                  <div class="lm-principle-text">Recap their pain points and the value you discussed: <em>"So you're losing $2K a month in failed payments, you're spending 3 hours on the clipboard, and you'd like to see if this could fix both. Let's do a 15-minute walkthrough Tuesday — I'll show you exactly how it handles both."</em></div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">4</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Create Urgency Without Being Pushy</div>
+                  <div class="lm-principle-text">Give choices, not ultimatums. <em>"I've got two demo slots open this week. Tuesday at 2 or Thursday at 10 — which works better?"</em> This is the alternative close — it's collaborative, not aggressive.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">5</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Never Accept "Let Me Think About It"</div>
+                  <div class="lm-principle-text"><em>"Absolutely. What specifically do you want to think through? I might be able to address it right now."</em> Find the real objection hiding behind the stalling tactic.</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="lm-examples-label">Example: Closing the Call</div>
+          <div class="lm-examples">
+            <div class="lm-example lm-example-bad">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                Vague Close
+              </div>
+              <div class="lm-example-text">"Would you be interested in seeing a demo sometime? I can also send you some information if you'd prefer, and maybe we can reconnect next week or something?"</div>
+            </div>
+            <div class="lm-example lm-example-good">
+              <div class="lm-example-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Specific Close
+              </div>
+              <div class="lm-example-text">"I've got two slots this week — Tuesday at 2pm or Thursday at 10am. Both are 15 minutes. I'll show you exactly how it handles the failed payments and the month-end reporting. Which works better?"</div>
+            </div>
+          </div>
+          <div class="lm-callout"><strong>Remember:</strong> If you've earned the right to close through good discovery, the close should feel like a natural next step — not a high-pressure tactic. If it feels pushy, you skipped a step earlier in the call.</div>
+          <div class="lm-practice-cta">
+            <button class="lm-practice-btn" onclick="event.stopPropagation();randomCall()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Practice Closing
+            </button>
+            <div class="lm-practice-hint">Start a call and practice asking for a specific next step</div>
+          </div>
         </div>
       </div>
 
-      <!-- Module 6: Full Cold Calls — LOCKED -->
-      <div class="lp-module lp-locked">
-        <div class="lp-module-border lp-border-gray"></div>
-        <div class="lp-module-content">
-          <div class="lp-module-top">
-            <div class="lp-module-num" style="color:var(--text3)">Module 6</div>
-            <div class="lp-module-status lp-status-locked">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-              Locked
+      <!-- MODULE 6: FULL COLD CALLS — LOCKED -->
+      <div class="lm-module lm-locked" onclick="toggleModule(this)">
+        <div class="lm-header">
+          <div class="lm-header-left">
+            <div class="lm-module-num">Module 6</div>
+            <div class="lm-header-text">
+              <div class="lm-module-title">Full Cold Calls</div>
+              <div class="lm-module-desc">Put it all together in realistic scenarios</div>
             </div>
           </div>
-          <div class="lp-module-title lp-title-locked">Full Cold Calls</div>
-          <div class="lp-module-desc lp-desc-locked">Put it all together in realistic scenarios</div>
+          <div class="lm-header-right">
+            <div class="lm-status lm-status-locked">
+              <svg class="lm-lock-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              Locked
+            </div>
+            <svg class="lm-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="lm-body">
+          <div class="lm-lesson">
+            <div class="lm-lesson-intro">Put it all together. These are realistic, end-to-end cold calls with multiple objections, real personality, and unpredictable responses. Every skill from Modules 1–5 must work together in sequence.</div>
+            <ol class="lm-principles">
+              <li class="lm-principle">
+                <div class="lm-principle-num">1</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Adapt Your Style</div>
+                  <div class="lm-principle-text">Read the buyer. Busy and brusque? Get to the point. Warm and chatty? Build rapport first. Match their energy and pace — don't force a script on someone who wants to get down to business.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">2</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Manage the Call Arc</div>
+                  <div class="lm-principle-text">Open strong, discover deeply, handle objections calmly, present value tied to their pain, close specifically. Don't skip steps — each stage sets up the next.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">3</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Recover from Mistakes</div>
+                  <div class="lm-principle-text">You will stumble. The best reps recover gracefully. Acknowledge, pivot, move on. Don't apologize three times — one quick acknowledgment and you're back on track.</div>
+                </div>
+              </li>
+              <li class="lm-principle">
+                <div class="lm-principle-num">4</div>
+                <div class="lm-principle-body">
+                  <div class="lm-principle-title">Read Buying Signals</div>
+                  <div class="lm-principle-text"><em>"How long does setup take?"</em> <em>"What's the pricing?"</em> <em>"Do you work with businesses my size?"</em> These are buying signals. When you hear them, stop pitching and start closing.</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <div class="lm-examples-label">The Full Call Arc</div>
+          <div class="lm-framework">
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">1</div>
+              <div class="lm-framework-word">Open</div>
+              <div class="lm-framework-desc">Pattern interrupt, 3-part intro, earn 30 seconds</div>
+            </div>
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">2</div>
+              <div class="lm-framework-word">Discover</div>
+              <div class="lm-framework-desc">Ask, listen, dig deeper. Let them talk 60%+</div>
+            </div>
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">3</div>
+              <div class="lm-framework-word">Handle</div>
+              <div class="lm-framework-desc">Acknowledge objections, pivot with curiosity</div>
+            </div>
+            <div class="lm-framework-step">
+              <div class="lm-framework-letter">4</div>
+              <div class="lm-framework-word">Close</div>
+              <div class="lm-framework-desc">Summarize pain, ask for specific next step</div>
+            </div>
+          </div>
+          <div class="lm-callout"><strong>Final thought:</strong> The best cold callers aren't the ones with the smoothest scripts. They're the ones who listen best, adapt fastest, and recover quickest. Practice the fundamentals until they're reflexive — then make them your own.</div>
+          <div class="lm-practice-cta">
+            <button class="lm-practice-btn" onclick="event.stopPropagation();randomCall()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Practice Full Calls
+            </button>
+            <div class="lm-practice-hint">Put all five modules together in a realistic call</div>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -1131,6 +1643,15 @@ function updateTranscriptBadge(){
 window.toggleSidebar = function(){
   document.querySelector('.sidebar').classList.toggle('open');
   document.querySelector('.sidebar-overlay').classList.toggle('open');
+};
+
+window.toggleModule = function(el){
+  if(el.classList.contains('lm-locked')) return;
+  // Collapse other expanded modules
+  document.querySelectorAll('.lm-module.lm-expanded').forEach(m=>{
+    if(m!==el) m.classList.remove('lm-expanded');
+  });
+  el.classList.toggle('lm-expanded');
 };
 
 window.switchTab = function(tab){
