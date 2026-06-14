@@ -691,9 +691,8 @@ function showApp(){
   document.getElementById('app-shell').style.display = 'flex';
   ensureUser();
   try { updateStreak(); } catch(e) {}
-  try { renderScenarioGrid(); } catch(e) {}
   try { renderLearnScenarios(); } catch(e) {}
-  switchTab('practice');
+  randomCall();
 }
 
 async function ensureUser(){
