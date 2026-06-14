@@ -972,6 +972,7 @@ function showScenarioDetail(s){
     ${prevBest!==null?`<div class="sd-best">Your best: ${prevBest}/100</div>`:''}
     <div class="sd-actions">
       <button class="btn btn-primary btn-lg" onclick="startCall()">Start Call</button>
+      <button class="btn btn-ghost" onclick="randomCall()">Random Call</button>
     </div>
   `;
   document.getElementById('detail-view').classList.add('show');
