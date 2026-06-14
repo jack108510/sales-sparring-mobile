@@ -506,7 +506,7 @@ input,textarea{font-family:var(--font);-webkit-user-select:text;user-select:text
     <img src="logo.jpg" alt="" style="width:32px;height:32px;border-radius:8px">
   </div>
   <div class="page-content">
-    <div id="scenario-grid"></div>
+    <div id="practice-card"></div>
   </div>
 </div>
 
@@ -918,13 +918,9 @@ window.selectScenario=function(id){
 window.randomCall = function(){
   const s = SCENARIOS[Math.floor(Math.random()*SCENARIOS.length)];
   if(!s){return;}
-  showScenarioDetail(s);
-};
-
-function showScenarioDetail(s){
   currentScenario = s;
-  document.getElementById('detail-title').textContent = s.productName || s.product;
-  const body = document.getElementById('detail-body');
+  const container = document.getElementById('practice-card');
+  if(!container){return;}
   const prevBest = getScenarioBestScore(s.id);
   const priceMatch = (s.script||'').match(/\$[\d,.]+(?:\/\w+)?(?:\s*[-–]\s*\$?[\d,.]+(?:\/\w+)?)?/);
   const price = priceMatch ? priceMatch[0] : 'See notes';
@@ -935,46 +931,47 @@ function showScenarioDetail(s){
     {q:'What if they want to think about it?', a:'Ask what specifically they want to think about. Address that concern directly.'},
     {q:'What if they say call me next quarter?', a:'Ask what changes next quarter. If the problem exists now, so should the solution.'}
   ];
-  
-  body.innerHTML = `
-    <div class="sd-prospect">
-      <div class="sd-prospect-avatar">
-        <img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s.buyer)}&backgroundColor=fed7aa" alt="">
+  container.innerHTML = `
+    <div class="scenario-card-mobile">
+      <div class="sd-prospect">
+        <div class="sd-prospect-avatar">
+          <img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s.buyer)}&backgroundColor=fed7aa" alt="">
+        </div>
+        <div>
+          <div class="sd-prospect-name">${esc(s.buyer.split(',')[0])}</div>
+          <div class="sd-prospect-company">${esc(s.company)}</div>
+        </div>
       </div>
-      <div>
-        <div class="sd-prospect-name">${esc(s.buyer.split(',')[0])}</div>
-        <div class="sd-prospect-company">${esc(s.company)}</div>
+      <div class="sd-info-grid">
+        <div class="sd-info-item">
+          <div class="sd-info-label">Product</div>
+          <div class="sd-info-value">${esc(s.productName||s.product)} by ${esc(s.sellerCompany||s.product)}</div>
+        </div>
+        <div class="sd-info-item price">
+          <div class="sd-info-label">Price</div>
+          <div class="sd-info-value">${price}</div>
+        </div>
+        <div class="sd-info-item goal">
+          <div class="sd-info-label">Your Goal</div>
+          <div class="sd-info-value">${esc(s.goal)}</div>
+        </div>
       </div>
-    </div>
-    <div class="sd-info-grid">
-      <div class="sd-info-item">
-        <div class="sd-info-label">Product</div>
-        <div class="sd-info-value">${esc(s.productName||s.product)} by ${esc(s.sellerCompany||s.product)}</div>
+      <div class="sd-features">
+        <div class="sd-features-title">Key Features</div>
+        ${features.map(f=>`<div class="sd-feature"><span class="sd-feature-dot">+</span>${esc(f.trim())}</div>`).join('')}
       </div>
-      <div class="sd-info-item price">
-        <div class="sd-info-label">Price</div>
-        <div class="sd-info-value">${price}</div>
+      <div class="sd-faq">
+        <div class="sd-features-title">Common Questions</div>
+        ${faqItems.map(faq=>`<div class="sd-faq-item"><div class="sd-faq-q">${esc(faq.q)}</div><div class="sd-faq-a">${esc(faq.a)}</div></div>`).join('')}
       </div>
-      <div class="sd-info-item goal">
-        <div class="sd-info-label">Your Goal</div>
-        <div class="sd-info-value">${esc(s.goal)}</div>
+      ${prevBest!==null?`<div class="sd-best">Your best: ${prevBest}/100</div>`:''}
+      <div class="sd-actions">
+        <button class="btn btn-primary btn-lg" onclick="startCall()">Start Call</button>
+        <button class="btn btn-ghost" onclick="randomCall()">Random Call</button>
       </div>
-    </div>
-    <div class="sd-features">
-      <div class="sd-features-title">Key Features</div>
-      ${features.map(f=>`<div class="sd-feature"><span class="sd-feature-dot">+</span>${esc(f.trim())}</div>`).join('')}
-    </div>
-    <div class="sd-faq">
-      <div class="sd-features-title">Common Questions</div>
-      ${faqItems.map(faq=>`<div class="sd-faq-item"><div class="sd-faq-q">${esc(faq.q)}</div><div class="sd-faq-a">${esc(faq.a)}</div></div>`).join('')}
-    </div>
-    ${prevBest!==null?`<div class="sd-best">Your best: ${prevBest}/100</div>`:''}
-    <div class="sd-actions">
-      <button class="btn btn-primary btn-lg" onclick="startCall()">Start Call</button>
-      <button class="btn btn-ghost" onclick="randomCall()">Random Call</button>
     </div>
   `;
-  document.getElementById('detail-view').classList.add('show');
+};
 }
 
 window.closeDetail = function(){
