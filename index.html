@@ -2627,83 +2627,135 @@ function callBtnHTML(){
 // ===== POST-CALL SCORING =====
 async function gradeCall(scenario,transcript,duration){
   const transcriptText=transcript.map(t=>(t.role==='buyer'?'BUYER: ':'SELLER: ')+t.text).join('\n');
-  const scenarioCtx=`Product: ${scenario.productName||scenario.product} from ${scenario.sellerCompany||scenario.product}\nProspect Company: ${scenario.company} — ${scenario.companyDesc}\nBuyer: ${scenario.buyer} — ${scenario.buyerPersona}\nPain Points: ${scenario.painPoints}\nGoal: ${scenario.goal}\nRules: ${scenario.rules}\nSelling Points: ${scenario.sellingPoints||'N/A'}`;
-  const prompt=`You are a VP of Sales reviewing a rep's cold call recording. You've trained thousands of reps. Grade this call like their job depends on it — because it does.
+  
+  // Count seller vs buyer words for actual ratio analysis
+  const sellerWords=transcript.filter(t=>t.role==='seller').reduce((n,t)=>n+t.text.split(/\s+/).length,0);
+  const buyerWords=transcript.filter(t=>t.role==='buyer').reduce((n,t)=>n+t.text.split(/\s+/).length,0);
+  const totalWords=sellerWords+buyerWords;
+  const sellerPct=totalWords>0?Math.round((sellerWords/totalWords)*100):0;
+  const buyerPct=100-sellerPct;
+  
+  // Count seller questions
+  const sellerText=transcript.filter(t=>t.role==='seller').map(t=>t.text).join(' ');
+  const questionCount=(sellerText.match(/\?/g)||[]).length;
+  
+  // Check for specific discovery — did seller mention key pain point keywords?
+  const painKeywords=(scenario.painPoints||'').toLowerCase().split(/[\s,.\-]+/).filter(w=>w.length>4).slice(0,8);
+  const discoveredPains=painKeywords.filter(kw=>sellerText.toLowerCase().includes(kw));
+  
+  // Check if they attempted a close (date/time/demo/meeting/trial/next step)
+  const closePatterns=/(tuesday|thursday|monday|wednesday|friday|next week|tomorrow|\d+\s*(am|pm)|demo|meeting|trial|signup|sign up|get started|next step|schedule|book|appointment|walkthrough|free\s+(trial|clean|assessment|estimate|review))/gi;
+  const hasSpecificClose=closePatterns.test(sellerText);
+  
+  // Check for "send info" (bad close)
+  const sendInfoPatterns=/(send you (some )?(info|information|details|material)|follow up|touch base|reach back|circle back)/gi;
+  const hasWeakClose=sendInfoPatterns.test(sellerText);
+  
+  // Check for bad opening patterns
+  const badOpenPatterns=/(how are you today|how's your day|hope you're doing well|beautiful day)/gi;
+  const hasBadOpen=badOpenPatterns.test(sellerText);
 
-SCENARIO:
-${scenarioCtx}
+  const scenarioCtx=`PRODUCT BEING SOLD: ${scenario.productName||scenario.product} from ${scenario.sellerCompany||scenario.product}
+SELLER IS: Jack from ${scenario.sellerCompany||scenario.product}
+PROSPECT: ${scenario.buyer} at ${scenario.company}
+COMPANY DESCRIPTION: ${scenario.companyDesc}
+BUYER PERSONALITY: ${scenario.buyerPersona}
+BUYER'S ACTUAL PAIN POINTS (seller must discover these through questions): ${scenario.painPoints}
+SELLER'S PRODUCT FEATURES: ${scenario.sellingPoints||'N/A'}
+CALL GOAL (what success looks like): ${scenario.goal}
+RULES/CONSTRAINTS: ${scenario.rules}
+PRICING: ${scenario.script||'N/A'}`;
+
+  const gradingRules=`You are grading a cold call. You have the FULL transcript and the SCENARIO DATA. Your job is to determine if the seller actually did the work or just went through the motions.
+
+CALL METRICS (computed from transcript, use these as FACT):
+- Seller talked: ${sellerPct}% of the call (target: 30-40%, anything over 50% is a red flag)
+- Buyer talked: ${buyerPct}% of the call
+- Seller asked ${questionCount} questions total
+- Seller discovered ${discoveredPains.length}/${painKeywords.length} key pain topics: ${discoveredPains.join(', ')||'NONE'}
+- Specific close attempted: ${hasSpecificClose?'YES':'NO — no date/time/trial/demo proposed'}
+- Weak close detected ("send you info"): ${hasWeakClose?'YES — this is a slow no':'NO'}
+- Generic opening detected ("how are you today"): ${hasBadOpen?'YES — sounds like a telemarketer':'NO'}
+
+GRADING RULES — Follow these strictly:
+
+OPENING (1-5):
+- Score 1 if: generic greeting ("how are you"), no reason for calling, buyer wants to hang up
+- Score 2 if: stated name/company but no hook, jumped straight into pitching
+- Score 3 if: stated name/company/reason but used a generic opener, no personalization
+- Score 4 if: pattern interrupt, personalized hook, buyer stayed engaged
+- Score 5 if: buyer explicitly said they're willing to listen, strong curiosity created
+- AUTOMATIC 1 if "how are you today" or similar telemarketer opener detected
+
+DISCOVERY (1-5):
+- Score 1 if: seller pitched without asking questions, or asked only yes/no questions
+- Score 2 if: asked 1-2 surface questions then started pitching
+- Score 3 if: asked 3+ questions but didn't go deep, didn't follow up on interesting answers
+- Score 4 if: uncovered at least 2 specific pain points through open-ended questions
+- Score 5 if: buyer revealed deep pain they weren't planning to share, seller threaded questions beautifully
+- PENALIZE 2 points if seller talked more than 50% of the call
+- A seller who talks 70%+ of the call CANNOT score above 2
+
+OBJECTION HANDLING (1-5):
+- Score 1 if: folded at first objection, got defensive, or argued
+- Score 2 if: attempted to handle 1 objection but poorly (justified, dismissed, or pivoted without acknowledging)
+- Score 3 if: acknowledged objections but gave generic responses
+- Score 4 if: used acknowledge-explore-respond on at least 1 objection, turned it around
+- Score 5 if: handled multiple objections, turned a hard no into genuine interest
+- If buyer never objected, score 3 (untested) and note it in feedback
+
+VALUE COMMUNICATION (1-5):
+- Score 1 if: listed features with no connection to buyer's problems
+- Score 2 if: mentioned benefits but generic, not tied to what buyer said
+- Score 3 if: connected 1-2 features to buyer's stated pain
+- Score 4 if: tied specific features to specific pain buyer revealed, used numbers/examples
+- Score 5 if: buyer could clearly articulate the value back, or asked buying questions
+- PENALIZE 2 points if seller pitched features buyer showed no interest in
+
+CLOSING (1-5):
+- Score 1 if: said "I'll send you some info" or let the call end with no next step
+- Score 2 if: asked "would you be interested?" (permission-seeking, no specificity)
+- Score 3 if: proposed a next step but vague ("let's set up a demo sometime")
+- Score 4 if: proposed specific day/time/duration for next step
+- Score 5 if: locked in specific commitment, created urgency, buyer agreed
+- AUTOMATIC 1 if "send you info" or "follow up" detected with no specific next step
+
+RULES COMPLIANCE (1-5):
+- Did they follow the scenario constraints?
+- Did they stay within pricing?
+- Did they avoid unauthorized promises?
+- Were they honest?
+- Score 5 if perfectly compliant, deduct 1 per violation
+
+For EACH criterion, you MUST:
+1. Quote what the seller actually said (use exact words from the transcript)
+2. Explain why it earned that score referencing the grading rules above
+3. Write the EXACT words they should have said instead in "better"
+
+For best_moment and worst_moment, quote specific lines from the transcript.
+
+Respond ONLY with valid JSON:
+{"opening":{"score":4,"feedback":"quote transcript + explain","better":"exact better words"},"discovery":{"score":3,"feedback":"quote transcript + explain","better":"exact better words"},"objection_handling":{"score":4,"feedback":"quote transcript + explain","better":"exact better words"},"value_comm":{"score":3,"feedback":"quote transcript + explain","better":"exact better words"},"closing":{"score":2,"feedback":"quote transcript + explain","better":"exact better words"},"rules":{"score":5,"feedback":"quote transcript + explain","better":"exact better words"},"overall_feedback":"3-4 sentences with the #1 thing to fix and natural strength","best_moment":"quote + why it worked","worst_moment":"quote + what they should have said","grade":"B"}`;
+
+  const fullPrompt=`${scenarioCtx}
+
+---
 
 FULL TRANSCRIPT:
 ${transcriptText}
 
-CALL DURATION: ${duration}
+CALL DURATION: ${duration} (${transcript.length} exchanges)
 
-GRADE ON 6 CRITERIA (1-5 each). For EACH criterion provide:
-1. Score (1-5)
-2. Feedback: 2-3 sentences citing SPECIFIC things they said (quote them). Name what worked and what didn't.
-3. Better: The EXACT sentence or phrase they should have said instead. Not general advice — write the actual words.
+---
 
-OPENING (15pts max):
-- First 15 seconds: pattern interrupt or generic "hi how are you"?
-- Did they state their name, company, AND a compelling reason to stay on the phone?
-- Was there a hook that creates curiosity? ("I noticed..." / "I help companies like yours..." vs "I'm calling to tell you about...")
-- Did they sound rehearsed or natural?
-- Score 5 = buyer is curious and engaged. Score 1 = buyer wants to hang up immediately.
-
-DISCOVERY (25pts max):
-- Did they ask open-ended questions or just pitch?
-- Talk-to-listen ratio: seller should be 30-40%, buyer 60-70%
-- Did they use SPIN methodology? (Situation → Problem → Implication → Need-payoff)
-- Did each question build on the buyer's last answer? (threading)
-- Did they uncover REAL pain points or just surface-level needs?
-- Did they ask "tell me more about that" when they heard something interesting?
-- Score 5 = buyer revealed deep pain they didn't plan to share. Score 1 = seller monologue.
-
-OBJECTION HANDLING (20pts max):
-- Did they use LAER? (Listen, Acknowledge, Explore, Respond)
-- Did they get defensive or dismissive when pushed back?
-- Did they isolate the objection? ("Other than cost, is there anything else...?")
-- Did they reframe objections as opportunities?
-- Did they give up after the first "no" or push through respectfully?
-- Score 5 = turned a hard no into a maybe. Score 1 = folded immediately or argued.
-
-VALUE COMMUNICATION (15pts max):
-- Feature-Advantage-Benefit structure? "Our software does X, which means Y, so you save Z"
-- Did they tie value to the SPECIFIC pain they uncovered in discovery?
-- Social proof? ("We work with 3 other shops in your area...")
-- Numbers and specifics or vague claims?
-- Did they paint a picture of the outcome?
-- Score 5 = buyer can visualize the ROI. Score 1 = generic feature dump.
-
-CLOSING (15pts max):
-- Did they ask for a specific next step with date/time?
-- "I'll send you some info" = automatic 1. That's not closing.
-- Did they create urgency without being pushy?
-- Did they assume the sale or ask permission?
-- Did they summarize value before asking for commitment?
-- Score 5 = concrete next step locked in. Score 1 = "let me think about it" with no follow-up.
-
-RULES COMPLIANCE (10pts max):
-- Did they follow the scenario constraints?
-- Did they stay within authorized pricing?
-- Did they avoid unauthorized discounts or promises?
-- Were they honest about capabilities?
-
-Also provide:
-- overall_feedback: 3-4 sentence honest assessment. What's the #1 skill to work on? What's their natural strength? Be specific about what separates this call from an A-grade call.
-- best_moment: The single best thing they did on this call (quote it). Why it worked.
-- worst_moment: The single biggest missed opportunity (quote what they said and what they should have said). This should sting a little.
-- grade: Letter grade (A, B, C, D, F) based on total score.
-
-Respond ONLY with valid JSON, no markdown:
-{"opening":{"score":4,"feedback":"...","better":"..."},"discovery":{"score":3,"feedback":"...","better":"..."},"objection_handling":{"score":4,"feedback":"...","better":"..."},"value_comm":{"score":3,"feedback":"...","better":"..."},"closing":{"score":2,"feedback":"...","better":"..."},"rules":{"score":5,"feedback":"...","better":"..."},"overall_feedback":"...","best_moment":"...","worst_moment":"...","grade":"B"}`;
+${gradingRules}`;
 
   try{
     const key=localStorage.getItem('custom_openai_key')||OPENAI_KEY;
     const resp=await fetch('https://api.openai.com/v1/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:'You are a VP of Sales grading a cold call. Always respond with valid JSON only. Be brutally honest and specific.'},{role:'user',content:prompt}],temperature:0.2,max_tokens:2000})
+      body:JSON.stringify({model:'gpt-4o',messages:[{role:'system',content:'You are a sales call grader. You grade based on evidence from the transcript. Quote specific lines. Use the computed metrics as facts. Never give benefit of the doubt — if there is no evidence of a skill being demonstrated, score it low.'},{role:'user',content:fullPrompt}],temperature:0.1,max_tokens:2500})
     });
     const data=await resp.json();
     const content=data.choices?.[0]?.message?.content||'';
