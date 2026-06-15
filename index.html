@@ -469,7 +469,7 @@ input,textarea{font-family:var(--font);-webkit-user-select:text;user-select:text
 <div class="phone-notch"></div>
 
 <!-- ===== LOGIN SCREEN ===== -->
-<div id="login-screen" class="login-wrap" style="min-height:100vh;display:none;align-items:center;justify-content:center;background:#fff;padding:20px">
+<div id="login-screen" class="login-wrap" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#fff;padding:20px">
   <div style="width:100%;max-width:340px;padding-top:calc(44px + var(--safe-top))">
     <div class="login-logo">
       <img src="logo.jpg" alt="Sales Sparring">
@@ -912,7 +912,8 @@ function renderScenarioGrid(){
 window.selectScenario=function(id){
   const s=SCENARIOS.find(x=>x.id===id);
   if(!s) return;
-  showScenarioDetail(s);
+  currentScenario=s;
+  randomCall();
 };
 
 window.randomCall = function(){
