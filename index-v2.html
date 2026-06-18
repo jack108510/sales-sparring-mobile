@@ -85,7 +85,7 @@ input,textarea,select{font-family:var(--font)}
 /* ===== PRACTICE TAB ===== */
 .practice-hero{padding:calc(24px + var(--safe-top)) 20px 24px;background:#fff}
 .practice-hero-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px}
-.practice-hero-logo img{height:90px;mix-blend-mode:normal}
+.practice-hero-logo img{height:80px;width:80px;object-fit:contain;border-radius:16px;background:#fff}
 .practice-hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);border:1px solid var(--accent-border);border-radius:20px;padding:5px 14px;font-size:0.68rem;font-weight:600;color:var(--accent);margin-bottom:14px}
 .practice-hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
 .practice-hero h1{font-size:1.6rem;font-weight:900;letter-spacing:-0.03em;line-height:1.2;margin-bottom:8px}
@@ -319,19 +319,29 @@ input,textarea,select{font-family:var(--font)}
 .signout-btn{margin-top:24px;width:100%;padding:12px;background:none;border:1px solid var(--border);border-radius:var(--radius);font-size:0.84rem;font-weight:600;color:var(--text2);cursor:pointer}
 
 /* ===== SETTINGS TAB ===== */
-.settings-wrap{padding:calc(12px + var(--safe-top)) 16px 20px}
-.settings-section{margin-bottom:20px}
-.settings-section-title{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:8px}
+.settings-wrap{padding:calc(16px + var(--safe-top)) 16px 32px}
+.settings-page-header{font-size:1.3rem;font-weight:900;letter-spacing:-0.03em;margin-bottom:22px}
+.settings-section{margin-bottom:24px}
+.settings-section-title{font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:8px;padding:0 4px}
 .settings-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
-.settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.settings-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);gap:12px}
 .settings-row:last-child{border-bottom:none}
+.settings-row-left{flex:1;min-width:0}
 .settings-row-label{font-size:0.84rem;font-weight:600}
-.settings-row-desc{font-size:0.68rem;color:var(--text3);margin-top:2px}
-.api-key-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.api-key-input{width:140px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.76rem;background:var(--surface);color:var(--text)}
-.api-key-status{font-size:0.62rem;font-weight:600;padding:3px 8px;border-radius:4px}
+.settings-row-desc{font-size:0.68rem;color:var(--text3);margin-top:2px;line-height:1.4}
+.settings-api-wrap{padding:13px 16px;border-bottom:1px solid var(--border)}
+.settings-api-label{font-size:0.84rem;font-weight:600;margin-bottom:4px}
+.settings-api-sub{font-size:0.68rem;color:var(--text3);margin-bottom:10px}
+.settings-api-row{display:flex;gap:8px;align-items:center}
+.api-key-input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;background:var(--surface2);color:var(--text);outline:none}
+.api-key-input:focus{border-color:var(--accent)}
+.api-key-status{font-size:0.62rem;font-weight:700;padding:3px 8px;border-radius:4px}
 .api-key-status.saved{background:var(--green-light);color:var(--green)}
-.api-key-status.unsaved{background:var(--red-light);color:var(--red)}
+.api-key-status.unsaved{background:var(--surface3);color:var(--text3)}
+.settings-danger-btn{width:100%;padding:13px 16px;background:none;border:none;text-align:left;font-size:0.84rem;font-weight:600;color:var(--red);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.settings-danger-btn:active{opacity:.7}
+.settings-app-info{text-align:center;padding:8px 0 4px;color:var(--text3);font-size:0.7rem}
+.settings-version{font-weight:600;color:var(--text2)}
 
 /* ===== WARMUP MODAL ===== */
 .warmup-tabs{display:flex;gap:0;padding:16px 20px 0;border-bottom:1px solid var(--border);margin-bottom:2px}
@@ -416,7 +426,7 @@ input,textarea,select{font-family:var(--font)}
   <div style="width:100%;max-width:380px;padding:32px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px">
-        <img src="logo.jpg" alt="Sales Sparring" style="height:80px;mix-blend-mode:normal">
+        <img src="logo.jpg" alt="Sales Sparring" style="height:72px;width:72px;object-fit:contain;border-radius:14px;background:#fff">
       </div>
       <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px">Sign in to practice</h1>
       <p style="font-size:0.84rem;color:var(--text2)">Your calls, scores, and progress — saved everywhere.</p>
@@ -1199,39 +1209,70 @@ window.signOut = async function(){
 // ===== SETTINGS TAB =====
 function renderSettings(){
   const el=document.getElementById('settings-content');
+  const hasKey=!!localStorage.getItem('custom_openai_key');
+  const callCount=getCallHistory().length;
   el.innerHTML=`
-    <div style="font-size:1.1rem;font-weight:800;margin-bottom:14px">Settings</div>
+    <div class="settings-page-header">Settings</div>
+
     <div class="settings-section">
-      <div class="settings-section-title">API Configuration</div>
+      <div class="settings-section-title">Account</div>
       <div class="settings-card">
         <div class="settings-row">
-          <div><div class="settings-row-label">OpenAI API Key</div><div class="settings-row-desc">For scoring and coaching</div></div>
-        </div>
-        <div class="settings-row">
-          <div class="api-key-wrap" style="width:100%">
-            <input type="password" class="api-key-input" id="openai-key-input" placeholder="sk-proj-..." value="${localStorage.getItem('custom_openai_key')||''}" style="flex:1">
-            <button class="btn btn-sm btn-ghost" onclick="saveApiKey('openai')">Save</button>
+          <div class="settings-row-left">
+            <div class="settings-row-label">${currentUser ? currentUser.email : 'Guest'}</div>
+            <div class="settings-row-desc">${currentUser ? 'Signed in — history syncs across devices' : 'Sign in to sync your history across devices'}</div>
           </div>
-        </div>
-        <div class="settings-row">
-          <span class="api-key-status ${localStorage.getItem('custom_openai_key')?'saved':'unsaved'}" id="openai-key-status">${localStorage.getItem('custom_openai_key')?'Saved':'Not set'}</span>
+          ${currentUser
+            ? `<button class="btn btn-sm btn-ghost" onclick="signOut()">Sign Out</button>`
+            : `<button class="btn btn-sm btn-primary" onclick="showLogin()">Sign In</button>`
+          }
         </div>
       </div>
     </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">API Key</div>
+      <div class="settings-card">
+        <div class="settings-api-wrap">
+          <div class="settings-api-label">OpenAI API Key <span class="api-key-status ${hasKey?'saved':'unsaved'}" id="openai-key-status">${hasKey?'Saved':'Not set'}</span></div>
+          <div class="settings-api-sub">Used for call scoring and live coaching. Your key, your data.</div>
+          <div class="settings-api-row">
+            <input type="password" class="api-key-input" id="openai-key-input" placeholder="sk-proj-..." value="${localStorage.getItem('custom_openai_key')||''}">
+            <button class="btn btn-sm btn-primary" onclick="saveApiKey('openai')">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="settings-section">
       <div class="settings-section-title">Data</div>
       <div class="settings-card">
         <div class="settings-row">
-          <div><div class="settings-row-label">Call History</div><div class="settings-row-desc">${getCallHistory().length} calls recorded</div></div>
+          <div class="settings-row-left">
+            <div class="settings-row-label">Call History</div>
+            <div class="settings-row-desc">${callCount} call${callCount!==1?'s':''} recorded locally</div>
+          </div>
           <button class="btn btn-sm btn-ghost" onclick="clearHistory()">Clear</button>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">XP & Progress</div>
+            <div class="settings-row-desc">${getXP().total} XP earned — Level ${getXP().level}</div>
+          </div>
+          <button class="btn btn-sm btn-ghost" onclick="clearXP()">Reset</button>
         </div>
       </div>
     </div>
+
     <div class="settings-section">
-      <div class="settings-section-title">About</div>
+      <div class="settings-section-title">App</div>
       <div class="settings-card">
         <div class="settings-row">
-          <div><div class="settings-row-label">Sales Sparring</div><div class="settings-row-desc">AI-powered sales call practice. All data stays in your browser.</div></div>
+          <div class="settings-row-left">
+            <div class="settings-row-label">Sales Sparring</div>
+            <div class="settings-row-desc">Rep-to-AI-buyer practice calls. Scored on what actually matters.</div>
+          </div>
+          <span class="settings-version">v2.0</span>
         </div>
       </div>
     </div>`;
@@ -1252,6 +1293,12 @@ window.clearHistory = function(){
   if(!confirm('Clear all call history? This cannot be undone.')) return;
   localStorage.removeItem('pf_history');
   localStorage.removeItem('pf_bests');
+  renderSettings();
+};
+window.clearXP = function(){
+  if(!confirm('Reset all XP and level progress? This cannot be undone.')) return;
+  localStorage.removeItem('pf_xp');
+  localStorage.removeItem('pf_daily');
   renderSettings();
 };
 
