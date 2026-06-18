@@ -334,15 +334,25 @@ input,textarea,select{font-family:var(--font)}
 .api-key-status.unsaved{background:var(--red-light);color:var(--red)}
 
 /* ===== WARMUP MODAL ===== */
-.warmup-modal-content{max-width:420px;margin:auto;padding:20px}
-.warmup-progress{display:flex;gap:4px;padding:14px 20px 0}
+.warmup-tabs{display:flex;gap:0;padding:16px 20px 0;border-bottom:1px solid var(--border);margin-bottom:2px}
+.warmup-tab{flex:1;text-align:center;padding:8px 4px;font-size:0.7rem;font-weight:700;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;text-transform:uppercase;letter-spacing:.04em}
+.warmup-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.warmup-progress{display:flex;gap:4px;padding:12px 20px 0}
 .warmup-pip{flex:1;height:3px;border-radius:2px;background:var(--surface3)}
 .warmup-pip.done{background:var(--accent)}
-.warmup-pip.current{background:var(--orange)}
+.warmup-pip.current{background:var(--accent)}
 .warmup-counter{font-size:0.62rem;color:var(--text3);padding:4px 20px 0;text-align:right}
-.warmup-card{margin:10px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px}
-.warmup-objection{font-size:0.9rem;font-weight:700;color:var(--text);line-height:1.45;margin-bottom:8px}
-.warmup-hint{font-size:0.66rem;color:var(--accent)}
+.warmup-card{margin:10px 20px;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.warmup-card-front{background:var(--surface2);padding:20px 18px}
+.warmup-card-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
+.warmup-card-text{font-size:0.94rem;font-weight:700;color:var(--text);line-height:1.5}
+.warmup-card-tap{font-size:0.65rem;color:var(--text3);margin-top:12px;display:flex;align-items:center;gap:4px}
+.warmup-card-back{background:#fff;border-top:1px solid var(--border);padding:16px 18px;display:none}
+.warmup-card.revealed .warmup-card-back{display:block}
+.warmup-card.revealed .warmup-card-tap{display:none}
+.warmup-response-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:8px}
+.warmup-response{font-size:0.82rem;color:var(--text);line-height:1.6;font-style:italic}
+.warmup-tip{font-size:0.65rem;font-weight:600;color:var(--accent);margin-top:10px;padding-top:8px;border-top:1px solid var(--border)}
 .warmup-actions{padding:12px 20px 20px;display:flex;justify-content:space-between;align-items:center}
 
 /* Scoring spinner */
@@ -713,24 +723,55 @@ const SCENARIOS = [
   {id:"fortune500-cmo",industry:"Enterprise Marketing",popular:false,difficulty:"expert",voice:"11labs-Lily",product:"Brand Intelligence Platform",sellerCompany:"BrandPulse",sellerTitle:"Enterprise Account Executive",productName:"BrandPulse Intelligence",sellingPoints:"Real-time brand sentiment across 500M+ sources. Competitive share of voice by market. Consumer perception gap analysis. Campaign attribution at the media spend level. Integrates with Nielsen, Kantar, and Salesforce.",company:"Calloway Consumer Group",companyDesc:"A $4B CPG company with 14 brands. The CMO manages a $220M marketing budget and reports to the board quarterly on brand health.",buyer:"Jennifer Cross, Chief Marketing Officer",buyerPersona:"10 years at the company, started in brand management. Has the confidence of someone who has been right more often than wrong. Very aware that she is a target for every martech vendor with a SaaS pitch. Has Kantar Brand Tracking and doesn't feel a gap. Will ask how this is different from what Nielsen already provides. Will bring a member of her analytics team into any second conversation.",painPoints:"Their Kantar data comes monthly — she is making real-time campaign decisions with data that is 4-6 weeks old. Lost $11M in brand share in a regional market last year and her team attributed it to a competitor move they detected 8 weeks late. Her board reporting uses 7 different sources manually compiled by 2 analysts.",goal:"Get Jennifer to agree to a 30-day data overlay test against her current Q3 campaign.",rules:"She has Kantar and Nielsen — do not position against them, position as complementary. The 8-week detection lag is your entry point. Let her define what good data would have meant for the $11M problem. Do not oversell — she will test you in the meeting.",script:"Real-time brand intelligence, 500M sources, competitive share of voice, campaign attribution. $280K/year. 30-day data overlay against current campaign at no charge."}
 ];
 
-// ===== WARMUP OBJECTIONS =====
-const WARMUP_OBJECTIONS = [
-  {objection:"We already have a solution for that.",hint:"Acknowledge it, then ask what's working and what isn't."},
-  {objection:"I'm not the right person to talk to.",hint:"Ask who is, and get a warm intro."},
-  {objection:"We don't have budget right now.",hint:"Budget objections are often timing objections. Ask when budget cycles reset."},
-  {objection:"Send me some information and I'll take a look.",hint:"This is a brush-off. Ask what specific problem you can help them solve first."},
-  {objection:"We tried something like this before and it didn't work.",hint:"Ask what happened — the answer tells you exactly what to address."},
-  {objection:"Your price is too high.",hint:"Don't discount immediately. Ask what they're comparing it to."},
-  {objection:"We're happy with what we have.",hint:"Ask what would have to change for them to consider alternatives."},
-  {objection:"Call me back in 6 months.",hint:"Ask what will be different in 6 months."},
-  {objection:"I need to think about it.",hint:"Ask what specifically they need to think through."},
-  {objection:"We're too busy right now.",hint:"Ask if the problem you solve is costing them time."},
-  {objection:"I've never heard of your company.",hint:"Use it as an opportunity to tell a quick, relevant customer story."},
-  {objection:"We do that in-house.",hint:"Ask how that's going and what it costs them."},
-  {objection:"Your competitor offers the same thing for less.",hint:"Ask what specifically they're comparing."},
-  {objection:"I need to get approval from my team.",hint:"Ask who else is involved and offer to help build the internal case."},
-  {objection:"We're going through a reorganization right now.",hint:"Ask if this problem will still exist after the reorg."}
-];
+// ===== WARMUP DECK =====
+const WARMUP_DECK = {
+  objections: [
+    {front:"We already have a solution for that.",response:"\"That's good to hear — what are you using? I want to make sure I'm not showing you something you've already got covered.\"",tip:"Curiosity over confrontation. Let them talk."},
+    {front:"I'm not the right person to talk to.",response:"\"No worries — who would be? And is it okay if I mention your name when I reach out?\"",tip:"Always ask for the warm handoff, not a cold name."},
+    {front:"We don't have budget right now.",response:"\"When does your next budget cycle open up? I'd rather reach you at the right time than waste yours now.\"",tip:"Budget objections are usually timing objections."},
+    {front:"Send me some information and I'll take a look.",response:"\"I could, but I'd hate to send you something that misses the mark. What's the one thing you'd want it to answer?\"",tip:"Email dies in inboxes. Get specific before you agree."},
+    {front:"We tried something like this before and it didn't work.",response:"\"What happened? I want to know — if we'd run into the same issue, I'd rather find out now.\"",tip:"The story they tell reveals exactly what to address."},
+    {front:"Your price is too high.",response:"\"Compared to what? I want to make sure we're comparing apples to apples here.\"",tip:"Never defend price before you understand the comparison."},
+    {front:"We're happy with what we have.",response:"\"What would have to change for you to at least consider alternatives?\"",tip:"Happy customers still have problems. Find them."},
+    {front:"Call me back in 6 months.",response:"\"What's happening in 6 months? I want to make sure the timing actually makes sense.\"",tip:"If nothing changes in 6 months, the objection is 'never.'"},
+    {front:"I need to think about it.",response:"\"Of course — what specifically are you working through? Maybe I can help right now.\"",tip:"Vague stalls die in silence. Make it specific."},
+    {front:"We're too busy right now.",response:"\"I get it. Is the problem I solve making you busier? Because that's usually why people hear me out.\"",tip:"Busy people will make time for things that save them time."},
+    {front:"I've never heard of your company.",response:"\"Fair — we're not huge yet. Can I tell you about a company like yours we've worked with?\"",tip:"A relevant story beats a pitch deck every time."},
+    {front:"We do that in-house.",response:"\"How's that going? And what does it actually cost you when you add up time and headcount?\"",tip:"In-house solutions are rarely free. Surface the real cost."},
+    {front:"Your competitor is cheaper.",response:"\"What are they offering? I want to know exactly what you're comparing — sometimes it looks the same but it isn't.\"",tip:"Don't race to the bottom. Find the gap."},
+    {front:"I need sign-off from my team.",response:"\"Totally — who else is involved? I'd love to help you build the case internally if it makes sense.\"",tip:"Offer to be their internal champion, not their obstacle."},
+    {front:"We're in the middle of a reorg.",response:"\"Does this problem still exist after the reorg? Or does the reorg solve it?\"",tip:"Reorgs change structures, not broken processes."},
+    {front:"We already talked to your company before.",response:"\"What happened? I want to know what we did wrong so I don't waste your time again.\"",tip:"Treat it like a complaint. They'll respect the honesty."},
+    {front:"I don't see the ROI.",response:"\"Let's figure it out together. What does the problem cost you right now — time, money, lost deals?\"",tip:"ROI objections mean you haven't made the cost of doing nothing real."},
+    {front:"Can you do a free trial?",response:"\"Depends on the fit — what would you need to see in a trial to feel confident moving forward?\"",tip:"Get the 'yes' criteria before you give anything away."},
+    {front:"We're going with a competitor.",response:"\"What tipped it for them? I'm not here to change your mind — I just want to understand what we missed.\"",tip:"You might not save the deal. But you'll learn something real."},
+    {front:"Now's not a good time — try me in Q3.",response:"\"What's the plan for Q3? I want to reach you at the right moment, not just when the calendar says so.\"",tip:"Q3 is just a number. Get a real reason."}
+  ],
+  openers: [
+    {front:"They answered. You have 5 seconds before they hang up. What do you say?",response:"\"Hey [Name], I'll be straight — this is a cold call. You want to hang up or give me 30 seconds?\"",tip:"Honesty disarms. Most reps fake it. You won't."},
+    {front:"How do you start a call without sounding like every other salesperson?",response:"\"[Name], I know you weren't expecting this. I'm calling because [specific reason related to their business] — and I thought it was worth a quick conversation.\"",tip:"Specificity signals you did your homework."},
+    {front:"The gatekeeper picks up. How do you get to the decision maker?",response:"\"Hey, I'm hoping you can point me in the right direction — I'm trying to reach whoever handles [X]. Do you know who that would be?\"",tip:"Ask for direction, not the name. Less threatening, same result."},
+    {front:"They say 'What is this about?' How do you respond without losing them?",response:"\"Short version: I help [type of company] [solve specific problem]. I thought there might be a fit here — did I catch you at a bad time?\"",tip:"One sentence max. Then give them an out."},
+    {front:"You're leaving a voicemail. What do you actually say?",response:"\"[Name], [your name] here. Quick question about [specific topic relevant to them] — give me a call back at [number]. If not, I'll try you Thursday.\"",tip:"State a reason, then take control of the next touch."},
+    {front:"They're friendly but clearly distracted. How do you keep their attention?",response:"\"I'll keep it short — can I ask you one quick question about how you're handling [X]?\"",tip:"Permission to ask beats forcing a pitch."},
+    {front:"They say 'I'm really busy right now.' First 10 words?",response:"\"Totally fair — when's a better time this week?\"",tip:"Don't apologize. Reschedule immediately."},
+    {front:"They answer but sound suspicious. What's your first line?",response:"\"I promise I'll be brief — I'm reaching out because [specific reason], not to waste your time.\"",tip:"Name the fear before they voice it."},
+    {front:"You get a referral. How do you open differently?",response:"\"[Name], [referral name] suggested I call you — they thought what we do might be relevant to what you're working on. Was that a good call on their part?\"",tip:"Use the referral's credibility, not yours."},
+    {front:"You're on a follow-up call after sending an email they didn't respond to.",response:"\"Hey [Name] — I sent over a note last week about [topic]. Not sure if it landed or got buried. Worth 2 minutes?\"",tip:"Don't apologize for following up. You're doing your job."}
+  ],
+  discovery: [
+    {front:"You're past the opener. What's the single best question to get them talking?",response:"\"Walk me through how you're currently handling [X].\"",tip:"Present tense, open-ended, no agenda. Let them go."},
+    {front:"They described their current process. How do you find what's actually broken?",response:"\"Where does that process break down for you?\"",tip:"Don't assume. Ask where it hurts."},
+    {front:"How do you find out if they've tried to fix this problem before?",response:"\"Have you looked at anything to solve this before? What happened?\"",tip:"Past attempts reveal objections before they surface."},
+    {front:"How do you get them to tell you their budget without asking directly?",response:"\"What kind of investment are you looking at for something like this?\"",tip:"'Investment' feels less blunt than 'budget.'"},
+    {front:"How do you find out who else is involved in the decision?",response:"\"When you've made decisions like this before, who else tends to weigh in?\"",tip:"Past behavior predicts future process."},
+    {front:"They said there's a problem. How do you make it feel urgent?",response:"\"What does it cost you when that happens — in time, money, or missed deals?\"",tip:"Cost of inaction has to be felt, not just stated."},
+    {front:"How do you find out what success looks like for them?",response:"\"If we did this right, what would be different 6 months from now?\"",tip:"Forward-casting reveals real goals."},
+    {front:"They're vague about pain. How do you get specific?",response:"\"Can you give me an example of when that was a real problem?\"",tip:"Stories are more honest than summaries."},
+    {front:"How do you find out what they actually care about — not what they say they care about?",response:"\"What would make you say this was worth your time, looking back?\"",tip:"The real criteria usually comes out when they imagine the outcome."},
+    {front:"They're nodding along but not engaged. How do you reset?",response:"\"Am I on the right track here, or am I missing something important?\"",tip:"Checking in beats a one-way pitch every time."}
+  ]
+};
 
 // ===== STORAGE =====
 function getCallHistory(){ try{return JSON.parse(localStorage.getItem('pf_history')||'[]')}catch{return[]} }
@@ -1215,34 +1256,58 @@ window.clearHistory = function(){
 };
 
 // ===== WARMUP MODAL =====
-let warmupIdx=0,warmupSet=[];
+let warmupIdx=0,warmupSet=[],warmupCategory='objections';
 window.showWarmupModal = function(){
-  warmupSet=[...WARMUP_OBJECTIONS].sort(()=>Math.random()-0.5).slice(0,5);
-  warmupIdx=0; renderWarmupCard();
+  warmupCategory='objections';
+  warmupIdx=0;
+  warmupSet=[...WARMUP_DECK.objections].sort(()=>Math.random()-0.5).slice(0,7);
+  renderWarmupModal();
   document.getElementById('warmup-modal').style.display='block';
 };
-function renderWarmupCard(){
+window.setWarmupCategory = function(cat){
+  warmupCategory=cat;
+  warmupIdx=0;
+  warmupSet=[...WARMUP_DECK[cat]].sort(()=>Math.random()-0.5).slice(0,7);
+  renderWarmupModal();
+};
+function renderWarmupModal(){
   const modal=document.getElementById('warmup-modal');
-  const obj=warmupSet[warmupIdx];
+  const card=warmupSet[warmupIdx];
   const total=warmupSet.length;
+  const tabs=['objections','openers','discovery'];
+  const tabLabels={objections:'Objections',openers:'Openers',discovery:'Discovery'};
   modal.innerHTML=`<div class="sheet-overlay active" onclick="closeWarmup()">
-    <div class="sheet" onclick="event.stopPropagation()" style="max-height:70vh">
+    <div class="sheet" onclick="event.stopPropagation()">
       <div class="sheet-handle"></div>
-      <div style="padding:14px 20px 0;font-size:1rem;font-weight:800">Objection Warm-Up</div>
-      <div class="warmup-progress">${Array.from({length:total},(_,i)=>`<div class="warmup-pip ${i<warmupIdx?'done':i===warmupIdx?'current':''}"></div>`).join('')}</div>
+      <div class="warmup-tabs">${tabs.map(t=>`<div class="warmup-tab${warmupCategory===t?' active':''}" onclick="setWarmupCategory('${t}')">${tabLabels[t]}</div>`).join('')}</div>
+      <div class="warmup-progress">${Array.from({length:total},(_,i)=>`<div class="warmup-pip${i<warmupIdx?' done':i===warmupIdx?' current':''}"></div>`).join('')}</div>
       <div class="warmup-counter">${warmupIdx+1} of ${total}</div>
-      <div class="warmup-card">
-        <div class="warmup-objection">"${esc(obj.objection)}"</div>
-        <div class="warmup-hint">${esc(obj.hint)}</div>
+      <div class="warmup-card" id="warmup-flip-card" onclick="revealWarmup()">
+        <div class="warmup-card-front">
+          <div class="warmup-card-label">${warmupCategory==='objections'?'They say:':warmupCategory==='openers'?'Scenario:':'Discovery:'}</div>
+          <div class="warmup-card-text">"${esc(card.front)}"</div>
+          <div class="warmup-card-tap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>&nbsp;Tap to reveal response</div>
+        </div>
+        <div class="warmup-card-back">
+          <div class="warmup-response-label">Model Response</div>
+          <div class="warmup-response">${esc(card.response)}</div>
+          <div class="warmup-tip">💡 ${esc(card.tip)}</div>
+        </div>
       </div>
       <div class="warmup-actions">
-        ${warmupIdx<total-1?`<button class="btn btn-primary" onclick="nextWarmup()">Next</button>`:`<button class="btn btn-primary" onclick="closeWarmup();randomCall()">Start a Call</button>`}
-        <button class="btn btn-ghost" onclick="closeWarmup()">Skip</button>
+        ${warmupIdx<total-1
+          ?`<button class="btn btn-primary" onclick="nextWarmup()">Next →</button>`
+          :`<button class="btn btn-primary" onclick="closeWarmup();randomCall()">Start a Call</button>`}
+        <button class="btn btn-ghost" onclick="closeWarmup()">Done</button>
       </div>
     </div>
   </div>`;
 }
-window.nextWarmup = function(){ warmupIdx++; if(warmupIdx<warmupSet.length) renderWarmupCard(); };
+window.revealWarmup = function(){
+  const fc=document.getElementById('warmup-flip-card');
+  if(fc) fc.classList.add('revealed');
+};
+window.nextWarmup = function(){ warmupIdx++; if(warmupIdx<warmupSet.length) renderWarmupModal(); };
 window.closeWarmup = function(){ document.getElementById('warmup-modal').style.display='none'; };
 
 // ===== CALL LOGIC =====
