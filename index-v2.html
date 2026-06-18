@@ -372,8 +372,23 @@ input,textarea,select{font-family:var(--font)}
 .scoring-spinner{padding:40px 20px;text-align:center;color:var(--text2);font-size:0.84rem}
 .spinner{width:24px;height:24px;border:2px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
 
+/* ===== SPLASH ===== */
+#splash-screen{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .4s ease}
+#splash-screen.fade-out{opacity:0;pointer-events:none}
+.splash-logo{animation:splashPop .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.splash-tagline{font-size:0.78rem;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-top:16px;opacity:0;animation:fadeIn .4s ease .4s forwards}
+@keyframes splashPop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+
+/* ===== BIOMETRIC ===== */
+#biometric-screen{display:none;min-height:100vh;align-items:center;justify-content:center;background:#fff;max-width:480px;margin:0 auto;flex-direction:column;padding:40px 32px;text-align:center}
+.biometric-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+.biometric-title{font-size:1.4rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px}
+.biometric-email{font-size:0.82rem;color:var(--text3);margin-bottom:32px}
+.biometric-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;background:var(--text);color:#fff;border:none;border-radius:var(--radius);font-size:0.9rem;font-weight:700;cursor:pointer;font-family:var(--font);margin-bottom:14px}
+.biometric-alt{font-size:0.78rem;color:var(--accent);font-weight:600;cursor:pointer;background:none;border:none;font-family:var(--font)}
+
 /* ===== LOGIN ===== */
-#login-screen{min-height:100vh;align-items:center;justify-content:center;background:var(--bg);max-width:480px;margin:0 auto}
+#login-screen{min-height:100vh;align-items:center;justify-content:center;background:#fff;max-width:480px;margin:0 auto}
 
 /* Empty states */
 .empty-state{text-align:center;padding:40px 20px;color:var(--text3);font-size:0.84rem}
@@ -424,8 +439,28 @@ input,textarea,select{font-family:var(--font)}
 </head>
 <body>
 
+<!-- Splash screen -->
+<div id="splash-screen">
+  <img src="logo.png" alt="Sales Sparring" class="splash-logo" style="height:100px;width:100px;object-fit:contain">
+  <div class="splash-tagline">Sales Sparring</div>
+</div>
+
+<!-- Biometric screen -->
+<div id="biometric-screen">
+  <div class="biometric-avatar">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+  <div class="biometric-title">Welcome back</div>
+  <div class="biometric-email" id="biometric-email-label"></div>
+  <button class="biometric-btn" onclick="doFaceID()">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H5a2 2 0 00-2 2v3"/><path d="M21 8V5a2 2 0 00-2-2h-3"/><path d="M3 16v3a2 2 0 002 2h3"/><path d="M16 21h3a2 2 0 002-2v-3"/><circle cx="12" cy="12" r="3"/><path d="M7 12a5 5 0 005 5"/><path d="M17 12a5 5 0 00-5-5"/></svg>
+    Sign in with Face ID
+  </button>
+  <button class="biometric-alt" onclick="showLogin()">Use password instead</button>
+</div>
+
 <!-- Login screen -->
-<div id="login-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--bg)">
+<div id="login-screen" style="display:none;min-height:100vh;align-items:center;justify-content:center;background:#fff">
   <div style="width:100%;max-width:380px;padding:32px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px">
@@ -619,6 +654,7 @@ window.handleAuth = async function(){
     }
     currentUser = result.data.user;
     showApp();
+    offerBiometric();
   } catch(e) {
     errEl.textContent = e.message || 'Authentication failed.';
     errEl.style.display = 'block';
@@ -627,6 +663,7 @@ window.handleAuth = async function(){
 
 function showApp(){
   document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('biometric-screen').style.display = 'none';
   document.getElementById('app-shell').style.display = 'block';
   ensureUser();
   try { updateStreak(); } catch(e) {}
@@ -645,16 +682,95 @@ async function ensureUser(){
 
 function showLogin(){
   document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('biometric-screen').style.display = 'none';
+  document.getElementById('app-shell').style.display = 'none';
+}
+
+// ===== SPLASH =====
+function dismissSplash(cb){
+  const s = document.getElementById('splash-screen');
+  s.classList.add('fade-out');
+  setTimeout(() => { s.style.display='none'; if(cb) cb(); }, 420);
+}
+
+// ===== BIOMETRIC =====
+async function biometricAvailable(){
+  if(!window.PublicKeyCredential) return false;
+  try { return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); } catch(e){ return false; }
+}
+
+async function registerBiometric(userId, userEmail){
+  if(!await biometricAvailable()) return false;
+  try {
+    const cred = await navigator.credentials.create({ publicKey:{
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rp:{ name:'Sales Sparring' },
+      user:{ id: new TextEncoder().encode(userId), name: userEmail, displayName: userEmail.split('@')[0] },
+      pubKeyCredParams:[{alg:-7,type:'public-key'},{alg:-257,type:'public-key'}],
+      authenticatorSelection:{ authenticatorAttachment:'platform', userVerification:'required' },
+      timeout: 60000
+    }});
+    localStorage.setItem('ss_bio_id', btoa(String.fromCharCode(...new Uint8Array(cred.rawId))));
+    localStorage.setItem('ss_bio_email', userEmail);
+    return true;
+  } catch(e){ return false; }
+}
+
+async function verifyBiometric(){
+  const stored = localStorage.getItem('ss_bio_id');
+  if(!stored) return false;
+  try {
+    const credId = Uint8Array.from(atob(stored), c=>c.charCodeAt(0));
+    await navigator.credentials.get({ publicKey:{
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials:[{ type:'public-key', id: credId }],
+      userVerification:'required',
+      timeout: 60000
+    }});
+    return true;
+  } catch(e){ return false; }
+}
+
+window.doFaceID = async function(){
+  const ok = await verifyBiometric();
+  if(ok){ showApp(); }
+  else { alert('Face ID failed. Try your password.'); showLogin(); }
+};
+
+function showBiometricScreen(email){
+  document.getElementById('biometric-email-label').textContent = email;
+  document.getElementById('biometric-screen').style.display = 'flex';
+  document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-shell').style.display = 'none';
 }
 
 async function initAuth(){
-  showApp();
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){
+    currentUser = session.user;
+    const bioEmail = localStorage.getItem('ss_bio_email');
+    if(bioEmail && await biometricAvailable()){
+      dismissSplash(() => showBiometricScreen(bioEmail));
+    } else {
+      dismissSplash(() => showApp());
+    }
+  } else {
+    dismissSplash(() => showLogin());
+  }
 }
 
 sb.auth.onAuthStateChange((event, session) => {
   if(event === 'SIGNED_IN' && session){ currentUser = session.user; showApp(); }
 });
+
+// Offer Face ID after first password login
+async function offerBiometric(){
+  if(localStorage.getItem('ss_bio_id')) return; // already enrolled
+  if(!await biometricAvailable()) return;
+  if(confirm('Enable Face ID for faster sign-in next time?')){
+    await registerBiometric(currentUser.id, currentUser.email);
+  }
+}
 
 window.RetellWebClient = RetellWebClient;
 
