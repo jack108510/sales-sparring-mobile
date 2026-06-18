@@ -1206,10 +1206,30 @@ window.signOut = async function(){
   showLogin();
 };
 
+window.showChangePassword = function(){
+  document.getElementById('change-pw-form').style.display='block';
+};
+window.hideChangePassword = function(){
+  document.getElementById('change-pw-form').style.display='none';
+  document.getElementById('pw-change-msg').textContent='';
+  document.getElementById('new-pw-input').value='';
+  document.getElementById('confirm-pw-input').value='';
+};
+window.submitChangePassword = async function(){
+  const pw=document.getElementById('new-pw-input').value;
+  const confirm=document.getElementById('confirm-pw-input').value;
+  const msg=document.getElementById('pw-change-msg');
+  if(pw.length<6){msg.style.color='var(--red)';msg.textContent='Password must be at least 6 characters.';return;}
+  if(pw!==confirm){msg.style.color='var(--red)';msg.textContent='Passwords do not match.';return;}
+  msg.style.color='var(--text3)';msg.textContent='Saving...';
+  const {error}=await sb.auth.updateUser({password:pw});
+  if(error){msg.style.color='var(--red)';msg.textContent=error.message;}
+  else{msg.style.color='var(--green)';msg.textContent='Password updated successfully.';setTimeout(()=>hideChangePassword(),2000);}
+};
+
 // ===== SETTINGS TAB =====
 function renderSettings(){
   const el=document.getElementById('settings-content');
-  const hasKey=!!localStorage.getItem('custom_openai_key');
   const callCount=getCallHistory().length;
   el.innerHTML=`
     <div class="settings-page-header">Settings</div>
@@ -1227,20 +1247,23 @@ function renderSettings(){
             : `<button class="btn btn-sm btn-primary" onclick="showLogin()">Sign In</button>`
           }
         </div>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-section-title">API Key</div>
-      <div class="settings-card">
-        <div class="settings-api-wrap">
-          <div class="settings-api-label">OpenAI API Key <span class="api-key-status ${hasKey?'saved':'unsaved'}" id="openai-key-status">${hasKey?'Saved':'Not set'}</span></div>
-          <div class="settings-api-sub">Used for call scoring and live coaching. Your key, your data.</div>
-          <div class="settings-api-row">
-            <input type="password" class="api-key-input" id="openai-key-input" placeholder="sk-proj-..." value="${localStorage.getItem('custom_openai_key')||''}">
-            <button class="btn btn-sm btn-primary" onclick="saveApiKey('openai')">Save</button>
+        ${currentUser ? `
+        <div class="settings-row" id="change-pw-row">
+          <div class="settings-row-left">
+            <div class="settings-row-label">Password</div>
+            <div class="settings-row-desc">Update your account password</div>
           </div>
+          <button class="btn btn-sm btn-ghost" onclick="showChangePassword()">Change</button>
         </div>
+        <div id="change-pw-form" style="display:none;padding:12px 16px;border-top:1px solid var(--border)">
+          <input type="password" id="new-pw-input" placeholder="New password (min 6 chars)" class="api-key-input" style="width:100%;margin-bottom:8px">
+          <input type="password" id="confirm-pw-input" placeholder="Confirm new password" class="api-key-input" style="width:100%;margin-bottom:10px">
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="submitChangePassword()">Save Password</button>
+            <button class="btn btn-ghost btn-sm" onclick="hideChangePassword()">Cancel</button>
+          </div>
+          <div id="pw-change-msg" style="font-size:0.72rem;margin-top:8px"></div>
+        </div>` : ''}
       </div>
     </div>
 
