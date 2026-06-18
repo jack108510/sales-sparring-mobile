@@ -1061,6 +1061,13 @@ window.startByDifficulty = function(difficulty){
 };
 
 // ===== SCENARIO DETAIL =====
+function sdcSnip(text,max=80){
+  if(!text) return '';
+  const s=(text.match(/[^.!?]+[.!?]+/)||[])[0];
+  if(s&&s.trim().length<=max) return s.trim();
+  return text.slice(0,max).trim()+'…';
+}
+
 window.selectScenario = function(id){
   const s=SCENARIOS.find(x=>x.id===id);
   if(!s) return;
@@ -1071,8 +1078,9 @@ window.selectScenario = function(id){
   view.style.display='block';
 
   const prevBest=getScenarioBestScore(s.id);
-  const priceMatch=(s.script||'').match(/\$[\d,.]+\/?\w*/);
+  const priceMatch=(s.script||'').match(/\$[\d,.]+[^\s,.]*/);
   const price=priceMatch?priceMatch[0]:'';
+  const role=(s.buyer||'').split(',').slice(1).join(',').trim();
 
   const diffPool=SCENARIOS.filter(x=>x.difficulty===s.difficulty).sort((a,b)=>(a.productName||a.product).localeCompare(b.productName||b.product));
   const switcherOptions=diffPool.map(x=>`<option value="${x.id}"${x.id===s.id?' selected':''}>${esc(x.productName||x.product)} — ${esc(x.company)}</option>`).join('');
@@ -1092,35 +1100,29 @@ window.selectScenario = function(id){
         <div class="sdc-buyer-row">
           <div class="sdc-buyer-avatar"><img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s.buyer)}&backgroundColor=fed7aa" alt=""></div>
           <div class="sdc-buyer-info">
-            <div class="sdc-buyer-name">${esc(s.buyer.split(',')[0])}</div>
-            <div class="sdc-buyer-company">${esc(s.company)}${price?' &middot; <span style="color:var(--accent);font-family:var(--mono)">'+price+'</span>':''}</div>
+            <div class="sdc-buyer-name">${esc(s.buyer.split(',')[0])}${role?'<span style="font-weight:500;color:var(--text2)"> · '+esc(role)+'</span>':''}</div>
+            <div class="sdc-buyer-company">${esc(s.company)}${price?' &middot; <span style="color:var(--accent);font-weight:700">'+price+'</span>':''}</div>
           </div>
+          ${prevBest!==null?`<div style="text-align:center;padding:6px 10px;background:var(--accent-light);border-radius:8px;flex-shrink:0"><div style="font-size:0.52rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin-bottom:1px">Best</div><div style="font-size:1rem;font-weight:800;color:var(--accent)">${prevBest}</div></div>`:''}
         </div>
-        <div class="sdc-info-box sdc-angle">
-          <div class="sdc-info-label">The Angle</div>
-          <div class="sdc-info-text">${esc(s.buyerPersona||'')}</div>
-        </div>
-        <div class="sdc-2col">
-          <div class="sdc-info-box sdc-pain">
-            <div class="sdc-info-label">Their Problem</div>
-            <div class="sdc-info-text">${esc(s.painPoints)}</div>
-          </div>
-          <div class="sdc-info-box sdc-edge">
-            <div class="sdc-info-label">Your Edge</div>
-            <div class="sdc-info-text">${esc(s.sellingPoints||s.script)}</div>
-          </div>
+        <div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--radius);padding:11px 14px;margin-bottom:10px">
+          <div class="sdc-info-label" style="color:var(--accent)">Goal</div>
+          <div style="font-size:0.84rem;font-weight:700;color:var(--text)">${esc(s.goal)}</div>
         </div>
         <div class="sdc-2col">
-          <div class="sdc-info-box sdc-goal">
-            <div class="sdc-info-label">Your Goal</div>
-            <div class="sdc-info-text" style="font-weight:600">${esc(s.goal)}</div>
+          <div class="sdc-info-box sdc-angle" style="margin-bottom:0">
+            <div class="sdc-info-label">Who They Are</div>
+            <div class="sdc-info-text">${esc(sdcSnip(s.buyerPersona||''))}</div>
           </div>
-          <div class="sdc-info-box sdc-goal">
-            <div class="sdc-info-label">Remember</div>
-            <div class="sdc-info-text">${esc(s.rules)}</div>
+          <div class="sdc-info-box sdc-pain" style="margin-bottom:0">
+            <div class="sdc-info-label">Their Pain</div>
+            <div class="sdc-info-text">${esc(sdcSnip(s.painPoints))}</div>
           </div>
         </div>
-        ${prevBest!==null?`<div class="sdc-best">Your best: ${prevBest}/100</div>`:''}
+        <div class="sdc-info-box sdc-goal" style="margin-bottom:0;margin-top:10px">
+          <div class="sdc-info-label">Key Rule</div>
+          <div class="sdc-info-text">${esc(sdcSnip(s.rules,100))}</div>
+        </div>
       </div>
       <div class="sdc-actions">
         <button class="btn btn-primary btn-lg btn-full" onclick="startCall()">Start Voice Call</button>
