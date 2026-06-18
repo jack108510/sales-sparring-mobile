@@ -125,29 +125,17 @@ input,textarea,select{font-family:var(--font)}
 .sdc-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
 .sdc-product{font-size:1.1rem;font-weight:800;letter-spacing:-0.02em}
 .sdc-body{padding:20px}
-.sdc-buyer-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface2);border-radius:var(--radius-lg);margin-bottom:14px}
-.sdc-buyer-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--orange)}
-.sdc-buyer-avatar img{width:100%;height:100%;object-fit:cover}
-.sdc-buyer-info{flex:1;min-width:0}
-.sdc-buyer-name{font-size:0.9rem;font-weight:700}
-.sdc-buyer-company{font-size:0.76rem;color:var(--text2)}
-.sdc-info-box{padding:12px 14px;border-radius:var(--radius);margin-bottom:10px}
-.sdc-info-label{font-size:0.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px}
-.sdc-info-text{font-size:0.78rem;line-height:1.5}
-.sdc-angle{background:var(--accent-light);border:1px solid var(--accent-border);color:var(--text)}
-.sdc-angle .sdc-info-label{color:var(--accent)}
-.sdc-pain{background:var(--red-light);border:1px solid rgba(229,62,62,0.15);color:var(--text)}
-.sdc-pain .sdc-info-label{color:var(--red)}
-.sdc-edge{background:var(--green-light);border:1px solid rgba(56,161,105,0.15);color:var(--text)}
-.sdc-edge .sdc-info-label{color:var(--green)}
-.sdc-goal{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
-.sdc-goal .sdc-info-label{color:var(--text3)}
-.sdc-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.sdc-best{font-size:0.76rem;color:var(--accent);font-weight:600;text-align:center;margin:10px 0}
 .sdc-actions{display:flex;gap:10px;padding:16px 20px;border-top:1px solid var(--border)}
-.sdc-switcher-wrap{padding:10px 20px 0;display:flex;align-items:center;gap:8px}
-.sdc-switcher-label{font-size:0.68rem;font-weight:600;color:var(--text3);white-space:nowrap}
-.sdc-switcher{flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:0.8rem;font-weight:600;color:var(--text);background:var(--surface2);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;font-family:var(--font)}
+.sdc-switcher{width:100%;padding:9px 32px 9px 12px;border:1px solid var(--border);border-bottom:none;font-size:0.78rem;font-weight:600;color:var(--text);background:var(--surface2);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;font-family:var(--font)}
+.sdc-brief{padding:0 20px}
+.sdc-brief-row{padding:11px 0;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.sdc-brief-row:last-child{border-bottom:none}
+.sdc-brief-label{font-size:0.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3)}
+.sdc-brief-val{font-size:0.83rem;color:var(--text);line-height:1.45}
+.sdc-brief-row.goal .sdc-brief-label{color:var(--accent)}
+.sdc-brief-row.goal .sdc-brief-val{font-weight:700;color:var(--text)}
+.sdc-brief-row.angle .sdc-brief-label{color:var(--green)}
+.sdc-2col{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
 
 /* ===== CALL UI (FULL SCREEN) ===== */
 .call-screen{position:fixed;inset:0;background:var(--bg);z-index:300;display:none;flex-direction:column}
@@ -1086,45 +1074,49 @@ window.selectScenario = function(id){
   const switcherOptions=diffPool.map(x=>`<option value="${x.id}"${x.id===s.id?' selected':''}>${esc(x.productName||x.product)} — ${esc(x.company)}</option>`).join('');
   const diffLabel=s.difficulty.charAt(0).toUpperCase()+s.difficulty.slice(1);
 
+  const buyerName=s.buyer.split(',')[0];
+  const buyerTitle=(s.buyer.split(',').slice(1).join(',').trim()||'').replace(/^(Owner|CEO|Manager|Director|VP|President|Partner|Founder)/,'$&');
+
   view.innerHTML=`
     <div class="scenario-detail-card">
-      <div class="sdc-header" style="align-items:flex-start">
+      <div class="sdc-header">
         <button class="sdc-back" onclick="showPracticeMain()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
-        <div style="flex:1;min-width:0;text-align:right">
+        <div style="text-align:right">
           <div class="sdc-label">${diffLabel} · Cold Call</div>
-          <select class="sdc-switcher" style="margin-top:4px;max-width:100%;font-size:0.82rem;font-weight:700;padding:5px 28px 5px 8px" onchange="selectScenario(this.value)">${switcherOptions}</select>
+          <div style="font-size:0.84rem;font-weight:700;margin-top:1px">${esc(s.productName||s.product)}</div>
         </div>
       </div>
-      <div class="sdc-body" style="padding:14px 16px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <div style="width:38px;height:38px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--orange)"><img src="https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(s.buyer)}&backgroundColor=fed7aa" alt="" style="width:100%;height:100%;object-fit:cover"></div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:0.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.buyer.split(',')[0])}${role?'<span style="font-weight:500;color:var(--text2)"> · '+esc(role)+'</span>':''}</div>
-            <div style="font-size:0.72rem;color:var(--text2)">${esc(s.company)}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
-            ${price?`<span style="font-size:0.78rem;font-weight:700;color:var(--accent)">${price}</span>`:''}
-            ${prevBest!==null?`<span style="font-size:0.68rem;font-weight:600;color:var(--text3)">Best: ${prevBest}/100</span>`:''}
-          </div>
+      <select class="sdc-switcher" onchange="selectScenario(this.value)">${switcherOptions}</select>
+      <div class="sdc-brief">
+        <div class="sdc-brief-row">
+          <div class="sdc-brief-label">Calling</div>
+          <div class="sdc-brief-val"><strong>${esc(buyerName)}</strong>${buyerTitle?' — '+esc(buyerTitle):''}, ${esc(s.company)}</div>
         </div>
-        <div style="background:var(--accent-light);border:1px solid var(--accent-border);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px">
-          <div class="sdc-info-label" style="color:var(--accent)">Goal</div>
-          <div style="font-size:0.84rem;font-weight:700;color:var(--text);line-height:1.3">${esc(s.goal)}</div>
+        <div class="sdc-brief-row">
+          <div class="sdc-brief-label">Company</div>
+          <div class="sdc-brief-val">${esc(sdcSnip(s.companyDesc||s.company,120))}</div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <div style="display:flex;gap:8px;align-items:baseline;background:var(--surface2);border-radius:8px;padding:9px 12px">
-            <span style="font-size:0.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);flex-shrink:0;width:36px">Who</span>
-            <span style="font-size:0.78rem;color:var(--text);line-height:1.4">${esc(sdcSnip(s.buyerPersona||'',100))}</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:baseline;background:var(--red-light);border-radius:8px;padding:9px 12px">
-            <span style="font-size:0.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--red);flex-shrink:0;width:36px">Pain</span>
-            <span style="font-size:0.78rem;color:var(--text);line-height:1.4">${esc(sdcSnip(s.painPoints,100))}</span>
-          </div>
-          <div style="display:flex;gap:8px;align-items:baseline;background:var(--surface2);border-radius:8px;padding:9px 12px">
-            <span style="font-size:0.56rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);flex-shrink:0;width:36px">Rule</span>
-            <span style="font-size:0.78rem;color:var(--text);line-height:1.4">${esc(sdcSnip(s.rules,100))}</span>
-          </div>
+        <div class="sdc-brief-row">
+          <div class="sdc-brief-label">Background</div>
+          <div class="sdc-brief-val">${esc(sdcSnip(s.buyerPersona||'',120))}</div>
         </div>
+        <div class="sdc-brief-row">
+          <div class="sdc-brief-label">Their Pain</div>
+          <div class="sdc-brief-val">${esc(sdcSnip(s.painPoints,120))}</div>
+        </div>
+        <div class="sdc-brief-row">
+          <div class="sdc-brief-label">Your Product</div>
+          <div class="sdc-brief-val">${esc(s.productName||s.product)}${s.sellingPoints?' — '+esc(sdcSnip(s.sellingPoints,80)):''}</div>
+        </div>
+        <div class="sdc-brief-row goal">
+          <div class="sdc-brief-label">Your Goal</div>
+          <div class="sdc-brief-val">${esc(s.goal)}</div>
+        </div>
+        <div class="sdc-brief-row angle">
+          <div class="sdc-brief-label">Your Angle</div>
+          <div class="sdc-brief-val">${esc(sdcSnip(s.rules,120))}</div>
+        </div>
+        ${prevBest!==null?`<div style="padding:8px 0;font-size:0.72rem;color:var(--text3)">Your best score: <strong style="color:var(--accent)">${prevBest}/100</strong></div>`:''}
       </div>
       <div class="sdc-actions">
         <button class="btn btn-primary btn-lg btn-full" onclick="startCall()">Start Voice Call</button>
