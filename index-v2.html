@@ -85,7 +85,7 @@ input,textarea,select{font-family:var(--font)}
 /* ===== PRACTICE TAB ===== */
 .practice-hero{padding:calc(24px + var(--safe-top)) 20px 24px}
 .practice-hero-logo{display:flex;align-items:center;gap:8px;margin-bottom:20px}
-.practice-hero-logo img{height:90px}
+.practice-hero-logo img{height:90px;mix-blend-mode:multiply}
 .practice-hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-light);border:1px solid var(--accent-border);border-radius:20px;padding:5px 14px;font-size:0.68rem;font-weight:600;color:var(--accent);margin-bottom:14px}
 .practice-hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
 .practice-hero h1{font-size:1.6rem;font-weight:900;letter-spacing:-0.03em;line-height:1.2;margin-bottom:8px}
@@ -386,13 +386,13 @@ input,textarea,select{font-family:var(--font)}
 .diff-card.medium{border-left-color:var(--yellow)}
 .diff-card.hard{border-left-color:var(--orange)}
 .diff-card.expert{border-left-color:var(--purple)}
-.diff-card-icon{font-size:2rem;flex-shrink:0;width:36px;text-align:center}
+.diff-card-icon{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.diff-card.easy .diff-card-icon{background:var(--green)}
+.diff-card.medium .diff-card-icon{background:var(--yellow)}
+.diff-card.hard .diff-card-icon{background:var(--orange)}
+.diff-card.expert .diff-card-icon{background:var(--purple)}
 .diff-card-body{flex:1;min-width:0}
-.diff-card-name{font-size:1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:3px}
-.diff-card.easy .diff-card-name{color:var(--green)}
-.diff-card.medium .diff-card-name{color:var(--yellow)}
-.diff-card.hard .diff-card-name{color:var(--orange)}
-.diff-card.expert .diff-card-name{color:var(--purple)}
+.diff-card-name{font-size:1rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:3px;color:var(--text)}
 .diff-card-desc{font-size:0.74rem;color:var(--text2);line-height:1.4}
 .diff-card-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
 .diff-card-count{font-size:0.62rem;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
@@ -406,7 +406,7 @@ input,textarea,select{font-family:var(--font)}
   <div style="width:100%;max-width:380px;padding:32px">
     <div style="text-align:center;margin-bottom:32px">
       <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:16px">
-        <img src="logo.jpg" alt="Sales Sparring" style="height:80px">
+        <img src="logo.jpg" alt="Sales Sparring" style="height:80px;mix-blend-mode:multiply">
       </div>
       <h1 style="font-size:1.5rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px">Sign in to practice</h1>
       <p style="font-size:0.84rem;color:var(--text2)">Your calls, scores, and progress — saved everywhere.</p>
@@ -869,7 +869,7 @@ function renderDifficultyPicker(){
   grid.innerHTML=tiers.map(t=>{
     const count=SCENARIOS.filter(s=>s.difficulty===t.key).length;
     return `<div class="diff-card ${t.key}" onclick="startByDifficulty('${t.key}')">
-      <div class="diff-card-icon">${t.icon}</div>
+      <div class="diff-card-icon"></div>
       <div class="diff-card-body">
         <div class="diff-card-name">${t.label}</div>
         <div class="diff-card-desc">${t.desc}</div>
